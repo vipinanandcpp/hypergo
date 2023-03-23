@@ -1,0 +1,23 @@
+
+
+- [ ] Create git project
+- [ ] Organize project and breakup files, create library
+- [ ] Deploy into Azure
+- [ ] Eliminate all link dependencies (example SecretsManager) from sdk (provide a secretsmanager interface in the sdk and then use that interface in the secretsmanager implementation)
+- [ ] Add additional message metadata to datastructures
+- [ ] Separate stages: receive, unpack, consume, produce, package, send
+- [ ] Black and other linters
+- [ ] CICD for sdk
+- [ ] Azure SeviceBus Subscription -> Queue
+- [ ] In-transit data protocol
+- [ ] JSONSchema validation for input and output
+- [ ] Python aspect orientation for logging, and exception handling
+- [ ] Generator (yielding) (multiple publishes)
+- [ ] Serialization and deserialization
+- [ ] Exception handling, exponential back off, etc.
+- [ ] Queue management (error queues, etc)
+- [ ] Logging
+- [ ] Instrumentation, Monitoring
+- [ ] Static graping
+- [ ] Runtime graphing
+- [ ] Lineage
