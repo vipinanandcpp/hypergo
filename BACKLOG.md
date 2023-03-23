@@ -1,6 +1,8 @@
 
 
-- [ ] Create git project
+- [x] Create git project - Hypergo
+- [ ] Add gitignore
+- [ ] Black and other linters
 - [ ] Organize project and breakup files, create library
 - [ ] Deploy into Azure
 - [ ] Eliminate all link dependencies (example SecretsManager) from sdk (provide a secretsmanager interface in the sdk and then use that interface in the secretsmanager implementation)
@@ -18,6 +20,6 @@
 - [ ] Queue management (error queues, etc)
 - [ ] Logging
 - [ ] Instrumentation, Monitoring
-- [ ] Static graping
+- [ ] Static graphing
 - [ ] Runtime graphing
 - [ ] Lineage

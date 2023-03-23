@@ -2,21 +2,21 @@ from abc import ABC, abstractmethod
 import yaml
 from typing import Any, Dict, Union
 import azure.functions as func
-from executor import Executor
+from hypergo.executor import Executor
 
 class Message(ABC):
     @staticmethod
     def create(message: Any) -> 'Message':
-        from dict_message import DictMessage
-        from azure_service_bus_message import AzureServiceBusMessage
+        from hypergo.dict_message import DictMessage
+        from hypergo.azure_service_bus_message import AzureServiceBusMessage
         return {
             dict: DictMessage,
             func.ServiceBusMessage: AzureServiceBusMessage
         }[type(message)](message)
 
     def __init__(self, message: 'Union[AzureServiceBusMessage, DictMessage]') -> None:
-        from dict_message import DictMessage
-        from azure_service_bus_message import AzureServiceBusMessage
+        from hypergo.dict_message import DictMessage
+        from hypergo.azure_service_bus_message import AzureServiceBusMessage
         self._message: Union[AzureServiceBusMessage, DictMessage] = message
 
     @abstractmethod

@@ -1,4 +1,4 @@
-from message import Message
+from hypergo.message import Message
 from typing import Dict, Any
 import glom
 

@@ -1,6 +1,6 @@
 from azure.servicebus import ServiceBusClient, ServiceBusSender
-from message import Message
-from configuration import Configuration
+from hypergo.message import Message
+from hypergo.configuration import Configuration
 from typing import Dict, Any
 
 class AzureServiceBusMessage(Message):
