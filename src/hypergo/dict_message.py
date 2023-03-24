@@ -1,17 +1,17 @@
-from hypergo.message import Message
-from typing import Dict, Any
 import glom
+from hypergo.types import TypeDict
+from hypergo.message import Message
+
 
 class DictMessage(Message):
-    def get_data(self) -> Dict[str, Any]:
+    def get_data(self) -> TypeDict:
         return self._message["content"]
 
-    def get_meta(self) -> Dict[str, Any]:
+    def get_meta(self) -> TypeDict:
         return self._message["meta"]
 
     def get_rk(self) -> str:
-        return glom.glom(self._message, "meta.filter")
-    
+        return str(glom.glom(self._message, "meta.filter"))
+
     def send(self, message: str) -> None:
         print(message)
-

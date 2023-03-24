@@ -1,11 +1,14 @@
 
 
 - [x] Create git project - Hypergo
-- [ ] Add gitignore
-- [ ] Black and other linters
-- [ ] Organize project and breakup files, create library
+- [x] Add gitignore
+- [x] Black and other linters
+- [ ] fix mypy types - add compound types to types.py (try the ai coding solution brad suggested - not phind, the other one)
+- [ ] remove execution logic from (what should be a passive) message class
+- [X] Organize project and breakup files, create library
 - [ ] Deploy into Azure
 - [ ] Eliminate all link dependencies (example SecretsManager) from sdk (provide a secretsmanager interface in the sdk and then use that interface in the secretsmanager implementation)
+        - have the secretsmanager inherit from dict
 - [ ] Add additional message metadata to datastructures
 - [ ] Separate stages: receive, unpack, consume, produce, package, send
 - [ ] Black and other linters
@@ -23,3 +26,10 @@
 - [ ] Static graphing
 - [ ] Runtime graphing
 - [ ] Lineage
+- [ ] routingkey boolean logic
+- [ ] dynamic routingkey in function
+- [ ] hijacking stdout (from print) and push into logging
+- [ ] function call bus (like sqllite (But message bus))
+- [ ] support for other languages (stdio abstraction)
+- [ ] divergent and convergent orchestration (transactions/correlation)
+

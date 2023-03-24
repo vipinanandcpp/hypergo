@@ -1,0 +1,12 @@
+autopep8
+black
+isort
+pylint
+flake8
+pycodestyle
+mypy
+xenon
+
+glom
+azure-servicebus
+azure-functions

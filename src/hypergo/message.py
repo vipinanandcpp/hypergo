@@ -1,22 +1,24 @@
 from abc import ABC, abstractmethod
-import yaml
 from typing import Any, Dict, Union
+
 import azure.functions as func
+import yaml
+
 from hypergo.executor import Executor
+
 
 class Message(ABC):
     @staticmethod
     def create(message: Any) -> 'Message':
-        from hypergo.dict_message import DictMessage
-        from hypergo.azure_service_bus_message import AzureServiceBusMessage
-        return {
-            dict: DictMessage,
-            func.ServiceBusMessage: AzureServiceBusMessage
-        }[type(message)](message)
+        from hypergo.azure_service_bus_message import AzureServiceBusMessage  # pylint: disable=import-outside-toplevel, cyclic-import
+        from hypergo.dict_message import DictMessage  # pylint: disable=import-outside-toplevel, cyclic-import
 
-    def __init__(self, message: 'Union[AzureServiceBusMessage, DictMessage]') -> None:
-        from hypergo.dict_message import DictMessage
-        from hypergo.azure_service_bus_message import AzureServiceBusMessage
+        return {dict: DictMessage, func.ServiceBusMessage: AzureServiceBusMessage}[type(message)](message)
+
+    def __init__(self, message: Union['AzureServiceBusMessage', 'DictMessage']) -> None:  # noqa: F821
+        from hypergo.azure_service_bus_message import AzureServiceBusMessage  # pylint: disable=import-outside-toplevel, cyclic-import
+        from hypergo.dict_message import DictMessage  # pylint: disable=import-outside-toplevel, cyclic-import
+
         self._message: Union[AzureServiceBusMessage, DictMessage] = message
 
     @abstractmethod
@@ -32,23 +34,12 @@ class Message(ABC):
         ...
 
     def consume(self) -> Dict[str, Any]:
-        with open("./config.yaml", "r") as f:
-            config: Dict[str, Any] = yaml.safe_load(f)
-            payload = {
-                    "data": self.get_data(),
-                    "meta": {
-                        "routingkey": self.get_rk()
-                    }
-                }
+        with open("./config.yaml", "r", encoding="utf-8") as file_handle:
+            config: Dict[str, Any] = yaml.safe_load(file_handle)
+            payload = {"data": self.get_data(), "meta": {"routingkey": self.get_rk()}}
             print(payload)
-            return {
-                "meta": {
-                    "routingkey": "x.y.z"
-                },
-                "content": Executor(config).execute(payload)
-            }
+            return {"meta": {"routingkey": "x.y.z"}, "content": Executor(config).execute(payload)}
 
     @abstractmethod
     def send(self, message: Dict[str, Any]) -> None:
         ...
-
