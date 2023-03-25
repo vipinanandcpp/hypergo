@@ -32,4 +32,6 @@
 - [ ] function call bus (like sqllite (But message bus))
 - [ ] support for other languages (stdio abstraction)
 - [ ] divergent and convergent orchestration (transactions/correlation)
-
+- [ ] one click deploy
+- [ ] pypi (internal)
+- [ ] sdk build (circle?) -> pypi
