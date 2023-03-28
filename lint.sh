@@ -2,7 +2,7 @@
 
 # cp ./lint ./.git/hooks/pre-commit
 
-mod=${1:-./src}
+mod=${1:-./hypergo}
 # mod=${mod//\./\/}
 
 # printf "\e[1mVerifying version change $mod ...\e[0m\n"
@@ -35,9 +35,9 @@ printf "\e[1mAssessing style (pycodestyle) $mod ...\e[0m\n"
 pycodestyle --ignore=E501 --first $mod
 if [ $? -ne 0 ]; then { printf "\e[31mFailed, aborting.\e[0m\n" ; exit 1; } fi
 
-# printf "\e[1mType Checking (mypy) $mod ...\e[0m\n"
-# mypy --strict --explicit-package-bases $mod
-# if [ $? -ne 0 ]; then { printf "\e[31mFailed, aborting.\e[0m\n" ; exit 1; } fi
+printf "\e[1mType Checking (mypy) $mod ...\e[0m\n"
+mypy --strict --explicit-package-bases $mod
+if [ $? -ne 0 ]; then { printf "\e[31mFailed, aborting.\e[0m\n" ; exit 1; } fi
 
 printf "\e[1mComplexity check $mod ...\e[0m\n"
 xenon --max-absolute A --max-modules A --max-average A $mod

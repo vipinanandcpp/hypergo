@@ -1,45 +1,32 @@
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Union
+import json
 
 import azure.functions as func
-import yaml
+from azure.servicebus import ServiceBusMessage
 
-from hypergo.executor import Executor
+from hypergo.types import TypeDict
 
 
-class Message(ABC):
+class Message:
     @staticmethod
-    def create(message: Any) -> 'Message':
-        from hypergo.azure_service_bus_message import AzureServiceBusMessage  # pylint: disable=import-outside-toplevel, cyclic-import
-        from hypergo.dict_message import DictMessage  # pylint: disable=import-outside-toplevel, cyclic-import
+    def from_azure_functions_service_bus_message(message: func.ServiceBusMessage) -> 'Message':
+        return Message({"body": json.loads(message.get_body().decode('utf-8')), "routingkey": message.user_properties["routingkey"]})
 
-        return {dict: DictMessage, func.ServiceBusMessage: AzureServiceBusMessage}[type(message)](message)
+    def to_azure_service_bus_service_bus_message(self) -> ServiceBusMessage:
+        print("routingkey: " + self._routingkey)
+        ret: ServiceBusMessage = ServiceBusMessage(body=json.dumps(self._body), application_properties={"routingkey": self._routingkey})
+        return ret
 
-    def __init__(self, message: Union['AzureServiceBusMessage', 'DictMessage']) -> None:  # noqa: F821
-        from hypergo.azure_service_bus_message import AzureServiceBusMessage  # pylint: disable=import-outside-toplevel, cyclic-import
-        from hypergo.dict_message import DictMessage  # pylint: disable=import-outside-toplevel, cyclic-import
+    def __init__(self, struct: TypeDict) -> None:
+        self._body: TypeDict = struct["body"]
+        self._routingkey: str = struct["routingkey"]
 
-        self._message: Union[AzureServiceBusMessage, DictMessage] = message
+    def to_dict(self) -> TypeDict:
+        return {"body": self._body, "routingkey": self._routingkey}
 
-    @abstractmethod
-    def get_meta(self) -> Dict[str, Any]:
-        ...
+    @property
+    def body(self) -> TypeDict:
+        return self._body
 
-    @abstractmethod
-    def get_data(self) -> Dict[str, Any]:
-        ...
-
-    @abstractmethod
-    def get_rk(self) -> str:
-        ...
-
-    def consume(self) -> Dict[str, Any]:
-        with open("./config.yaml", "r", encoding="utf-8") as file_handle:
-            config: Dict[str, Any] = yaml.safe_load(file_handle)
-            payload = {"data": self.get_data(), "meta": {"routingkey": self.get_rk()}}
-            print(payload)
-            return {"meta": {"routingkey": "x.y.z"}, "content": Executor(config).execute(payload)}
-
-    @abstractmethod
-    def send(self, message: Dict[str, Any]) -> None:
-        ...
+    @property
+    def routingkey(self) -> str:
+        return self._routingkey

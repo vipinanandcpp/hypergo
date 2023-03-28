@@ -6,6 +6,7 @@ flake8
 pycodestyle
 mypy
 xenon
+pyyaml
 
 glom
 azure-servicebus

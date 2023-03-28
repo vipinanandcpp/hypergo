@@ -1,5 +1,6 @@
 
-
+- [ ] Context -> Message -> Payload
+- [ ] Move all azure_... classes into an Azure Package and remove "azure" from their filenames (maybe?)
 - [x] Create git project - Hypergo
 - [x] Add gitignore
 - [x] Black and other linters
@@ -11,6 +12,15 @@
         - have the secretsmanager inherit from dict
 - [ ] Add additional message metadata to datastructures
 - [ ] Separate stages: receive, unpack, consume, produce, package, send
+        - [ ] conversion (eg. asb vs rmq) to Message
+        - [ ] deserialize
+        - [ ] validation
+        - [ ] mapping in
+        - [ ] execution
+        - [ ] mapping out
+        - [ ] validation out
+        - [ ] serialize
+        - [ ] convert
 - [ ] Black and other linters
 - [ ] CICD for sdk
 - [ ] Azure SeviceBus Subscription -> Queue
@@ -18,7 +28,6 @@
 - [ ] JSONSchema validation for input and output
 - [ ] Python aspect orientation for logging, and exception handling
 - [ ] Generator (yielding) (multiple publishes)
-- [ ] Serialization and deserialization
 - [ ] Exception handling, exponential back off, etc.
 - [ ] Queue management (error queues, etc)
 - [ ] Logging
@@ -35,3 +44,9 @@
 - [ ] one click deploy
 - [ ] pypi (internal)
 - [ ] sdk build (circle?) -> pypi
+- [ ] Unit tests for sdk
+- [ ] Unit test pattern for component consumers of sdk
+- [ ] hypergo graph
+- [ ] multilanguage support (stdio bridge), service executor (not azure lambda), cli, console executor
+- [ ] amqp/rmq wrapper
+- [ ] included tooling (database connectors, secrets manager, etc.) delivered through config and paramter mapping
