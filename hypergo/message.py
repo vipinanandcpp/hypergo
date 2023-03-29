@@ -12,7 +12,6 @@ class Message:
         return Message({"body": json.loads(message.get_body().decode('utf-8')), "routingkey": message.user_properties["routingkey"]})
 
     def to_azure_service_bus_service_bus_message(self) -> ServiceBusMessage:
-        print("routingkey: " + self._routingkey)
         ret: ServiceBusMessage = ServiceBusMessage(body=json.dumps(self._body), application_properties={"routingkey": self._routingkey})
         return ret
 

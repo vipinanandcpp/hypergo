@@ -18,37 +18,32 @@ class Config:
 
     def __init__(self, cfg_dict: TypeDict) -> None:
         self._namespace: str = cast(str, cfg_dict.get("namespace"))
-        self._function: str = cast(str, cfg_dict.get("function"))
-        self._subtopic: str = cast(str, cfg_dict.get("subtopic"))
-        self._pubtopic: str = cast(str, cfg_dict.get("pubtopic"))
-        self._args: List[str] = cast(List[str], cfg_dict.get("args"))
-        self._val: str = cast(str, cfg_dict.get("val"))
-        self._ret: TypeDict = cast(TypeDict, cfg_dict.get("ret"))
+        self._lib_func: str = cast(str, cfg_dict.get("lib_func"))
+        self._input_keys: List[str] = cast(List[str], cfg_dict.get("input_keys"))
+        self._output_keys: List[str] = cast(List[str], cfg_dict.get("output_keys"))
+        self._input_bindings: List[str] = cast(List[str], cfg_dict.get("input_bindings"))
+        self._output_bindings: List[str] = cast(List[str], cfg_dict.get("output_bindings"))
 
     @property
     def namespace(self) -> str:
         return self._namespace
 
     @property
-    def function(self) -> str:
-        return self._function
+    def lib_func(self) -> str:
+        return self._lib_func
 
     @property
-    def subtopic(self) -> str:
-        return self._subtopic
+    def input_keys(self) -> List[str]:
+        return self._input_keys
 
     @property
-    def pubtopic(self) -> str:
-        return self._pubtopic
+    def output_keys(self) -> List[str]:
+        return self._output_keys
 
     @property
-    def args(self) -> List[str]:
-        return self._args
+    def input_bindings(self) -> List[str]:
+        return self._input_bindings
 
     @property
-    def val(self) -> str:
-        return self._val
-
-    @property
-    def ret(self) -> TypeDict:
-        return self._ret
+    def output_bindings(self) -> List[str]:
+        return self._output_bindings

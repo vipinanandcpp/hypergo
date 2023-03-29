@@ -1,4 +1,3 @@
-import copy
 import importlib
 import inspect
 from typing import Any, Callable, List, Mapping, cast
@@ -23,20 +22,21 @@ class Executor:
 
     def __init__(self, config: Config) -> None:
         self._config: Config = config
-        self._func_spec: Callable[..., Any] = Executor.func_spec(config.function)
+        self._func_spec: Callable[..., Any] = Executor.func_spec(config.lib_func)
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
-        self._rettemplate: TypeDict = config.ret
-        self._key: str = config.val
-        self._args: List[str] = config.args
 
     def execute(self, message: Message) -> Message:
         # args: List[Any] = [argtype(glom.glom(message, arg)) for arg, argtype in zip(self._args, self._arg_spec)]
         args: List[Any] = []
-        for arg, argtype in zip(self._args, self._arg_spec):
+        for arg, argtype in zip(self._config.input_bindings, self._arg_spec):
             if argtype == inspect.Parameter.empty:  # inspect._empty:
                 args.append((glom.glom(message.to_dict(), arg)))
             else:
                 args.append(argtype(glom.glom(message.to_dict(), arg)))
-        ret: TypeDict = copy.deepcopy(self._rettemplate)
-        glom.assign(ret, self._key, self._func_spec(*args))
-        return Message({"body": ret, "routingkey": glom.glom(self._config, "pubtopic")})
+        ret: TypeDict = {}
+        for binding in self._config.output_bindings:
+            glom.assign(ret, binding, self._func_spec(*args), missing=dict)
+        return Message({"body": ret, "routingkey": self.clean_routing_keys(self._config.output_keys)})
+
+    def clean_routing_keys(self, keys: List[str]) -> str:
+        return ".".join(sorted(set(".".join(keys).split("."))))

@@ -50,3 +50,4 @@
 - [ ] multilanguage support (stdio bridge), service executor (not azure lambda), cli, console executor
 - [ ] amqp/rmq wrapper
 - [ ] included tooling (database connectors, secrets manager, etc.) delivered through config and paramter mapping
+- [ ] routingkey token sorting

@@ -1,0 +1,4 @@
+azure-functions
+azure_servicebus
+git+https://github.com/mattian7741/hypergo
+-e "git+https://linklogistics@dev.azure.com/linklogistics/ldp-components/_git/ldp-components/#egg=<lib_name>&subdirectory=<lib_path_relative_to_repo_root>
