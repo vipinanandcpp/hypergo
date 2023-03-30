@@ -12,6 +12,7 @@ from hypergo.service_bus_connection import ServiceBusConnection
 class AzureServiceBusConnection(ServiceBusConnection):
     def __init__(self, conn_str: str) -> None:
         # self._service_bus_client: ServiceBusClient = ServiceBusClient.from_connection_string(conn_str)
+        self._conn_str = conn_str
 
     def send(self, message: Message, topic: str) -> None:
         asbm: ServiceBusMessage = message.to_azure_service_bus_service_bus_message()
