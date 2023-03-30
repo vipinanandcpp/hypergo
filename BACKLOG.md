@@ -1,12 +1,29 @@
 
+
+- [ ] service bus binding for outbound
+- [ ] python asyc await
+- [ ] one click deploy
+- [ ] dynamic routingkey in function
+- [ ] hypergo graph
+- [ ] Generator (yielding) (multiple publishes)
+- [ ] Python aspect orientation for logging, and exception handling
+- [ ] hijacking stdout (from print) and push into logging
+- [ ] Exception handling, exponential back off, etc.
+- [ ] Queue management (error queues, etc)
+- [ ] Logging
+- [ ] Instrumentation, Monitoring
+- [ ] Static graphing
+- [ ] Runtime graphing
+- [ ] Lineage
+- [ ] routingkey boolean logic
 - [ ] Context -> Message -> Payload
 - [ ] Move all azure_... classes into an Azure Package and remove "azure" from their filenames (maybe?)
 - [x] Create git project - Hypergo
 - [x] Add gitignore
 - [x] Black and other linters
 - [ ] fix mypy types - add compound types to types.py (try the ai coding solution brad suggested - not phind, the other one)
-- [ ] remove execution logic from (what should be a passive) message class
-- [X] Organize project and breakup files, create library
+- [x] remove execution logic from (what should be a passive) message class
+- [x] Organize project and breakup files, create library
 - [ ] Deploy into Azure
 - [ ] Eliminate all link dependencies (example SecretsManager) from sdk (provide a secretsmanager interface in the sdk and then use that interface in the secretsmanager implementation)
         - have the secretsmanager inherit from dict
@@ -21,33 +38,21 @@
         - [ ] validation out
         - [ ] serialize
         - [ ] convert
-- [ ] Black and other linters
+- [x] Black and other linters
 - [ ] CICD for sdk
-- [ ] Azure SeviceBus Subscription -> Queue
+- [ ] Forward from Azure SeviceBus Subscription to Queue (for error handling)
 - [ ] In-transit data protocol
-- [ ] JSONSchema validation for input and output
+- [ ] protobuf, avro or JSONSchema validation for input and output
 - [ ] Python aspect orientation for logging, and exception handling
-- [ ] Generator (yielding) (multiple publishes)
-- [ ] Exception handling, exponential back off, etc.
-- [ ] Queue management (error queues, etc)
-- [ ] Logging
-- [ ] Instrumentation, Monitoring
-- [ ] Static graphing
-- [ ] Runtime graphing
-- [ ] Lineage
-- [ ] routingkey boolean logic
-- [ ] dynamic routingkey in function
 - [ ] hijacking stdout (from print) and push into logging
 - [ ] function call bus (like sqllite (But message bus))
 - [ ] support for other languages (stdio abstraction)
 - [ ] divergent and convergent orchestration (transactions/correlation)
-- [ ] one click deploy
 - [ ] pypi (internal)
 - [ ] sdk build (circle?) -> pypi
 - [ ] Unit tests for sdk
 - [ ] Unit test pattern for component consumers of sdk
-- [ ] hypergo graph
 - [ ] multilanguage support (stdio bridge), service executor (not azure lambda), cli, console executor
 - [ ] amqp/rmq wrapper
 - [ ] included tooling (database connectors, secrets manager, etc.) delivered through config and paramter mapping
-- [ ] routingkey token sorting
+- [x] routingkey token sorting

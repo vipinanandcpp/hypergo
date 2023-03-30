@@ -23,3 +23,8 @@ class AzureServiceBusConnection(ServiceBusConnection):
         message: Message = Message.from_azure_functions_service_bus_message(msg)
         executor: Executor = AzureServiceBusExecutor(config)
         self.send(executor.execute(message), config.namespace)
+
+    def execute(self, msg: func.ServiceBusMessage, config: Config) -> func.Out[str]:
+        message: Message = Message.from_azure_functions_service_bus_message(msg)
+        executor: Executor = AzureServiceBusExecutor(config)
+        return executor.execute(message).to_azure_service_bus_service_bus_message()
