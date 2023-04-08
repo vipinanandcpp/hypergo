@@ -16,7 +16,7 @@ class Config:
     @staticmethod
     def from_json(file_name: str) -> 'Config':
         with open(file_name, "r", encoding="utf-8") as file_handle:
-            cfg_dict: TypeDict = json.loads(file_handle)
+            cfg_dict: TypeDict = json.load(file_handle)
             return Config.from_dict(cfg_dict)
 
 
