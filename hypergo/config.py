@@ -1,8 +1,9 @@
 from typing import List, cast
 
 import yaml
+import json
 
-from hypergo.types import TypeDict
+from hypergo.custom_types import TypeDict
 
 
 class Config:
@@ -11,6 +12,13 @@ class Config:
         with open(file_name, "r", encoding="utf-8") as file_handle:
             cfg_dict: TypeDict = yaml.safe_load(file_handle)
             return Config.from_dict(cfg_dict)
+
+    @staticmethod
+    def from_json(file_name: str) -> 'Config':
+        with open(file_name, "r", encoding="utf-8") as file_handle:
+            cfg_dict: TypeDict = json.loads(file_handle)
+            return Config.from_dict(cfg_dict)
+
 
     @staticmethod
     def from_dict(cfg_dict: TypeDict) -> 'Config':
