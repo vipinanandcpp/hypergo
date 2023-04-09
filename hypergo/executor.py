@@ -6,7 +6,7 @@ import glom
 
 from hypergo.config import Config
 from hypergo.message import Message
-from hypergo.types import TypeDict
+from hypergo.custom_types import TypeDict
 
 
 class Executor:
