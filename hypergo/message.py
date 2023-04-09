@@ -3,7 +3,7 @@ import json
 import azure.functions as func
 from azure.servicebus import ServiceBusMessage
 
-from hypergo.types import TypeDict
+from hypergo.custom_types import TypeDict
 
 
 class Message:
