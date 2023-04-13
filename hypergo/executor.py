@@ -34,8 +34,8 @@ class Executor:
             else:
                 args.append(argtype(glom.glom(message.to_dict(), arg)))
         ret: TypeDict = {}
-        for binding, return_value in zip(self._config.output_bindings, self._func_spec(*args)):
-            glom.assign(ret, binding, return_value , missing=dict)
+        for binding in self._config.output_bindings:
+            glom.assign(ret, binding, self._func_spec(*args), missing=dict)
         return Message({"body": ret, "routingkey": self.clean_routing_keys(self._config.output_keys)})
 
     def clean_routing_keys(self, keys: List[str]) -> str:
