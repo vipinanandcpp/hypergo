@@ -1,5 +1,9 @@
 
 
+- [ ] Production roll out
+- [ ] containers
+- [ ] cli support and stdin binding
+- [ ] async/await
 - [ ] service bus binding for outbound
 - [ ] python asyc await
 - [ ] one click deploy
