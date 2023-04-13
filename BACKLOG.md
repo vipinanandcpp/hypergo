@@ -1,5 +1,8 @@
 
 
+- [ ] Components - no code execution on import
+- [ ] component names should change
+- [ ] component functions shouldn't be __main__
 - [ ] Production roll out
 - [ ] containers
 - [ ] cli support and stdin binding
