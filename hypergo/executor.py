@@ -36,7 +36,8 @@ class Executor:
         ret: TypeDict = {}
         for binding, return_value in zip(self._config.output_bindings, self._func_spec(*args)):
             glom.assign(ret, binding, return_value, missing=dict)
-        return Message({"body": ret, "routingkey": self.clean_routing_keys(self._config.output_keys)})
+        ret["routingkey"] = self.clean_routing_keys(self._config.output_keys)
+        return Message(ret)
 
     def clean_routing_keys(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))
