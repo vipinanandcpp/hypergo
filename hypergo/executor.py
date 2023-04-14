@@ -33,10 +33,12 @@ class Executor:
                 args.append((glom.glom(message.to_dict(), arg)))
             else:
                 args.append(argtype(glom.glom(message.to_dict(), arg)))
-        ret: TypeDict = {}
+        ret: TypeDict = {
+            "routingkey": self.clean_routing_keys(self._config.output_keys),
+            "body": {}
+        }
         for binding, return_value in zip(self._config.output_bindings, self._func_spec(*args)):
             glom.assign(ret, binding, return_value, missing=dict)
-        ret["routingkey"] = self.clean_routing_keys(self._config.output_keys)
         return Message(ret)
 
     def clean_routing_keys(self, keys: List[str]) -> str:
