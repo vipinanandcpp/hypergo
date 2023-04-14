@@ -28,18 +28,35 @@ class Executor:
     def execute(self, message: Message) -> Message:
         # args: List[Any] = [argtype(glom.glom(message, arg)) for arg, argtype in zip(self._args, self._arg_spec)]
         args: List[Any] = []
+
         for arg, argtype in zip(self._config.input_bindings, self._arg_spec):
             if argtype == inspect.Parameter.empty:  # inspect._empty:
                 args.append((glom.glom(message.to_dict(), arg)))
             else:
                 args.append(argtype(glom.glom(message.to_dict(), arg)))
-        ret: TypeDict = {
-            "routingkey": self.clean_routing_keys(self._config.output_keys),
-            "body": {}
-        }
-        for binding, return_value in zip(self._config.output_bindings, self._func_spec(*args)):
-            glom.assign(ret, binding, return_value, missing=dict)
-        return Message(ret)
+        
+        execution: Any = self._func_spec(*args)
+        results: dict[type, Any] = { 
+            type(iter(())): list(execution)
+        }.get(execution, [execution])
+        
+        for result in results:            
+            msg: TypeDict = {
+                "routingkey": self.clean_routing_keys(self._config.output_keys),
+                "body": {}
+            }
+            def handle_tuple(m, r):
+                for binding, tuple_elem in zip(self._config.output_bindings, r):
+                    glom.assign(m, binding, tuple_elem, missing=dict)
+
+            def handle_default(m, r):
+                for binding in self._config.output_bindings:
+                    glom.assign(m, binding, r, missing=dict)
+            {
+                tuple: handle_tuple(msg, result)
+            }.get(result, handle_default(msg, result))
+            
+            yield Message(msg)
 
     def clean_routing_keys(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))
