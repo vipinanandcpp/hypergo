@@ -51,8 +51,15 @@ class Executor:
             def handle_default(dst, src):
                 for binding in self._config.output_bindings:
                     glom.assign(dst, binding, src, missing=dict)
+           
+            def handle_list(dst, src):
+                for binding in self._config.output_bindings:
+                    glom.assign(dst, binding, src[:3], missing=dict)
 
-            {tuple: handle_tuple}.get(type(result), handle_default)(msg, result)
+            {
+                tuple: handle_tuple,
+                list: handle_list
+            }.get(type(result), handle_default)(msg, result)
 
             yield Message(msg)
 
