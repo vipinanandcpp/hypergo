@@ -24,5 +24,3 @@ class AzureServiceBusConnection(ServiceBusConnection):
         executor: Executor = AzureServiceBusExecutor(config)
         for execution in executor.execute(message):
             self.send(execution, config.namespace)
-
- 
