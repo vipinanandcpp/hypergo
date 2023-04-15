@@ -1,5 +1,7 @@
 
 
+- [ ] low level system messages (eg. component started with hypergo version, and component version)
+- [ ] version management (sdk + components)
 - [ ] Components - no code execution on import
 - [ ] component names should change
 - [ ] component functions shouldn't be __main__
