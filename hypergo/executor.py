@@ -15,7 +15,7 @@ class Executor:
     def func_spec(fn_name: str) -> Callable[..., Any]:
         tokens: List[str] = fn_name.split(".")
         logger = logging.getLogger(__name__)
-        logger.debug(f'Tokens: {tokens}')
+        logger.warn((f'Tokens: {tokens}'))
         return cast(Callable[..., Any], (getattr(importlib.import_module(".".join(tokens[:-1])), tokens[-1])))
 
     @staticmethod
