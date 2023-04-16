@@ -12,5 +12,5 @@ class ServiceBusConnection(ABC):
             self.send(execution, config.namespace)
 
     @abstractmethod
-    def send(self, message: Message, topic: str) -> None:
+    def send(self, message: Message, namespace: str) -> None:
         ...

@@ -4,7 +4,7 @@ from typing import (Any, Callable, Dict, Generator, List, Mapping, cast,
                     get_origin)
 
 import glom
-
+import logging
 from hypergo.config import Config
 from hypergo.custom_types import TypeDict
 from hypergo.message import Message
@@ -14,6 +14,8 @@ class Executor:
     @staticmethod
     def func_spec(fn_name: str) -> Callable[..., Any]:
         tokens: List[str] = fn_name.split(".")
+        logger = logging.getLogger(__name__)
+        logger.debug(f'Tokens: {tokens}')
         return cast(Callable[..., Any], (getattr(importlib.import_module(".".join(tokens[:-1])), tokens[-1])))
 
     @staticmethod

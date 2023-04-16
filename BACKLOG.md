@@ -1,4 +1,11 @@
 
+
+- [ ] pass by reference vs pass by value
+        - [ ] BYO storage
+- [ ] message should use the copy of the configuration on the message, not the executor's configuration
+        eg. if execution changes the output keys
+- [ ] "pass-thru" routing keys
+- [ ] routing key hierarchical model
 - [ ] from functools import singledispatch
 - [ ] low level system messages (eg. component started with hypergo version, and component version)
 - [ ] version management (sdk + components)
