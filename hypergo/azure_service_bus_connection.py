@@ -2,9 +2,7 @@ import azure.functions as func
 from azure.servicebus import (ServiceBusClient, ServiceBusMessage,
                               ServiceBusSender)
 
-from hypergo.azure_service_bus_executor import AzureServiceBusExecutor
 from hypergo.config import Config
-from hypergo.executor import Executor
 from hypergo.message import Message
 from hypergo.service_bus_connection import ServiceBusConnection
 
@@ -21,6 +19,4 @@ class AzureServiceBusConnection(ServiceBusConnection):
 
     def consume(self, msg: func.ServiceBusMessage, config: Config) -> None:
         message: Message = Message.from_azure_functions_service_bus_message(msg)
-        executor: Executor = AzureServiceBusExecutor(config)
-        for execution in executor.execute(message):
-            self.send(execution, config.namespace)
+        self.general_consume(message, config)

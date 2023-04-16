@@ -1,5 +1,5 @@
 
-
+- [ ] from functools import singledispatch
 - [ ] low level system messages (eg. component started with hypergo version, and component version)
 - [ ] version management (sdk + components)
 - [ ] Components - no code execution on import
@@ -8,13 +8,12 @@
 - [ ] Production roll out
 - [ ] containers
 - [ ] cli support and stdin binding
-- [ ] async/await
-- [ ] service bus binding for outbound
-- [ ] python asyc await
+- [x] service bus binding for outbound
+- [ ] python async await
 - [ ] one click deploy
 - [ ] dynamic routingkey in function
 - [ ] hypergo graph
-- [ ] Generator (yielding) (multiple publishes)
+- [x] Generator (yielding) (multiple publishes)
 - [ ] Python aspect orientation for logging, and exception handling
 - [ ] hijacking stdout (from print) and push into logging
 - [ ] Exception handling, exponential back off, etc.
@@ -55,13 +54,13 @@
 - [ ] Python aspect orientation for logging, and exception handling
 - [ ] hijacking stdout (from print) and push into logging
 - [ ] function call bus (like sqllite (But message bus))
-- [ ] support for other languages (stdio abstraction)
 - [ ] divergent and convergent orchestration (transactions/correlation)
-- [ ] pypi (internal)
+- [x] pypi (internal)
 - [ ] sdk build (circle?) -> pypi
 - [ ] Unit tests for sdk
 - [ ] Unit test pattern for component consumers of sdk
 - [ ] multilanguage support (stdio bridge), service executor (not azure lambda), cli, console executor
+        - [ ] support for other languages (stdio abstraction)
 - [ ] amqp/rmq wrapper
 - [ ] included tooling (database connectors, secrets manager, etc.) delivered through config and paramter mapping
 - [x] routingkey token sorting
