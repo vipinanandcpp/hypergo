@@ -23,7 +23,7 @@ if [ $? -ne 0 ]; then { printf "\e[31mFailed, aborting.\e[0m\n" ; exit 1; } fi
 
 printf "\e[1mLinting (pylint) $mod ...\e[0m\n"
 # find $mod -iname "*.py" | xargs pylint -d too-few-public-methods -d missing-docstring -d unused-argument -d no-self-use -d unused-variable -d line-too-long
-find $mod -iname "*.py" | xargs pylint -d too-few-public-methods -d missing-docstring -d unused-argument -d unused-variable -d line-too-long
+find $mod -iname "*.py" | xargs pylint --check-quote-consistency y -d too-few-public-methods -d missing-docstring -d unused-argument -d unused-variable -d line-too-long
 if [ $? -ne 0 ]; then { printf "\e[31mFailed, aborting.\e[0m\n" ; exit 1; } fi
 
 printf "\e[1mLinting (flake8) $mod ...\e[0m\n"
