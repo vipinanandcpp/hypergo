@@ -1,6 +1,11 @@
-from typing import Any, Dict, TypeVar
+from typing import Dict, List, TypedDict, Union
 
-# TypeDict = Dict[str, Union[str, 'TypeDict']]
-TypeDict = Dict[str, Any]
+# T = TypeVar("T")
 
-T = TypeVar("T")
+JsonList = List["JsonType"]
+JsonDict = Dict[str, "JsonType"]
+JsonType = Union[int, float, str, bool, None, JsonList, JsonDict]
+
+
+class TypedDictType(TypedDict):
+    pass

@@ -1,12 +1,12 @@
 import importlib
 import inspect
-from typing import (Any, Callable, Dict, Generator, List, Mapping, cast,
-                    get_origin)
+import re
+from typing import Any, Callable, Generator, List, Mapping, cast, get_origin
 
-import glom
-from hypergo.config import Config
-from hypergo.custom_types import TypeDict
-from hypergo.message import Message
+from hypergo.config import ConfigType
+from hypergo.context import ContextType
+from hypergo.message import MessageType
+from hypergo.utility import Utility
 
 
 class Executor:
@@ -20,60 +20,61 @@ class Executor:
         params: Mapping[str, inspect.Parameter] = inspect.signature(func).parameters
         return [params[k].annotation for k in list(params.keys())]
 
-    def __init__(self, config: Config) -> None:
-        self._config: Config = config
-        self._func_spec: Callable[..., Any] = Executor.func_spec(config.lib_func)
+    def __init__(self, config: ConfigType) -> None:
+        self._config: ConfigType = config
+        self._func_spec: Callable[..., Any] = Executor.func_spec(config["lib_func"])
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
 
-    def get_args(self, message: Dict[str, Any]) -> List[Any]:
-        # args: List[Any] = [argtype(glom.glom(message, arg)) for arg, argtype in zip(self._args, self._arg_spec)]
+    def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
-
-        # T = TypeVar('T')
 
         def safecast(some_type: type) -> Callable[..., Any]:
             if some_type == inspect.Parameter.empty:
                 return lambda value: value
             return get_origin(some_type) or some_type
 
-        for arg, argtype in zip(self._config.input_bindings, self._arg_spec):
+        for arg, argtype in zip(self._config["input_bindings"], self._arg_spec):
+            # determine if arg binding is a literal denoted by '<literal>'
+            val: Any = ((match := re.match(r"'(.*)'", arg)) and match.group(1)) or Utility.deep_get(context, arg)
+
             if argtype == inspect.Parameter.empty:  # inspect._empty:
-                args.append((glom.glom(message, arg)))
+                args.append(val)
             else:
-                args.append(safecast(argtype)(glom.glom(message, arg)))
+                args.append(safecast(argtype)(val))
 
         return args
 
-    def execute(self, message: Message) -> Generator[Message, None, None]:
-        args: List[Any] = self.get_args(message.to_dict())
+    def execute(self, input_message: MessageType) -> Generator[MessageType, None, None]:
+        context: ContextType = {"message": input_message, "config": self._config}
+        args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
-        results: List[Any] = list(execution) if inspect.isgenerator(execution) else [execution]
+        return_values: List[Any] = list(execution) if inspect.isgenerator(execution) else [execution]
 
-        for result in results:
-            msg: TypeDict = {"routingkey": self.clean_routing_keys(self._config.output_keys), "body": {}}
+        for return_value in return_values:
+            output_message: MessageType = {"routingkey": self.organize_tokens(self._config["output_keys"]), "body": {}}
+            output_context: ContextType = {"message": output_message, "config": self._config}
 
-            def handle_tuple(dst: TypeDict, src: Any) -> None:
-                for binding, tuple_elem in zip(self._config.output_bindings, src):
-                    glom.assign(dst, binding, tuple_elem, missing=dict)
+            def handle_tuple(dst: ContextType, src: Any) -> None:
+                for binding, tuple_elem in zip(self._config["output_bindings"], src):
+                    Utility.deep_set(dst, binding, tuple_elem)
 
-            def handle_default(dst: TypeDict, src: Any) -> None:
-                for binding in self._config.output_bindings:
-                    glom.assign(dst, binding, src, missing=dict)
+            def handle_default(dst: ContextType, src: Any) -> None:
+                for binding in self._config["output_bindings"]:
+                    Utility.deep_set(dst, binding, src)
 
-            def handle_list(dst: TypeDict, src: Any) -> None:
-                for binding in self._config.output_bindings:
+            def handle_list(dst: ContextType, src: Any) -> None:
+                for binding in self._config["output_bindings"]:
                     # src[:3] is a debugging hack !!REMOVE!!!
-                    glom.assign(dst, binding, src[:3], missing=dict)
+                    Utility.deep_set(dst, binding, src[:3])
 
-            if isinstance(result, tuple):
-                handle_tuple(msg, result)
-            elif isinstance(result, list):
-                handle_list(msg, result)
+            if isinstance(return_value, tuple):
+                handle_tuple(output_context, return_value)
+            elif isinstance(return_value, list):
+                handle_list(output_context, return_value)
             else:
-                handle_default(msg, result)
-            # {tuple: handle_tuple, list: handle_list}.get(type(result), handle_default)(msg, result)
+                handle_default(output_context, return_value)
 
-            yield Message(msg)
+            yield output_message
 
-    def clean_routing_keys(self, keys: List[str]) -> str:
+    def organize_tokens(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))

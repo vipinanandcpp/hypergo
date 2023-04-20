@@ -1,5 +1,11 @@
 
-
+- [ ] Combine Config and ConfigType, And Message and MessageType
+- [ ] Support for literals and operations (maybe?) in config.json bindings
+- [ ] Configuration manager permissions to components in deploy automation
+- [ ] Deployment automation for libraries to artifact store using twine
+- [ ] blue green deployment?
+- [ ] delete subscription filters before adding them
+- [ ] move all 3rd party libraries (like glom) into a utils module that wraps 3rd party libraries for utilities needed by the sdk.   This puts everything in one place and isolates the sdk from the libraries it uses.
 - [ ] pass by reference vs pass by value
         - [ ] BYO storage
 - [ ] message should use the copy of the configuration on the message, not the executor's configuration
@@ -36,10 +42,11 @@
 - [x] Create git project - Hypergo
 - [x] Add gitignore
 - [x] Black and other linters
-- [ ] fix mypy types - add compound types to types.py (try the ai coding solution brad suggested - not phind, the other one)
+- [x] fix mypy types
+- [ ] add compound types to types.py (try the ai coding solution brad suggested - not phind, the other one)
 - [x] remove execution logic from (what should be a passive) message class
 - [x] Organize project and breakup files, create library
-- [ ] Deploy into Azure
+- [x] Deploy into Azure
 - [ ] Eliminate all link dependencies (example SecretsManager) from sdk (provide a secretsmanager interface in the sdk and then use that interface in the secretsmanager implementation)
         - have the secretsmanager inherit from dict
 - [ ] Add additional message metadata to datastructures

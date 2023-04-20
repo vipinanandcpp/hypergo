@@ -2,8 +2,8 @@ import azure.functions as func
 from azure.servicebus import (ServiceBusClient, ServiceBusMessage,
                               ServiceBusSender)
 
-from hypergo.config import Config
-from hypergo.message import Message
+from hypergo.config import ConfigType
+from hypergo.message import Message, MessageType
 from hypergo.service_bus_connection import ServiceBusConnection
 
 
@@ -11,12 +11,12 @@ class AzureServiceBusConnection(ServiceBusConnection):
     def __init__(self, conn_str: str) -> None:
         self._service_bus_client: ServiceBusClient = ServiceBusClient.from_connection_string(conn_str)
 
-    def send(self, message: Message, namespace: str) -> None:
-        asbm: ServiceBusMessage = message.to_azure_service_bus_service_bus_message()
+    def send(self, message: MessageType, namespace: str) -> None:
+        azure_message: ServiceBusMessage = Message.to_azure_service_bus_service_bus_message(message)
         with self._service_bus_client:
             sender: ServiceBusSender = self._service_bus_client.get_topic_sender(namespace)
-            sender.send_messages(asbm)
+            sender.send_messages(azure_message)
 
-    def consume(self, msg: func.ServiceBusMessage, config: Config) -> None:
-        message: Message = Message.from_azure_functions_service_bus_message(msg)
+    def consume(self, azure_message: func.ServiceBusMessage, config: ConfigType) -> None:
+        message: MessageType = Message.from_azure_functions_service_bus_message(azure_message)
         self.general_consume(message, config)
