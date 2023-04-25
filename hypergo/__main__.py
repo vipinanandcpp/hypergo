@@ -2,11 +2,14 @@ from typing import Generator
 
 from hypergo.config import ConfigType
 from hypergo.executor import Executor
+from hypergo.local_storage import LocalStorage
 from hypergo.message import MessageType
+from hypergo.storage import Storage
 
 
 def execute(config: ConfigType, message: MessageType) -> Generator[MessageType, None, None]:
-    executor: Executor = Executor(config)
+    storage: Storage = LocalStorage()
+    executor: Executor = Executor(config, storage)
     for execution in executor.execute(message):
         yield execution
 
@@ -14,9 +17,7 @@ def execute(config: ConfigType, message: MessageType) -> Generator[MessageType, 
 # fmt: off
 if __name__ == "__main__":
     message1: MessageType = {
-        "body": {
-            "data_blob_path": "hypergo/csv_test_data.csv"
-        },
+        "body": {"data_blob_path": "hypergo/csv_test_data.csv"},
         "routingkey": "batch.csv"
     }
     print(str(message1))
@@ -29,7 +30,8 @@ if __name__ == "__main__":
                 "input_keys": ["batch.csv"],
                 "output_keys": ["batch.json"],
                 "input_bindings": ["message.body.data_blob_path"],
-                "output_bindings": ["message.body.json_data"]},
+                "output_bindings": ["message.body.json_data"],
+                "output_operations": ["pass_by_reference"]},
             message1):
         print(str(message2))
         for message3 in execute(
@@ -41,7 +43,8 @@ if __name__ == "__main__":
                     "input_keys": ["batch.json"],
                     "output_keys": ["item.json"],
                     "input_bindings": ["message.body.json_data"],
-                    "output_bindings": ["message.body.json_data"]},
+                    "output_bindings": ["message.body.json_data"],
+                    "input_operations": ["pass_by_reference"]},
                 message2):
             print(str(message3))
             for message4 in execute(
