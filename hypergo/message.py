@@ -1,14 +1,21 @@
 import json
+import sys
 
 import azure.functions as func
 from azure.servicebus import ServiceBusMessage
 
 from hypergo.custom_types import JsonDict, TypedDictType
 
+if sys.version_info >= (3, 11):
+    from typing import NotRequired
+else:
+    from typing_extensions import NotRequired
+
 
 class MessageType(TypedDictType):
     body: JsonDict
     routingkey: str
+    storagekey: NotRequired[str]
 
 
 class Message:

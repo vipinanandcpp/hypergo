@@ -1,9 +1,16 @@
 import json
+import sys
 from typing import List
 
 import yaml
 
 from hypergo.custom_types import TypedDictType
+
+if sys.version_info >= (3, 11):
+    from typing import NotRequired
+else:
+    from typing_extensions import NotRequired
+
 
 # from hypergo.utility import Utility
 
@@ -17,6 +24,8 @@ class ConfigType(TypedDictType):
     output_keys: List[str]
     input_bindings: List[str]
     output_bindings: List[str]
+    input_operations: NotRequired[List[str]]
+    output_operations: NotRequired[List[str]]
 
 
 class Config:  # pylint: disable=too-many-instance-attributes

@@ -8,6 +8,7 @@ from hypergo.config import ConfigType
 from hypergo.context import ContextType
 from hypergo.local_storage import LocalStorage
 from hypergo.message import MessageType
+from hypergo.storage import Storage
 from hypergo.utility import Utility
 
 
@@ -22,11 +23,11 @@ class Executor:
         params: Mapping[str, inspect.Parameter] = inspect.signature(func).parameters
         return [params[k].annotation for k in list(params.keys())]
 
-    def __init__(self, config: ConfigType) -> None:
+    def __init__(self, config: ConfigType, storage: Storage) -> None:
         self._config: ConfigType = config
         self._func_spec: Callable[..., Any] = Executor.func_spec(config["lib_func"])
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
-        self._storage = LocalStorage()
+        self._storage = storage
 
     def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
@@ -56,8 +57,8 @@ class Executor:
     def open_envelope(self, envelope: MessageType) -> MessageType:
         # retrieve
         message: MessageType = envelope
-        if key := envelope.get("storagekey"):
-            message = self.retrieve(key)
+        if "pass_by_reference" in self._config.get("input_operations", []):
+            message = self.retrieve(message["storagekey"])
 
         return message
         # decompress
@@ -74,9 +75,10 @@ class Executor:
         # compress
         # store
         envelope: MessageType = message
-        if key := message.get("storagekey"):
-            self.store(key, message)
-            envelope["body"] = None
+        if "pass_by_reference" in self._config.get("output_operations", []):
+            envelope["storagekey"] = Utility.hash(json.dumps(envelope))
+            self.store(envelope["storagekey"], message)
+            envelope["body"] = {}
         return envelope
 
     def execute(self, input_envelope: MessageType) -> Generator[MessageType, None, None]:
@@ -118,6 +120,7 @@ class Executor:
 
 
 if __name__ == "__main__":
-    cfg = {"namespace": "datalink", "name": "csvconverter", "package": "ldp-csv-to-json-converter", "lib_func": "csv_to_json_converter_appliance.__main__.csv_to_json_appliance", "input_keys": ["batch.csv"], "output_keys": ["batch.json"], "input_bindings": ["message.body.data_blob_path"], "output_bindings": ["message.body.json_data"]}
-    executor = Executor(cfg)
+    cfg: ConfigType = {"namespace": "datalink", "name": "csvconverter", "package": "ldp-csv-to-json-converter", "lib_func": "csv_to_json_converter_appliance.__main__.csv_to_json_appliance", "input_keys": ["batch.csv"], "output_keys": ["batch.json"], "input_bindings": ["message.body.data_blob_path"], "output_bindings": ["message.body.json_data"]}
+    stg: Storage = LocalStorage()
+    executor = Executor(cfg, stg)
     print(executor.retrieve("hypergo/json_test_data.json"))

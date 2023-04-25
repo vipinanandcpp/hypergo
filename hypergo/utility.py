@@ -1,3 +1,4 @@
+import hashlib
 import json
 from typing import Any, Dict, Mapping, Union, cast
 
@@ -33,3 +34,7 @@ class Utility:
     @staticmethod
     def json_write(file_name: str, dic: Dict[str, Any]) -> None:
         pass
+
+    @staticmethod
+    def hash(content: str) -> str:
+        return hashlib.md5(content.encode("utf-8")).hexdigest()
