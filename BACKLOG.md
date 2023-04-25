@@ -1,4 +1,6 @@
 
+- [ ] hypergo cli
+        hypergo http, stdio, azure, rabbit, etc.
 - [ ] Combine Config and ConfigType, And Message and MessageType
 - [ ] Support for literals and operations (maybe?) in config.json bindings
 - [ ] Configuration manager permissions to components in deploy automation
@@ -43,7 +45,7 @@
 - [x] Add gitignore
 - [x] Black and other linters
 - [x] fix mypy types
-- [ ] add compound types to types.py (try the ai coding solution brad suggested - not phind, the other one)
+- [x] add compound types to types.py
 - [x] remove execution logic from (what should be a passive) message class
 - [x] Organize project and breakup files, create library
 - [x] Deploy into Azure
@@ -51,6 +53,7 @@
         - have the secretsmanager inherit from dict
 - [ ] Add additional message metadata to datastructures
 - [ ] Separate stages: receive, unpack, consume, produce, package, send
+        (Compression, storage/pass-by-ref, serialize, inline conversions/mappings)
         - [ ] conversion (eg. asb vs rmq) to Message
         - [ ] deserialize
         - [ ] validation
