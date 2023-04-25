@@ -1,10 +1,12 @@
 import importlib
 import inspect
+import json
 import re
 from typing import Any, Callable, Generator, List, Mapping, cast, get_origin
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
+from hypergo.local_storage import LocalStorage
 from hypergo.message import MessageType
 from hypergo.utility import Utility
 
@@ -24,6 +26,7 @@ class Executor:
         self._config: ConfigType = config
         self._func_spec: Callable[..., Any] = Executor.func_spec(config["lib_func"])
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
+        self._storage = LocalStorage()
 
     def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
@@ -44,7 +47,40 @@ class Executor:
 
         return args
 
-    def execute(self, input_message: MessageType) -> Generator[MessageType, None, None]:
+    def retrieve(self, key: str) -> MessageType:
+        return cast(MessageType, json.loads(self._storage.load(key)))
+
+    def store(self, key: str, message: MessageType) -> None:
+        self._storage.save(key, json.dumps(message))
+
+    def open_envelope(self, envelope: MessageType) -> MessageType:
+        # retrieve
+        message: MessageType = envelope
+        if key := envelope.get("storagekey"):
+            message = self.retrieve(key)
+
+        return message
+        # decompress
+        # deserialize
+        # input_validation
+        # input_mapping
+        # bind_input_arguments
+
+    def seal_envelope(self, message: MessageType) -> MessageType:
+        # bind_output_arguments
+        # output_mapping
+        # output_validation
+        # serialize
+        # compress
+        # store
+        envelope: MessageType = message
+        if key := message.get("storagekey"):
+            self.store(key, message)
+            envelope["body"] = None
+        return envelope
+
+    def execute(self, input_envelope: MessageType) -> Generator[MessageType, None, None]:
+        input_message: MessageType = self.open_envelope(input_envelope)
         context: ContextType = {"message": input_message, "config": self._config}
         args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
@@ -74,7 +110,14 @@ class Executor:
             else:
                 handle_default(output_context, return_value)
 
-            yield output_message
+            output_envelope: MessageType = self.seal_envelope(output_message)
+            yield output_envelope
 
     def organize_tokens(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))
+
+
+if __name__ == "__main__":
+    cfg = {"namespace": "datalink", "name": "csvconverter", "package": "ldp-csv-to-json-converter", "lib_func": "csv_to_json_converter_appliance.__main__.csv_to_json_appliance", "input_keys": ["batch.csv"], "output_keys": ["batch.json"], "input_bindings": ["message.body.data_blob_path"], "output_bindings": ["message.body.json_data"]}
+    executor = Executor(cfg)
+    print(executor.retrieve("hypergo/json_test_data.json"))
