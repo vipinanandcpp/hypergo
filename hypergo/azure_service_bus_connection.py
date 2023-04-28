@@ -5,7 +5,8 @@ from azure.servicebus import (ServiceBusClient, ServiceBusMessage,
 from hypergo.config import ConfigType
 from hypergo.message import Message, MessageType
 from hypergo.service_bus_connection import ServiceBusConnection
-
+from hypergo.storage import Storage
+from typing import Union
 
 class AzureServiceBusConnection(ServiceBusConnection):
     def __init__(self, conn_str: str) -> None:
@@ -17,6 +18,6 @@ class AzureServiceBusConnection(ServiceBusConnection):
             sender: ServiceBusSender = self._service_bus_client.get_topic_sender(namespace)
             sender.send_messages(azure_message)
 
-    def consume(self, azure_message: func.ServiceBusMessage, config: ConfigType) -> None:
+    def consume(self, azure_message: func.ServiceBusMessage, config: ConfigType, storage: Union[Storage, None]) -> None:
         message: MessageType = Message.from_azure_functions_service_bus_message(azure_message)
-        self.general_consume(message, config)
+        self.general_consume(message, config, storage)
