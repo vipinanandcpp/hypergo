@@ -2,7 +2,8 @@ import importlib
 import inspect
 import json
 import re
-from typing import Any, Callable, Generator, List, Mapping, cast, get_origin, Union
+from typing import (Any, Callable, Generator, List, Mapping, Union, cast,
+                    get_origin)
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
@@ -49,15 +50,19 @@ class Executor:
         return args
 
     def retrieve(self, key: str) -> MessageType:
+        if not self._storage:
+            raise AttributeError("No hypergo.storage implemenation provided")
         return cast(MessageType, json.loads(self._storage.load(key)))
 
     def store(self, key: str, message: MessageType) -> None:
+        if not self._storage:
+            raise AttributeError("No hypergo.storage implemenation provided")
         self._storage.save(key, json.dumps(message))
 
     def open_envelope(self, envelope: MessageType) -> MessageType:
         # retrieve
         message: MessageType = envelope
-    
+
         if self._storage and "pass_by_reference" in self._config.get("input_operations", []):
             message = self.retrieve(message["storagekey"])
 

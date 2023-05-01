@@ -1,3 +1,5 @@
+from typing import Union
+
 import azure.functions as func
 from azure.servicebus import (ServiceBusClient, ServiceBusMessage,
                               ServiceBusSender)
@@ -6,7 +8,7 @@ from hypergo.config import ConfigType
 from hypergo.message import Message, MessageType
 from hypergo.service_bus_connection import ServiceBusConnection
 from hypergo.storage import Storage
-from typing import Union
+
 
 class AzureServiceBusConnection(ServiceBusConnection):
     def __init__(self, conn_str: str) -> None:
