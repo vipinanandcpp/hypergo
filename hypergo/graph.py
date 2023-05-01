@@ -50,14 +50,20 @@ def topics(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, str, List[
             dot.edge(routing_key_element[0], format_component(config)[0])
 
 
+def derived_edges_inner(output_key: Tuple[str, str], in_keys: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+    edges: List[Tuple[str, str]] = []
+    for input_key in in_keys:
+        if input_key[0] == output_key[0]:
+            continue
+        if all(key in output_key[1].split('.') for key in input_key[1].split('.')):
+            edges.append((output_key[0], input_key[0]))
+    return edges
+
+
 def derived_edges(in_keys: List[Tuple[str, str]], out_keys: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
     edges: List[Tuple[str, str]] = []
     for output_key in out_keys:
-        for input_key in in_keys:
-            if input_key[0] == output_key[0]:
-                continue
-            if all(key in output_key[1].split('.') for key in input_key[1].split('.')):
-                edges.append((output_key[0], input_key[0]))
+        edges.extend(derived_edges_inner(output_key, in_keys))
     return edges
 
 
