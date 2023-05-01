@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
+from typing import Union
 
 from hypergo.config import ConfigType
 from hypergo.executor import Executor
 from hypergo.message import MessageType
 from hypergo.storage import Storage
-from typing import Union
+
 
 class ServiceBusConnection(ABC):
     def general_consume(self, message: MessageType, config: ConfigType, storage: Union[Storage, None]) -> None:
