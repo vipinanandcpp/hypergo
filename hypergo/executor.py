@@ -2,7 +2,8 @@ import importlib
 import inspect
 import json
 import re
-from typing import Any, Callable, Generator, List, Mapping, cast, get_origin
+from typing import (Any, Callable, Generator, List, Mapping, Union, cast,
+                    get_origin)
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
@@ -23,11 +24,11 @@ class Executor:
         params: Mapping[str, inspect.Parameter] = inspect.signature(func).parameters
         return [params[k].annotation for k in list(params.keys())]
 
-    def __init__(self, config: ConfigType, storage: Storage) -> None:
+    def __init__(self, config: ConfigType, storage: Union[Storage, None] = None) -> None:
         self._config: ConfigType = config
         self._func_spec: Callable[..., Any] = Executor.func_spec(config["lib_func"])
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
-        self._storage = storage
+        self._storage: Union[Storage, None] = storage
 
     def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
@@ -49,15 +50,20 @@ class Executor:
         return args
 
     def retrieve(self, key: str) -> MessageType:
+        if not self._storage:
+            raise AttributeError("No hypergo.storage implemenation provided")
         return cast(MessageType, json.loads(self._storage.load(key)))
 
     def store(self, key: str, message: MessageType) -> None:
+        if not self._storage:
+            raise AttributeError("No hypergo.storage implemenation provided")
         self._storage.save(key, json.dumps(message))
 
     def open_envelope(self, envelope: MessageType) -> MessageType:
         # retrieve
         message: MessageType = envelope
-        if "pass_by_reference" in self._config.get("input_operations", []):
+
+        if self._storage and "pass_by_reference" in self._config.get("input_operations", []):
             message = self.retrieve(message["storagekey"])
 
         return message
@@ -75,7 +81,7 @@ class Executor:
         # compress
         # store
         envelope: MessageType = message
-        if "pass_by_reference" in self._config.get("output_operations", []):
+        if self._storage and "pass_by_reference" in self._config.get("output_operations", []):
             envelope["storagekey"] = Utility.hash(json.dumps(envelope))
             self.store(envelope["storagekey"], message)
             envelope["body"] = {}

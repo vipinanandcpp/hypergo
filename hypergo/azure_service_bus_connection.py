@@ -1,3 +1,5 @@
+from typing import Union
+
 import azure.functions as func
 from azure.servicebus import (ServiceBusClient, ServiceBusMessage,
                               ServiceBusSender)
@@ -18,6 +20,6 @@ class AzureServiceBusConnection(ServiceBusConnection):
             sender: ServiceBusSender = self._service_bus_client.get_topic_sender(namespace)
             sender.send_messages(azure_message)
 
-    def consume(self, azure_message: func.ServiceBusMessage, config: ConfigType, storage: Storage) -> None:
+    def consume(self, azure_message: func.ServiceBusMessage, config: ConfigType, storage: Union[Storage, None]) -> None:
         message: MessageType = Message.from_azure_functions_service_bus_message(azure_message)
         self.general_consume(message, config, storage)
