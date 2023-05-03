@@ -9,7 +9,8 @@ import graphviz
 
 
 def format_component(config: Dict[str, Union[None, str, List[str]]]) -> Tuple[str, str]:
-    return (f'component_{config.get("name")}', f'<<table border="0" cellborder="0"><tr><td bgcolor="#0071BD">{config.get("name")}</td></tr></table>>')
+    component_string = f'<<table border="0" cellborder="0"><tr><td bgcolor="#0071BD">{config.get("name")}</td></tr></table>>'
+    return (f'component_{config.get("name")}', component_string)
 
 
 def format_topic(typestr: str, config: Dict[str, Union[None, str, List[str]]]) -> Generator[Tuple[str, str], None, None]:
@@ -36,18 +37,16 @@ def load_configs(folders: List[str]) -> List[Dict[str, Union[None, str, List[str
 
 
 def topics(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, str, List[str]]]]) -> None:
-    dot.attr('node', shape='none', penwidth='0')
-
     for config in configs:
         for routing_key_element in format_topic('output_keys', config):
-            dot.edge(format_component(config)[0], routing_key_element[0])
-            dot.node(*routing_key_element, shape='box')
+            create_edge(dot, format_component(config)[0], routing_key_element[0])
+            dot.node(*routing_key_element, shape='none')
         for routing_key_element in format_topic('error_output_keys', config):
-            dot.edge(format_component(config)[0], routing_key_element[0])
-            dot.node(*routing_key_element, shape='octagon')
+            create_edge(dot, format_component(config)[0], routing_key_element[0])
+            dot.node(*routing_key_element, shape='none')
         for routing_key_element in format_topic('input_keys', config):
-            dot.node(*routing_key_element, shape='box')
-            dot.edge(routing_key_element[0], format_component(config)[0])
+            dot.node(*routing_key_element, shape='none')
+            create_edge(dot, routing_key_element[0], format_component(config)[0])
 
 
 def derived_edges_inner(output_key: Tuple[str, str], in_keys: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
@@ -67,6 +66,17 @@ def derived_edges(in_keys: List[Tuple[str, str]], out_keys: List[Tuple[str, str]
     return edges
 
 
+total_edges: List[Tuple[str, str]] = []
+
+
+def create_edge(dot: graphviz.Digraph, source: str, target: str) -> None:
+    edge = (source, target)
+    if edge in total_edges:
+        return
+    total_edges.append(edge)
+    dot.edge(*edge)
+
+
 def derived_topics(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, str, List[str]]]]) -> None:
     in_keys: List[Tuple[str, str]] = []
     out_keys: List[Tuple[str, str]] = []
@@ -74,21 +84,26 @@ def derived_topics(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, st
         in_keys.extend(format_topic('input_keys', config))
         out_keys.extend(format_topic('output_keys', config))
     for edge in derived_edges(in_keys, out_keys):
-        dot.edge(*edge)
+        create_edge(dot, *edge)
 
 
 def components(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, str, List[str]]]]) -> None:
-    dot.attr('node', shape='circle', width='2', color='#ffffff80', penwidth='1', fixedsize='true')
+    dot.attr('node', shape='circle', width='2', color='#ffffff80', penwidth='4', fixedsize='true')
 
     for config in configs:
-        dot.node(*format_component(config))
+        style: str = 'solid'
+        penwidth: str = 4
+        if not (config.get('package') and config.get('lib_func')):
+            style = 'dashed'
+            penwidth = 2
+        dot.node(*format_component(config), style=f'{style}', penwidth=f'{penwidth}')
 
 
 def graph(folders: List[str]) -> None:
     configs: List[Dict[str, Union[None, str, List[str]]]] = load_configs(folders)
 
     dot = graphviz.Digraph(comment='Component Diagram')
-    dot.attr('graph', bgcolor='#0071BD', nodesep='2', pad='1')
+    dot.attr('graph', bgcolor='#0071BD', nodesep='2', pad='1', rankdir='TB')
     dot.attr('edge', color='#ffffff80')
     dot.attr('node', fontcolor='#ffffff', fontname='courier')
 
@@ -96,7 +111,7 @@ def graph(folders: List[str]) -> None:
     topics(dot, configs)
     derived_topics(dot, configs)
 
-    dot.render('.ergo.gv', view=True)
+    dot.render('.graph.gv', view=True)
 
 
 if __name__ == '__main__':
