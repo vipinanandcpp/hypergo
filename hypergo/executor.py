@@ -82,7 +82,7 @@ class Executor:
         # store
         envelope: MessageType = message
         if self._storage and "pass_by_reference" in self._config.get("output_operations", []):
-            envelope["storagekey"] = f"pass_by_reference/{Utility.hash(json.dumps(envelope))}"
+            envelope["storagekey"] = f"passbyreference/{Utility.hash(json.dumps(envelope))}"
             self.store(envelope["storagekey"], message)
             envelope["body"] = {}
         return envelope
