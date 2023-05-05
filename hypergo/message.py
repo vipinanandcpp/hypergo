@@ -23,14 +23,14 @@ class Message:
     def from_azure_functions_service_bus_message(message: func.ServiceBusMessage) -> MessageType:
         return {"body": json.loads(message.get_body().decode("utf-8")),
                 "routingkey": message.user_properties["routingkey"],
-                "storagekey":message.user_properties["storagekey"]
+                "storagekey":message.user_properties.get("storagekey")
                 }
 
     @staticmethod
     def to_azure_service_bus_service_bus_message(message: MessageType) -> ServiceBusMessage:
         ret: ServiceBusMessage = ServiceBusMessage(body=json.dumps(message["body"]),
                                                    application_properties={"routingkey": message["routingkey"],
-                                                                           "storagekey": message["storagekey"]
+                                                                           "storagekey": message.get("storagekey")
                                                                            })
         return ret
 
