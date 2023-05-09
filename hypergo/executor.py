@@ -33,10 +33,17 @@ class Executor:
     def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
 
-        def safecast(some_type: type) -> Callable[..., Any]:
-            if some_type == inspect.Parameter.empty:
-                return lambda value: value
-            return get_origin(some_type) or some_type
+        def safecast(expected_type: type, provided_value: Any) -> Any:
+            ret: Any = provided_value
+            value_type: Any = get_origin(expected_type) or expected_type
+
+            if not isinstance(value_type, type):
+                return cast(value_type, provided_value)
+
+            if value_type != inspect.Parameter.empty:
+                ret = value_type(provided_value)
+
+            return ret
 
         for arg, argtype in zip(self._config["input_bindings"], self._arg_spec):
             # determine if arg binding is a literal denoted by '<literal>'
@@ -45,7 +52,7 @@ class Executor:
             if argtype == inspect.Parameter.empty:  # inspect._empty:
                 args.append(val)
             else:
-                args.append(safecast(argtype)(val))
+                args.append(safecast(argtype, val))
 
         return args
 
@@ -125,8 +132,12 @@ class Executor:
         return ".".join(sorted(set(".".join(keys).split("."))))
 
 
-if __name__ == "__main__":
+def main() -> None:
     cfg: ConfigType = {"namespace": "datalink", "name": "csvconverter", "package": "ldp-csv-to-json-converter", "lib_func": "csv_to_json_converter_appliance.__main__.csv_to_json_appliance", "input_keys": ["batch.csv"], "output_keys": ["batch.json"], "input_bindings": ["message.body.data_blob_path"], "output_bindings": ["message.body.json_data"]}
     stg: Storage = LocalStorage()
     executor = Executor(cfg, stg)
     print(executor.retrieve("hypergo/json_test_data.json"))
+
+
+if __name__ == "__main__":
+    main()
