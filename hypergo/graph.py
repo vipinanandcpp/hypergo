@@ -92,7 +92,7 @@ def components(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, str, L
 
     for config in configs:
         style: str = 'solid'
-        penwidth: str = 4
+        penwidth: int = 4
         if not (config.get('package') and config.get('lib_func')):
             style = 'dashed'
             penwidth = 2
