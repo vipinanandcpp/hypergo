@@ -2,8 +2,7 @@ import importlib
 import inspect
 import json
 import re
-from typing import (Any, Callable, Generator, List, Mapping, Union, cast,
-                    get_origin)
+from typing import Any, Callable, Generator, List, Mapping, Union, cast
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
@@ -33,18 +32,6 @@ class Executor:
     def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
 
-        def safecast(expected_type: type, provided_value: Any) -> Any:
-            ret: Any = provided_value
-            value_type: Any = get_origin(expected_type) or expected_type
-
-            if not isinstance(value_type, type):
-                return cast(value_type, provided_value)
-
-            if value_type != inspect.Parameter.empty:
-                ret = value_type(provided_value)
-
-            return ret
-
         for arg, argtype in zip(self._config["input_bindings"], self._arg_spec):
             # determine if arg binding is a literal denoted by '<literal>'
             val: Any = ((match := re.match(r"'(.*)'", arg)) and match.group(1)) or Utility.deep_get(context, arg)
@@ -52,7 +39,7 @@ class Executor:
             if argtype == inspect.Parameter.empty:  # inspect._empty:
                 args.append(val)
             else:
-                args.append(safecast(argtype, val))
+                args.append(Utility.safecast(argtype, val))
 
         return args
 
