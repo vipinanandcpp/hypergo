@@ -86,7 +86,9 @@ class Executor:
 
     def execute(self, input_envelope: MessageType) -> Generator[MessageType, None, None]:
         input_message: MessageType = self.open_envelope(input_envelope)
-        context: ContextType = {"message": input_message, "config": self._config, "storage": self._storage.use_sub_path(self._config["name"])}
+        context: ContextType = {"message": input_message, "config": self._config}
+        if self._storage:
+            context["storage"] = self._storage.use_sub_path(f"component/private/{self._config['name']}")
         args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
         return_values: List[Any] = list(execution) if inspect.isgenerator(execution) else [execution]
