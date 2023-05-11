@@ -2,7 +2,7 @@ import importlib
 import inspect
 import json
 import re
-from typing import Any, Callable, Generator, List, Mapping, Union, cast
+from typing import Any, Callable, Generator, List, Mapping, Optional, cast
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
@@ -23,11 +23,11 @@ class Executor:
         params: Mapping[str, inspect.Parameter] = inspect.signature(func).parameters
         return [params[k].annotation for k in list(params.keys())]
 
-    def __init__(self, config: ConfigType, storage: Union[Storage, None] = None) -> None:
+    def __init__(self, config: ConfigType, storage: Optional[Storage] = None) -> None:
         self._config: ConfigType = config
         self._func_spec: Callable[..., Any] = Executor.func_spec(config["lib_func"])
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
-        self._storage: Union[Storage, None] = storage
+        self._storage: Optional[Storage] = storage
 
     def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
