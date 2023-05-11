@@ -2,8 +2,7 @@ import importlib
 import inspect
 import json
 import re
-from typing import (Any, Callable, Generator, List, Mapping, Union, cast,
-                    get_origin)
+from typing import Any, Callable, Generator, List, Mapping, Union, cast
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
@@ -33,11 +32,6 @@ class Executor:
     def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
 
-        def safecast(some_type: type) -> Callable[..., Any]:
-            if some_type == inspect.Parameter.empty:
-                return lambda value: value
-            return get_origin(some_type) or some_type
-
         for arg, argtype in zip(self._config["input_bindings"], self._arg_spec):
             # determine if arg binding is a literal denoted by '<literal>'
             val: Any = ((match := re.match(r"'(.*)'", arg)) and match.group(1)) or Utility.deep_get(context, arg)
@@ -45,7 +39,7 @@ class Executor:
             if argtype == inspect.Parameter.empty:  # inspect._empty:
                 args.append(val)
             else:
-                args.append(safecast(argtype)(val))
+                args.append(Utility.safecast(argtype, val))
 
         return args
 
@@ -74,6 +68,9 @@ class Executor:
         # bind_input_arguments
 
     def seal_envelope(self, message: MessageType) -> MessageType:
+        # encrypt/decrypt
+        # streaming
+
         # bind_output_arguments
         # output_mapping
         # output_validation
@@ -106,15 +103,8 @@ class Executor:
                 for binding in self._config["output_bindings"]:
                     Utility.deep_set(dst, binding, src)
 
-            def handle_list(dst: ContextType, src: Any) -> None:
-                for binding in self._config["output_bindings"]:
-                    # src[:3] is a debugging hack !!REMOVE!!!
-                    Utility.deep_set(dst, binding, src[:3])
-
             if isinstance(return_value, tuple):
                 handle_tuple(output_context, return_value)
-            elif isinstance(return_value, list):
-                handle_list(output_context, return_value)
             else:
                 handle_default(output_context, return_value)
 
@@ -125,8 +115,12 @@ class Executor:
         return ".".join(sorted(set(".".join(keys).split("."))))
 
 
-if __name__ == "__main__":
+def main() -> None:
     cfg: ConfigType = {"namespace": "datalink", "name": "csvconverter", "package": "ldp-csv-to-json-converter", "lib_func": "csv_to_json_converter_appliance.__main__.csv_to_json_appliance", "input_keys": ["batch.csv"], "output_keys": ["batch.json"], "input_bindings": ["message.body.data_blob_path"], "output_bindings": ["message.body.json_data"]}
     stg: Storage = LocalStorage()
     executor = Executor(cfg, stg)
     print(executor.retrieve("hypergo/json_test_data.json"))
+
+
+if __name__ == "__main__":
+    main()
