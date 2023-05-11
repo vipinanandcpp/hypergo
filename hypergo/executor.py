@@ -68,6 +68,9 @@ class Executor:
         # bind_input_arguments
 
     def seal_envelope(self, message: MessageType) -> MessageType:
+        # encrypt/decrypt
+        # streaming
+
         # bind_output_arguments
         # output_mapping
         # output_validation
@@ -100,15 +103,8 @@ class Executor:
                 for binding in self._config["output_bindings"]:
                     Utility.deep_set(dst, binding, src)
 
-            def handle_list(dst: ContextType, src: Any) -> None:
-                for binding in self._config["output_bindings"]:
-                    # src[:3] is a debugging hack !!REMOVE!!!
-                    Utility.deep_set(dst, binding, src[:3])
-
             if isinstance(return_value, tuple):
                 handle_tuple(output_context, return_value)
-            elif isinstance(return_value, list):
-                handle_list(output_context, return_value)
             else:
                 handle_default(output_context, return_value)
 
