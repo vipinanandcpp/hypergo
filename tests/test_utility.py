@@ -70,22 +70,34 @@ class TestUtility(unittest.TestCase):
     def test_safecast(self) -> None:
         # Test for int type
         expected_output: int = 1
-        provided_value: Union[int, float, str] = 1
-        value_type: type[int] = int
+        provided_value: str = "1"
+        value_type: type = int
         self.assertEqual(Utility.safecast(value_type, provided_value), expected_output)
 
         # Test for float type
         expected_output: float = 1.0
-        provided_value: Union[int, float, str] = 1
-        value_type: type[float] = float
+        provided_value: int = 1
+        value_type: type = float
         self.assertEqual(Utility.safecast(value_type, provided_value), expected_output)
 
-        # Test for unsupported type
-        expected_output: str = "unsupported"
-        provided_value: Union[int, float, str] = "unsupported"
-        value_type: Union[type[int], type[float]] = str
+        # Test for str type
+        expected_output: str = "1"
+        provided_value: int = 1
+        value_type: type = str
         self.assertEqual(Utility.safecast(value_type, provided_value), expected_output)
 
+        # Test for ABC.Meta type
+        from abc import ABC
+        class TestClass(ABC):
+            pass
+        class TestSubClass(TestClass):
+            pass
+        test_sub_class: TestSubClass = TestSubClass()
+        expected_output: TestClass = test_sub_class
+        provided_value: TestSubClass = test_sub_class
+        value_type: ABC.Meta = TestClass
+        self.assertEqual(Utility.safecast(value_type, provided_value), expected_output)
+        
 if __name__ == '__main__':
     # Run the unit tests
     unittest.main()
