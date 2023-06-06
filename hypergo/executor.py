@@ -96,7 +96,8 @@ class Executor:
 
         for return_value in return_values:
             #hypergo-144 adding input routingkey added to the output tokens
-            tokens = self._config["output_keys"] + input_message["routingkey"]
+            tokens = self._config["output_keys"]
+            tokens.append(input_message["routingkey"])
             output_message: MessageType = {"routingkey": self.organize_tokens(tokens), "body": {}}
             output_context: ContextType = {"message": output_message, "config": self._config}
 
