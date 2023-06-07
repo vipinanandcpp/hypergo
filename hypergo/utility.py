@@ -1,6 +1,7 @@
 import hashlib
+import inspect
 import json
-from typing import Any, Dict, Mapping, Union, cast
+from typing import Any, Dict, Mapping, Union, cast, get_origin
 
 import glom
 import yaml
@@ -38,3 +39,16 @@ class Utility:
     @staticmethod
     def hash(content: str) -> str:
         return hashlib.md5(content.encode("utf-8")).hexdigest()
+
+    @staticmethod
+    def safecast(expected_type: type, provided_value: Any) -> Any:
+        ret: Any = provided_value
+        value_type: Any = get_origin(expected_type) or expected_type
+
+        if value_type not in [int, float, complex, bool, str, bytes, bytearray, memoryview, list, tuple, range, set, frozenset, dict]:
+            return cast(value_type, provided_value)
+
+        if value_type != inspect.Parameter.empty:
+            ret = value_type(provided_value)
+
+        return ret

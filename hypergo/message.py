@@ -1,5 +1,6 @@
 import json
 import sys
+from typing import cast
 
 import azure.functions as func
 from azure.servicebus import ServiceBusMessage
@@ -21,11 +22,12 @@ class MessageType(TypedDictType):
 class Message:
     @staticmethod
     def from_azure_functions_service_bus_message(message: func.ServiceBusMessage) -> MessageType:
-        return {"body": json.loads(message.get_body().decode("utf-8")), "routingkey": message.user_properties["routingkey"]}
+        return {"body": json.loads(message.get_body().decode("utf-8")), "routingkey": message.user_properties["routingkey"], "storagekey": cast(str, message.user_properties.get("storagekey"))}
 
     @staticmethod
     def to_azure_service_bus_service_bus_message(message: MessageType) -> ServiceBusMessage:
-        ret: ServiceBusMessage = ServiceBusMessage(body=json.dumps(message["body"]), application_properties={"routingkey": message["routingkey"]})
+        ret: ServiceBusMessage = ServiceBusMessage(body=json.dumps(message["body"]), application_properties={"routingkey": message["routingkey"], "storagekey": cast(str, message.get("storagekey"))})
+
         return ret
 
     # def __init__(self, message: MessageType) -> None:

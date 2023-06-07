@@ -45,6 +45,11 @@ xenon --max-absolute A --max-modules A --max-average A $mod
 # xenon --max-absolute B --max-modules A --max-average A $mod
 if [ $? -ne 0 ]; then { printf "\e[31mFailed, aborting.\e[0m\n" ; exit 1; } fi
 
+printf "\e[1mUnit Tests (unittest) $mod ...\e[0m\n"
+coverage run -m unittest discover -s tests
+coverage report
+if [ $? -ne 0 ]; then { printf "\e[31mFailed, aborting.\e[0m\n" ; exit 1; } fi
+
 # cat > ./.git/hooks/post-commit<< EOF
 # printf "\e[1mgit push\e[0m\n"
 # git push

@@ -30,9 +30,12 @@ def load_configs(folders: List[str]) -> List[Dict[str, Union[None, str, List[str
         config_files = glob.glob(os.path.join(folder, '**/*.json'), recursive=True)
         for config_file in config_files:
             with open(config_file, 'r', encoding='utf8') as stream:
-                config = json.load(stream)
-                if config and 'name' in config:
-                    configs.append(config)
+                config_json = json.load(stream)
+                if not isinstance(config_json, list):
+                    config_json: List(any) = [config_json]
+                for config in config_json:
+                    if config and 'name' in config:
+                        configs.append(config)
     return configs
 
 
@@ -92,7 +95,7 @@ def components(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, str, L
 
     for config in configs:
         style: str = 'solid'
-        penwidth: str = 4
+        penwidth: int = 4
         if not (config.get('package') and config.get('lib_func')):
             style = 'dashed'
             penwidth = 2

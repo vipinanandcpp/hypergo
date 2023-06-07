@@ -1,4 +1,7 @@
 
+- [ ] pycoverage
+- [ ] pytest on top of unittest
+- [ ] make sure utiltiy/safecast tests are thorough
 - [ ] hypergo cli
         hypergo http, stdio, azure, rabbit, etc.
 - [ ] Combine Config and ConfigType, And Message and MessageType
@@ -63,6 +66,9 @@
         - [ ] validation out
         - [ ] serialize
         - [ ] convert
+
+        - [ ] encryption
+        - [ ] streaming
 - [x] Black and other linters
 - [ ] CICD for sdk
 - [ ] Forward from Azure SeviceBus Subscription to Queue (for error handling)

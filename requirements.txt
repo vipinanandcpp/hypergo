@@ -7,7 +7,7 @@ pycodestyle
 mypy
 xenon
 pyyaml
-
+coverage
 glom
 azure-servicebus
 azure-functions
