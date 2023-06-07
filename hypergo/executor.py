@@ -101,8 +101,8 @@ class Executor:
                 #output key will contain context derived from the previous producer routing key 
                 if '?' in input_key:
                     input_key = input_key.replace(".?", "")
-                    input_key_set: set = set(sorted(input_key.split(".")))
-                    routing_key_set: set = set(sorted(routing_key.split(".")))
+                    input_key_set: set = set(input_key.split("."))
+                    routing_key_set: set = set(routing_key.split("."))
                     intersection_set: set = routing_key_set.intersection(input_key_set)
                     #check if the routing key is in the input_key
                     if intersection_set == input_key_set:
