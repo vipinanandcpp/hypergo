@@ -93,11 +93,23 @@ class Executor:
         args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
         return_values: List[Any] = list(execution) if inspect.isgenerator(execution) else [execution]
+        routing_key: str = input_message["routingkey"]
 
         for return_value in return_values:
-            #hypergo-144 adding input routingkey added to the output tokens
             tokens = self._config["output_keys"]
-            tokens.append(input_message["routingkey"])
+            for input_key in self._config["input_keys"]:
+                #hypergo-144 dynamic routing key only for the generic components with '?'
+                #output key will contain context derived from the previous producer routing key 
+                if '?' in input_key:
+                    input_key = input_key.replace(".?", "")
+                    input_key_set: set = set(sorted(input_key.split(".")))
+                    routing_key_set: set = set(sorted(routing_key.split(".")))
+                    intersection_set: set = routing_key_set.intersection(input_key_set)
+                    #check if the routing key is in the input_key
+                    if intersection_set == input_key_set:
+                        #set difference operation to remove the subset of the routing key captured by the component 
+                        #from its input_key and append that to tokens
+                        tokens.append(".".join(sorted(routing_key_set.difference(intersection_set))))
             output_message: MessageType = {"routingkey": self.organize_tokens(tokens), "body": {}}
             output_context: ContextType = {"message": output_message, "config": self._config}
 
@@ -123,7 +135,7 @@ class Executor:
 
             output_envelope: MessageType = self.seal_envelope(output_message)
             yield output_envelope
-
+    
     def organize_tokens(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))
 
