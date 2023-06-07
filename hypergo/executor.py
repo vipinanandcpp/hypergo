@@ -104,7 +104,7 @@ class Executor:
                 intersection_set: set = routing_key_set.intersection(input_key_set)
                 #check if the routing key is in the input_key
                 if intersection_set == input_key_set:
-                    #set difference operation to remove the subset of the routing key captured by the component 
+                    #set difference operation to remove the subset of the routing key captured by the component
                     #from its input_key and assign it to the token string
                     token = ".".join(routing_key_set.difference(intersection_set))
                     break
