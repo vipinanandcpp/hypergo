@@ -108,7 +108,7 @@ class Executor:
                     #from its input_key and append that to tokens
                     token = ".".join(routing_key_set.difference(intersection_set))
                     break
-            tokens = [output_key.replace("?", token) for output_key in self._config["output_keys"]]
+            tokens: List[str] = [output_key.replace("?", token) for output_key in self._config["output_keys"]]
             output_message: MessageType = {"routingkey": self.organize_tokens(tokens), "body": {}}
             output_context: ContextType = {"message": output_message, "config": self._config}
 
