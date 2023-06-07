@@ -95,20 +95,20 @@ class Executor:
         routing_key: str = input_message["routingkey"]
 
         for return_value in return_values:
-            tokens = self._config["output_keys"]
+            token: str = ""
             for input_key in self._config["input_keys"]:
-                #hypergo-144 dynamic routing key only for the generic components with '?'
+                #hypergo-144 dynamic routing key only for generic components
                 #output key will contain context derived from the previous producer routing key 
-                if '?' in input_key:
-                    input_key = input_key.replace(".?", "")
-                    input_key_set: set = set(input_key.split("."))
-                    routing_key_set: set = set(routing_key.split("."))
-                    intersection_set: set = routing_key_set.intersection(input_key_set)
-                    #check if the routing key is in the input_key
-                    if intersection_set == input_key_set:
-                        #set difference operation to remove the subset of the routing key captured by the component 
-                        #from its input_key and append that to tokens
-                        tokens.append(".".join(sorted(routing_key_set.difference(intersection_set))))
+                input_key_set: set = set(input_key.split("."))
+                routing_key_set: set = set(routing_key.split("."))
+                intersection_set: set = routing_key_set.intersection(input_key_set)
+                #check if the routing key is in the input_key
+                if intersection_set == input_key_set:
+                    #set difference operation to remove the subset of the routing key captured by the component 
+                    #from its input_key and append that to tokens
+                    token = ".".join(routing_key_set.difference(intersection_set))
+                    break
+            tokens = [output_key.replace("?", token) for output_key in self._config["output_keys"]]
             output_message: MessageType = {"routingkey": self.organize_tokens(tokens), "body": {}}
             output_context: ContextType = {"message": output_message, "config": self._config}
 
