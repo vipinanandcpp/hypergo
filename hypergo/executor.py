@@ -93,22 +93,22 @@ class Executor:
         execution: Any = self._func_spec(*args)
         return_values: List[Any] = list(execution) if inspect.isgenerator(execution) else [execution]
         routing_key: str = input_message["routingkey"]
-
+        routing_key_set: set = set(routing_key.split("."))
         for return_value in return_values:
-            token: str = ""
+            tokens: List[str] = []
             for input_key in self._config["input_keys"]:
-                #hypergo-144 dynamic routing key only for generic components
-                #output key will contain context derived from the previous producer routing key 
+                # hypergo-144 dynamic routing key only for generic components
+                # output key will contain context derived from the previous producer routing key 
                 input_key_set: set = set(input_key.split("."))
-                routing_key_set: set = set(routing_key.split("."))
                 intersection_set: set = routing_key_set.intersection(input_key_set)
-                #check if the routing key is in the input_key
+                # check if the routing key is in the input_key
                 if intersection_set == input_key_set:
-                    #set difference operation to remove the subset of the routing key captured by the component
-                    #from its input_key and assign it to the token string
-                    token = ".".join(routing_key_set.difference(intersection_set))
-                    break
-            output_tokens: List[str] = [output_key.replace("?", token) for output_key in self._config["output_keys"]]
+                    # set difference operation to remove the subset of the routing key captured by the component
+                    # from its input_key and assign it to the token string
+                    tokens.append(".".join(routing_key_set.difference(intersection_set)))
+            token: str = self.organize_tokens(tokens)
+            output_tokens: List[str] = [self.substitute_delimited_token(output_key, token)
+                                        for output_key in self._config["output_keys"]]
             output_message: MessageType = {"routingkey": self.organize_tokens(output_tokens), "body": {}}
             output_context: ContextType = {"message": output_message, "config": self._config}
 
@@ -127,13 +127,23 @@ class Executor:
 
             output_envelope: MessageType = self.seal_envelope(output_message)
             yield output_envelope
-    
+
+    def substitute_delimited_token(self, input_string: str, token: str, delimiter: str = '?'):
+        regex: str = "(?<![a-zA-Z"+delimiter+"])\\"+delimiter+"(?=\\.)|(?<=\\.)\\"+delimiter+"(?![a-zA-Z"+delimiter+"])"
+        result = re.sub(regex, token, input_string)
+        regex = "(?<=[a-zA-Z"+delimiter+"])\\"+delimiter+"|\\"+delimiter+"(?=[a-zA-Z"+delimiter+"])"
+        result = re.sub(regex, "", result)
+        return result
+
     def organize_tokens(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))
 
 
 def main() -> None:
-    cfg: ConfigType = {"namespace": "datalink", "name": "csvconverter", "package": "ldp-csv-to-json-converter", "lib_func": "csv_to_json_converter_appliance.__main__.csv_to_json_appliance", "input_keys": ["batch.csv"], "output_keys": ["batch.json"], "input_bindings": ["message.body.data_blob_path"], "output_bindings": ["message.body.json_data"]}
+    cfg: ConfigType = {"namespace": "datalink", "name": "csvconverter", "package": "ldp-csv-to-json-converter",
+                       "lib_func": "csv_to_json_converter_appliance.__main__.csv_to_json_appliance",
+                       "input_keys": ["batch.csv"], "output_keys": ["batch.json"],
+                       "input_bindings": ["message.body.data_blob_path"], "output_bindings": ["message.body.json_data"]}
     stg: Storage = LocalStorage()
     executor = Executor(cfg, stg)
     print(executor.retrieve("hypergo/json_test_data.json"))
