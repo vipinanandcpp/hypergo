@@ -107,7 +107,7 @@ class Executor:
                     # from its input_key and append it to tokens
                     tokens.append(".".join(routing_key_set.difference(intersection_set)))
             token: str = self.organize_tokens(tokens)
-            output_tokens: List[str] = [self.substitute_delimited_token(output_key, token)
+            output_tokens: List[str] = [re.sub(r"(?<=\.)\?(?=\.)|^\?|(?<=\.)\?$|^\?$", token, output_key)
                                         for output_key in self._config["output_keys"]]
             output_message: MessageType = {"routingkey": self.organize_tokens(output_tokens), "body": {}}
             output_context: ContextType = {"message": output_message, "config": self._config}
@@ -127,13 +127,6 @@ class Executor:
 
             output_envelope: MessageType = self.seal_envelope(output_message)
             yield output_envelope
-
-    def substitute_delimited_token(self, input_string: str, token: str, delimiter: str = '?'):
-        regex: str = "(?<![a-zA-Z"+delimiter+"])\\"+delimiter+"(?=\\.)|(?<=\\.)\\"+delimiter+"(?![a-zA-Z"+delimiter+"])"
-        result = re.sub(regex, token, input_string)
-        regex = "(?<=[a-zA-Z"+delimiter+"])\\"+delimiter+"|\\"+delimiter+"(?=[a-zA-Z"+delimiter+"])"
-        result = re.sub(regex, "", result)
-        return result
 
     def organize_tokens(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))
