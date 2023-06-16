@@ -1,7 +1,5 @@
 import json
 import unittest
-from typing import Any, Dict, Mapping, Union
-from unittest.mock import MagicMock
 
 import azure.functions as func
 
