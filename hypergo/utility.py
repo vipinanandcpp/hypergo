@@ -45,7 +45,22 @@ class Utility:
         ret: Any = provided_value
         value_type: Any = get_origin(expected_type) or expected_type
 
-        if value_type not in [int, float, complex, bool, str, bytes, bytearray, memoryview, list, tuple, range, set, frozenset, dict]:
+        if value_type not in [
+            int,
+            float,
+            complex,
+            bool,
+            str,
+            bytes,
+            bytearray,
+            memoryview,
+            list,
+            tuple,
+            range,
+            set,
+            frozenset,
+            dict,
+        ]:
             return cast(value_type, provided_value)
 
         if value_type != inspect.Parameter.empty:
