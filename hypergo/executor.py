@@ -31,8 +31,19 @@ class Executor:
 
     def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
-
-        for arg, argtype in zip(self._config["input_bindings"], self._arg_spec):
+        # Hypergo-209 if a component includes custom_configurations key in the config, find the key
+        # closest to the provided input routing key coming from the message and use it to massage 
+        # input_binding values containing ? 
+        input_message_routing_key: str = Utility.deep_get(context, "message.routingkey")
+        input_message_routing_key_set: set = set(input_message_routing_key.split(".")) #set(B)
+        custom_config_arg_value: str = ""
+        #check for multiple topics in the routing key set, if yes, then throw some exception
+        #for key in self._config.get("custom_configurations", {}): Set(A)
+            # set(A).intersection.set(B) = set(A)   
+        #   pass
+        input_bindings: List[str] = [input_binding.replace("?", custom_config_arg_value) 
+                                     for input_binding in self._config["input_bindings"]]
+        for arg, argtype in zip(input_bindings, self._arg_spec):
             # determine if arg binding is a literal denoted by '<literal>'
             val: Any = ((match := re.match(r"'(.*)'", arg)) and match.group(1)) or Utility.deep_get(context, arg)
 
@@ -84,7 +95,7 @@ class Executor:
             envelope["body"] = {}
         return envelope
 
-    def get_unabsorbed_routing_key_token(self, input_message_routing_key: str) -> str:
+    def get_output_routing_key(self, input_message_routing_key: str) -> str:
         routing_key_set: set = set(input_message_routing_key.split("."))
         tokens: List[str] = []
         for input_key in self._config["input_keys"]:
@@ -99,10 +110,6 @@ class Executor:
                 # from its input_key and append it to tokens
                 tokens.append(".".join(routing_key_set.difference(intersection_set)))
         token: str = self.organize_tokens(tokens)
-        return token
-
-    def get_output_routing_key(self, input_message_routing_key: str) -> str:
-        token = self.get_unabsorbed_routing_key_token(input_message_routing_key=input_message_routing_key)
         output_tokens: List[str] = [
             re.sub(r"(?<=\.)\?(?=\.)|^\?|(?<=\.)\?$|^\?$", token, output_key)
             for output_key in self._config["output_keys"]
