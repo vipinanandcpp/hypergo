@@ -31,7 +31,7 @@ class Executor:
             Output:
             {'a': {'b': {'c': 'Apple'}}, 'x': {'y': {'z': 'Orange'}}, 'p': {'q': 'Banana'}}
         '''
-        result = {}
+        result: Dict[str, Any] = {}
         for key, value in data.items():
             keys = key.split('.')
             temp_dict: Dict[str, Any] = result
