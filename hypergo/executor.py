@@ -2,11 +2,10 @@ import importlib
 import inspect
 import json
 import re
-from typing import Any, Callable, Generator, List, Mapping, Optional, cast
+from typing import Any, Callable, Generator, List, Mapping, Optional, Set, cast
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
-from hypergo.custom_types import JsonDict
 from hypergo.local_storage import LocalStorage
 from hypergo.message import MessageType
 from hypergo.storage import Storage
@@ -36,10 +35,10 @@ class Executor:
         # from custom_configurations which is a subset of the routing key coming from the message and use it to massage
         # input_binding values containing ?
         input_message_routing_key: str = Utility.deep_get(context, "message.routingkey")
-        input_message_routing_key_set: set = set(input_message_routing_key.split("."))
+        input_message_routing_key_set: Set[str] = set(input_message_routing_key.split("."))
         custom_config_arg_value: str = ""
         for key in self._config.get("custom_configurations", {}).keys():
-            key_set: set = set(key.split("."))
+            key_set: Set[str] = set(key.split("."))
             # key is a proper subset of the input_message_routing_key_set
             if key_set.intersection(input_message_routing_key_set) == key_set:
                 custom_config_arg_value = key
@@ -101,14 +100,14 @@ class Executor:
         return envelope
 
     def get_output_routing_key(self, input_message_routing_key: str) -> str:
-        routing_key_set: set = set(input_message_routing_key.split("."))
+        routing_key_set: Set[str] = set(input_message_routing_key.split("."))
         tokens: List[str] = []
         for input_key in self._config["input_keys"]:
             # hypergo-144 dynamic routing key only for generic components
             # output key will contain context derived from the previous
             # producer routing key
-            input_key_set: set = set(input_key.split("."))
-            intersection_set: set = routing_key_set.intersection(input_key_set)
+            input_key_set: Set[str] = set(input_key.split("."))
+            intersection_set: Set[str] = routing_key_set.intersection(input_key_set)
             # check if the routing key is in the input_key
             if intersection_set == input_key_set:
                 # set difference operation to remove the subset of the routing key captured by the component
