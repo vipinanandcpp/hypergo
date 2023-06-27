@@ -54,7 +54,7 @@ class Executor:
         # input_binding values containing ?
         config: ConfigType = context["config"]
         input_message_routing_key: str = Utility.deep_get(context, "message.routingkey")
-        input_message_routing_key_set: set = set(input_message_routing_key.split(".")) #set(B)
+        input_message_routing_key_set: set = set(input_message_routing_key.split("."))
         custom_config_arg_value: str = ""
         for key in config.get("custom_configurations",{}).keys():
             key_set: set = set(key.split("."))
