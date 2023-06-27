@@ -92,7 +92,7 @@ if __name__ == "__main__":
         "output_keys": ["?.db.result.link.json"],
         "input_bindings": ["config.custom_configurations.?"],
         "output_bindings": ["message.body.snowflake.db.record"],
-        "custom_configurations":{"specleasing": {"select_query": "SELECT * FROM DP_LNK_DEV_DB.DP_LNK_ENTITIES.SPEC_LEASE_ASSUMPTIONS LIMIT 10;"}}}, 
+        "custom_configurations":{"specleasing": "SELECT * FROM DP_LNK_DEV_DB.DP_LNK_ENTITIES.SPEC_LEASE_ASSUMPTIONS LIMIT 10;"}}, 
                                  new_message):
         print(sdk_message)
 
