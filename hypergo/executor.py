@@ -63,7 +63,7 @@ class Executor:
                 custom_config_arg_value = key
                 break
         custom_configurations: JsonDict = Executor.convert_to_composite_dict(config.get("custom_configurations", {}))
-        context.setdefault("config", {}).update({"custom_configurations": custom_configurations})
+        context['config'].update({"custom_configurations": custom_configurations})
 
         input_bindings: List[str] = [input_binding.replace("?", custom_config_arg_value) 
                                      for input_binding in self._config["input_bindings"]]
