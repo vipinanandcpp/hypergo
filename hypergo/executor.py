@@ -2,7 +2,7 @@ import importlib
 import inspect
 import json
 import re
-from typing import Any, Callable, Generator, List, Mapping, Optional, cast, Dict
+from typing import Any, Callable, Generator, List, Mapping, Optional, cast
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
@@ -23,23 +23,6 @@ class Executor:
     def arg_spec(func: Callable[..., Any]) -> List[type]:
         params: Mapping[str, inspect.Parameter] = inspect.signature(func).parameters
         return [params[k].annotation for k in list(params.keys())]
-    
-    @staticmethod
-    def convert_to_composite_dict(data: dict) -> JsonDict:
-        '''
-            data = {"a.b.c": "Apple", "x.y.z": "Orange", "p.q": "Banana"}
-            Output:
-            {'a': {'b': {'c': 'Apple'}}, 'x': {'y': {'z': 'Orange'}}, 'p': {'q': 'Banana'}}
-        '''
-        result: Dict[str, Any] = {}
-        for key, value in data.items():
-            keys = key.split('.')
-            temp_dict: Dict[str, Any] = result
-            for k in keys[:-1]:
-                temp_dict.setdefault(k, {})
-                temp_dict = temp_dict[k]
-            temp_dict[keys[-1]] = value
-        return result
 
     def __init__(self, config: ConfigType, storage: Optional[Storage] = None) -> None:
         self._config: ConfigType = config
@@ -50,23 +33,21 @@ class Executor:
     def get_args(self, context: ContextType) -> List[Any]:
         args: List[Any] = []
         # Hypergo-209 if a component includes custom_configurations key in the config, find the key
-        # from custom_configurations which is a subset of the routing key coming from the message and use it to massage 
+        # from custom_configurations which is a subset of the routing key coming from the message and use it to massage
         # input_binding values containing ?
-        config: ConfigType = context["config"]
         input_message_routing_key: str = Utility.deep_get(context, "message.routingkey")
         input_message_routing_key_set: set = set(input_message_routing_key.split("."))
         custom_config_arg_value: str = ""
-        for key in config.get("custom_configurations",{}).keys():
+        for key in self._config.get("custom_configurations", {}).keys():
             key_set: set = set(key.split("."))
             # key is a proper subset of the input_message_routing_key_set
             if key_set.intersection(input_message_routing_key_set) == key_set:
                 custom_config_arg_value = key
                 break
-        custom_configurations: JsonDict = Executor.convert_to_composite_dict(config.get("custom_configurations", {}))
-        context['config'].update({"custom_configurations": custom_configurations})
-
-        input_bindings: List[str] = [input_binding.replace("?", custom_config_arg_value) 
-                                     for input_binding in self._config["input_bindings"]]
+        input_bindings: List[str] = [
+            input_binding.replace("?", custom_config_arg_value.replace(".", "\\."))
+            for input_binding in self._config["input_bindings"]
+        ]
         for arg, argtype in zip(input_bindings, self._arg_spec):
             # determine if arg binding is a literal denoted by '<literal>'
             val: Any = ((match := re.match(r"'(.*)'", arg)) and match.group(1)) or Utility.deep_get(context, arg)

@@ -1,9 +1,4 @@
-import os
-import sys
 from typing import Generator
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from hypergo.config import ConfigType
 from hypergo.executor import Executor
@@ -21,7 +16,6 @@ def execute(config: ConfigType, message: MessageType) -> Generator[MessageType, 
 
 # fmt: off
 if __name__ == "__main__":
-    '''
     message1: MessageType = {
         "body": {"data_blob_path": "hypergo/csv_test_data.csv"},
         "routingkey": "batch.csv"
@@ -66,8 +60,8 @@ if __name__ == "__main__":
                     message3):
                 print(str(message4))
 
-    new_message: MessageType = {
-        "body": [{"name": "Chris", "company": "LinkLogistics"}],
+    new_message_1: MessageType = {
+        "body": {"name": "Chris", "company": "LinkLogistics"},
         "routingkey": "a.b.c.x"
     }
     for sdk_message_1 in execute({
@@ -79,10 +73,10 @@ if __name__ == "__main__":
         "output_keys": ["y.h.?.?"],
         "input_bindings": ["message.body"],
         "output_bindings": ["message.body"]
-    }, new_message):
+    }, new_message_1):
         print(sdk_message_1["routingkey"])
-    '''
-    new_message: MessageType = {"body":{}, "routingkey":"link.db.query.specleasing.scheduled.select_query"}
+
+    new_message_2: MessageType = {"body":{}, "routingkey":"link.db.query.specleasing.scheduled.select_query"}
     for sdk_message in execute({
         "namespace": "datalink",
         "name": "snowflakedbexecutor",
@@ -92,8 +86,8 @@ if __name__ == "__main__":
         "output_keys": ["?.db.result.link.json"],
         "input_bindings": ["config.custom_configurations.?"],
         "output_bindings": ["message.body.snowflake.db.record"],
-        "custom_configurations":{"specleasing": "SELECT * FROM DP_LNK_DEV_DB.DP_LNK_ENTITIES.SPEC_LEASE_ASSUMPTIONS LIMIT 10;"}}, 
-                                 new_message):
+        "custom_configurations":{"specleasing.select_query": "SELECT * FROM DP_LNK_DEV_DB.DP_LNK_ENTITIES.VW_UNIT_VALUATIONS LIMIT 10;"}}, 
+                                 new_message_2):
         print(sdk_message)
 
 # fmt: on

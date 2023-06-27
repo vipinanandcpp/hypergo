@@ -4,6 +4,7 @@ import json
 from typing import Any, Dict, Mapping, Union, cast, get_origin
 
 import glom
+import pydash
 import yaml
 
 from hypergo.custom_types import TypedDictType
@@ -12,7 +13,7 @@ from hypergo.custom_types import TypedDictType
 class Utility:
     @staticmethod
     def deep_get(dic: Union[TypedDictType, Dict[str, Any]], key: str) -> Any:
-        return glom.glom(dic, key)
+        return pydash.get(dic, key)
 
     @staticmethod
     def deep_set(dic: Union[TypedDictType, Dict[str, Any]], key: str, val: Any) -> None:
