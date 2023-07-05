@@ -26,7 +26,7 @@ class ConfigType(TypedDictType):
     output_bindings: List[str]
     input_operations: NotRequired[List[str]]
     output_operations: NotRequired[List[str]]
-    custom_configurations: NotRequired[Dict[str, Any]]
+    custom_properties: NotRequired[Dict[str, Any]]
 
 
 class Config:  # pylint: disable=too-many-instance-attributes

@@ -30,21 +30,26 @@ class Executor:
         self._storage: Optional[Storage] = storage
 
     def get_args(self, context: ContextType) -> List[Any]:
+        def get_formatted_input_binding(input_binding: str, routing_key: str) -> str:
+            # Hypergo-209 if a component includes custom_properties key in the config, find the key
+            # from custom_properties which is a subset of the routing key coming from the message and use it to massage
+            # input_binding values containing ?
+            input_message_routing_key_set: Set[str] = set(routing_key.split("."))
+            formatted_input_binding: str = input_binding
+            if "?" in input_binding:
+                for key in self._config.get("custom_properties", {}).keys():
+                    key_set: Set[str] = set(key.split("."))
+                    # key is a proper subset of the
+                    # input_message_routing_key_set
+                    if key_set.intersection(input_message_routing_key_set) == key_set:
+                        formatted_input_binding = input_binding.replace("?", key.replace(".", "\\."))
+                        break
+            return formatted_input_binding
+
         args: List[Any] = []
-        # Hypergo-209 if a component includes custom_configurations key in the config, find the key
-        # from custom_configurations which is a subset of the routing key coming from the message and use it to massage
-        # input_binding values containing ?
         input_message_routing_key: str = Utility.deep_get(context, "message.routingkey")
-        input_message_routing_key_set: Set[str] = set(input_message_routing_key.split("."))
-        custom_config_arg_value: str = ""
-        for key in self._config.get("custom_configurations", {}).keys():
-            key_set: Set[str] = set(key.split("."))
-            # key is a proper subset of the input_message_routing_key_set
-            if key_set.intersection(input_message_routing_key_set) == key_set:
-                custom_config_arg_value = key
-                break
         input_bindings: List[str] = [
-            input_binding.replace("?", custom_config_arg_value.replace(".", "\\."))
+            get_formatted_input_binding(input_binding=input_binding, routing_key=input_message_routing_key)
             for input_binding in self._config["input_bindings"]
         ]
         for arg, argtype in zip(input_bindings, self._arg_spec):
