@@ -31,12 +31,12 @@ class Executor:
 
     def get_args(self, context: ContextType) -> List[Any]:
         def get_formatted_input_binding(input_binding: str, routing_key: str) -> str:
-            # Hypergo-209 if a component includes custom_properties key in the config, find the key
-            # from custom_properties which is a subset of the routing key coming from the message and use it to massage
-            # input_binding values containing ?
-            input_message_routing_key_set: Set[str] = set(routing_key.split("."))
             formatted_input_binding: str = input_binding
             if "?" in input_binding:
+                # Hypergo-209 if a component includes custom_properties key in the config, find the key
+                # from custom_properties which is a subset of the routing key coming from the message 
+                # and use it to massage input_binding values containing ?
+                input_message_routing_key_set: Set[str] = set(routing_key.split("."))
                 for key in self._config.get("custom_properties", {}).keys():
                     key_set: Set[str] = set(key.split("."))
                     # key is a proper subset of the
@@ -44,7 +44,7 @@ class Executor:
                     if key_set.intersection(input_message_routing_key_set) == key_set:
                         formatted_input_binding = input_binding.replace("?", key)
                         break
-            return formatted_input_binding.replace(".", "\\.")
+            return formatted_input_binding
 
         args: List[Any] = []
         input_message_routing_key: str = Utility.deep_get(context, "message.routingkey")

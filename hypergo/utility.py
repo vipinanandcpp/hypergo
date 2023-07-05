@@ -13,7 +13,11 @@ from hypergo.custom_types import TypedDictType
 class Utility:
     @staticmethod
     def deep_get(dic: Union[TypedDictType, Dict[str, Any]], key: str) -> Any:
-        return pydash.get(dic, key)
+        try:
+            return glom.glom(dic, key)
+        except glom.core.PathAccessError:
+            # if they key spec is . limited but dic is not nested
+            return pydash.get(dic, key.replace(".", "\\."))
 
     @staticmethod
     def deep_set(dic: Union[TypedDictType, Dict[str, Any]], key: str, val: Any) -> None:
