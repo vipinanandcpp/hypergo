@@ -42,9 +42,9 @@ class Executor:
                     # key is a proper subset of the
                     # input_message_routing_key_set
                     if key_set.intersection(input_message_routing_key_set) == key_set:
-                        formatted_input_binding = input_binding.replace("?", key.replace(".", "\\."))
+                        formatted_input_binding = input_binding.replace("?", key)
                         break
-            return formatted_input_binding
+            return formatted_input_binding.replace(".", "\\.")
 
         args: List[Any] = []
         input_message_routing_key: str = Utility.deep_get(context, "message.routingkey")
