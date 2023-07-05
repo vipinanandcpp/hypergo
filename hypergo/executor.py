@@ -34,7 +34,7 @@ class Executor:
             formatted_input_binding: str = input_binding
             if "?" in input_binding:
                 # Hypergo-209 if a component includes custom_properties key in the config, find the key
-                # from custom_properties which is a subset of the routing key coming from the message 
+                # from custom_properties which is a subset of the routing key coming from the message
                 # and use it to massage input_binding values containing ?
                 input_message_routing_key_set: Set[str] = set(routing_key.split("."))
                 for key in self._config.get("custom_properties", {}).keys():

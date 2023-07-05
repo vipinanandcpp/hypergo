@@ -15,9 +15,13 @@ class Utility:
     def deep_get(dic: Union[TypedDictType, Dict[str, Any]], key: str) -> Any:
         try:
             return glom.glom(dic, key)
-        except glom.core.PathAccessError:
+        except glom.core.PathAccessError as e:
             # if they key spec is . limited but dic is not nested
-            return pydash.get(dic, key.replace(".", "\\."))
+            result = pydash.get(dic, key.replace(".", "\\."))
+            if result:
+                return result
+            raise e
+            
 
     @staticmethod
     def deep_set(dic: Union[TypedDictType, Dict[str, Any]], key: str, val: Any) -> None:
