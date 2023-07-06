@@ -13,14 +13,10 @@ from hypergo.custom_types import TypedDictType
 class Utility:
     @staticmethod
     def deep_get(dic: Union[TypedDictType, Dict[str, Any]], key: str) -> Any:
-        try:
-            return glom.glom(dic, key)
-        except glom.core.PathAccessError as exception:
-            # if they key spec is . limited but dic is not nested
-            result = pydash.get(dic, key.replace(".", "\\."))
-            if result:
-                return result
-            raise exception
+        result = pydash.get(dic, key)
+        if not result:
+            raise KeyError("Spec {key} not found in the dictionary")
+        return result
 
     @staticmethod
     def deep_set(dic: Union[TypedDictType, Dict[str, Any]], key: str, val: Any) -> None:

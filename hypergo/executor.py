@@ -42,7 +42,7 @@ class Executor:
                     # key is a proper subset of the
                     # input_message_routing_key_set
                     if key_set.intersection(input_message_routing_key_set) == key_set:
-                        formatted_input_binding = input_binding.replace("?", key)
+                        formatted_input_binding = input_binding.replace("?", key.replace('.', '\\.'))
                         break
             return formatted_input_binding
 
@@ -127,12 +127,12 @@ class Executor:
 
     def execute(self, input_envelope: MessageType) -> Generator[MessageType, None, None]:
         input_message: MessageType = self.open_envelope(input_envelope)
-        output_routing_key: str = self.get_output_routing_key(input_message["routingkey"])
         context: ContextType = {"message": input_message, "config": self._config}
         if self._storage:
             context["storage"] = self._storage.use_sub_path(f"component/private/{self._config['name']}")
         args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
+        output_routing_key: str = self.get_output_routing_key(input_message["routingkey"])
         return_values: List[Any] = list(execution) if inspect.isgenerator(execution) else [execution]
         for return_value in return_values:
             output_message: MessageType = {"routingkey": output_routing_key, "body": {}}
