@@ -23,15 +23,25 @@ class MessageType(TypedDictType):
 class Message:
     @staticmethod
     def from_azure_functions_service_bus_message(message: func.ServiceBusMessage) -> MessageType:
-        return {"body": json.loads(message.get_body().decode("utf-8")), "routingkey": message.user_properties["routingkey"], "storagekey": cast(str, message.user_properties.get("storagekey"))}
+        return {
+            "body": json.loads(message.get_body().decode("utf-8")),
+            "routingkey": message.user_properties["routingkey"],
+            "storagekey": cast(str, message.user_properties.get("storagekey")),
+        }
 
     @staticmethod
     def from_http_request(request: func.HttpRequest) -> MessageType:
-        return {"body": request.get_json(), "routingkey": 'http_request' + urlparse(request.url).path.replace('/', '.')}
+        return {"body": request.get_json(), "routingkey": "http_request" + urlparse(request.url).path.replace("/", ".")}
 
     @staticmethod
     def to_azure_service_bus_service_bus_message(message: MessageType) -> ServiceBusMessage:
-        ret: ServiceBusMessage = ServiceBusMessage(body=json.dumps(message["body"]), application_properties={"routingkey": message["routingkey"], "storagekey": cast(str, message.get("storagekey"))})
+        ret: ServiceBusMessage = ServiceBusMessage(
+            body=json.dumps(message["body"]),
+            application_properties={
+                "routingkey": message["routingkey"],
+                "storagekey": cast(str, message.get("storagekey")),
+            },
+        )
 
         return ret
 
