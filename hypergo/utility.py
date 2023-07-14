@@ -15,7 +15,7 @@ class Utility:
     def deep_get(dic: Union[TypedDictType, Dict[str, Any]], key: str) -> Any:
         result = pydash.get(dic, key)
         if not result:
-            raise KeyError("Spec {key} not found in the dictionary")
+            raise KeyError(f"Spec {key} not found in the dictionary")
         return result
 
     @staticmethod
