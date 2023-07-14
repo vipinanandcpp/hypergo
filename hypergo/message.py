@@ -31,7 +31,7 @@ class Message:
 
     @staticmethod
     def from_http_request(request: func.HttpRequest) -> MessageType:
-        return {"body": request.get_json(), "routingkey": "http_request" + urlparse(request.url).path.replace("/", ".")}
+        return {"body": request.get_json(), "routingkey": "http.http_trigger" + urlparse(request.url).path.replace("/", ".")}
 
     @staticmethod
     def to_azure_service_bus_service_bus_message(message: MessageType) -> ServiceBusMessage:

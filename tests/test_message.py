@@ -15,7 +15,7 @@ class TestMessage(unittest.TestCase):
         result = Message.from_http_request(http_request)
 
         self.assertEqual(result['body'],  {'good': 'json'})
-        self.assertEqual(result['routingkey'], 'http_request.api.HttpRequestHandler.other_tag')
+        self.assertEqual(result['routingkey'], 'http.http_trigger.api.HttpRequestHandler.other_tag')
 
 if __name__ == '__main__':
     # Run the unit tests
