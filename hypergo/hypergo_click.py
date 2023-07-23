@@ -21,10 +21,7 @@ def shell() -> int:
 @click.argument('arg', nargs=-1)
 @click.option('--stdin', is_flag=True, default=False, help='Read input from stdin.')
 def run(ref: str, arg: Tuple[str], stdin: bool) -> int:
-    if stdin and not sys.stdin.isatty():
-        stdin_data = sys.stdin.read().strip()
-        if stdin_data:
-            arg = (stdin_data,) + arg
+    arg = (stdin_data,) + arg if stdin and not sys.stdin.isatty() and (stdin_data := sys.stdin.read().strip()) else arg
     return HYPERGO_CLI.run(ref, *list(arg))
 
 @main.command()
