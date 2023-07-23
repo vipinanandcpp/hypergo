@@ -1,3 +1,56 @@
+## Release Notes - Version X.Y.Z
+
+### New Features and Enhancements
+- Added a new utility function `traverse_datastructures` in the `hypergo.utility` module. This function allows traversing through nested data structures such as dictionaries and lists and applies a transformation function on each element, enabling easier serialization and deserialization of complex data structures.
+
+### Changes to Existing Functionality
+- Modified the `hypergo.transform.Transform.serialization` method to use the new `traverse_datastructures` utility function for serialization, improving the serialization process for nested data structures.
+
+### Bug Fixes
+- Fixed an issue in the `hypergo.utility.deserialize` function, where binary data and bytes were not being deserialized correctly. The function now properly deserializes binary data and bytes.
+
+### Testing
+- Expanded the test suite in `tests.test_utility_serialization.py` to include comprehensive tests for various data types and nested data structures.
+- Added a new test method `test_comprehensive_dict` in `tests.test_utility_serialization.py`, which tests the serialization and deserialization of a comprehensive dictionary containing various data types, nested dictionaries, lists, functions, classes, and instances.
+- The test suite now achieves higher code coverage and ensures more robustness of the serialization and deserialization process.
+
+### Miscellaneous
+- Updated the `hypergo.utility.serialize` and `hypergo.utility.deserialize` methods to handle edge cases and improve the overall reliability of the serialization and deserialization process.
+
+### Deprecations and Removals
+- None.
+
+### Internal Refactorings
+- Internal optimizations and code refactorings for improved maintainability and performance.
+
+### Known Issues
+- None.
+
+### Contributors
+- Thanks to [Contributor Name](mailto:contributor@example.com) for their valuable contributions to this release.
+
+### Note
+- Please update your code to use the new `traverse_datastructures` utility function for serialization and deserialization of nested data structures to ensure compatibility with the latest version.
+
+---
+
+# Release Notes - Version X.Y.Z
+
+## New Features
+
+- Added `sdk unit tests` decorator which automates testing in the linter.
+- Added more decorators for `validation`, `compression`, and `encryption`.
+
+## Changes
+
+- The `Executor` class in `hypergo/executor.py` now includes a new method `execute` with the `Transform.serialization` decorator, allowing for serialization of function objects.
+
+## Dependencies
+
+- Added `dill` as a new dependency.
+
+Please note that this is just a summary of the changes made. For more detailed information, you can refer to the individual files and their corresponding commits.
+
 # Release Notes
 
 ## Version X.Y.Z (Date)
