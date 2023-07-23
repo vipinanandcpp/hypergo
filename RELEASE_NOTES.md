@@ -1,5 +1,58 @@
 # Release Notes
 
+## Version X.Y.Z (Date)
+
+### Bug Fixes
+
+- Fixed a bug in `hypergo/config.py` that caused an issue with importing the `NotRequired` type.
+- Fixed a bug in `hypergo/executor.py` where input bindings were not formatted correctly.
+
+### Removed Code
+
+- Removed the `Config` class from `hypergo/config.py`.
+- Removed the `load_configs` function from `hypergo/graph.py`.
+
+### Refactoring
+
+- Refactored the `ConfigType` class in `hypergo/config.py` to use the `TypedDictType` from `hypergo/custom_types.py`.
+- Refactored the `from_yaml` and `from_json` methods in `Config` class from `hypergo/config.py`.
+- Refactored the `graph` function in `hypergo/graph.py` to load multiple configuration files.
+
+### Miscellaneous
+
+- Updated dependencies: `typing_extensions` to `NotRequired` in `hypergo/config.py`.
+- Improved error handling in `hypergo/hypergo_cli.py` when executing commands.
+
+### Removed Unused Imports
+
+- Removed unused imports from `hypergo/config.py`.
+- Removed unused imports from `hypergo/hypergo_cli.py`.
+- Removed unused imports from `hypergo/hypergo_click.py`.
+
+### Updated CLI Output
+
+- Updated the CLI output in `hypergo/hypergo_cli.py` to show version information and prompt.
+
+### Performance Improvements
+
+- Improved performance in `hypergo/hypergo_cmd.py` by handling recognized commands efficiently.
+
+### Documentation Updates
+
+- Updated documentation in `hypergo/config.py` to reflect changes and add missing comments.
+- Updated the `graph` function documentation in `hypergo/graph.py`.
+- Updated documentation in `hypergo/message.py`.
+- Updated the `consume` method documentation in `hypergo/stdio_connection.py`.
+
+### Code Clean-Up
+
+- Cleaned up unused code and commented-out code from several files.
+
+
+---
+
+# Release Notes
+
 ## Version 1.1.0
 
 ### HypergoCli Class Updates:

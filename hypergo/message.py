@@ -2,6 +2,7 @@ import json
 import sys
 from typing import cast
 from urllib.parse import urlparse
+
 import azure.functions as func
 from azure.servicebus import ServiceBusMessage
 
@@ -30,11 +31,14 @@ class Message:
 
     @staticmethod
     def from_http_request(request: func.HttpRequest) -> MessageType:
-        return {"body": request.get_json(), "routingkey": "http.azurefunction" + urlparse(request.url).path.replace("/", ".")}
+        return {
+            "body": request.get_json(),
+            "routingkey": "http.azurefunction" + urlparse(request.url).path.replace("/", "."),
+        }
 
     @staticmethod
-    def from_stdio_message(stdin: str):
-        return json.loads(stdin)
+    def from_stdio_message(stdin: str) -> MessageType:
+        return cast(MessageType, json.loads(stdin))
 
     @staticmethod
     def to_azure_service_bus_service_bus_message(message: MessageType) -> ServiceBusMessage:

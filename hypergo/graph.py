@@ -35,7 +35,6 @@ def load_configs(folders: List[str]) -> List[Dict[str, Union[None, str, List[str
         for config_file in config_files:
             with open(config_file, 'r', encoding='utf8') as stream:
                 config_json = json.load(stream)
-                print(config_json)
                 if not isinstance(config_json, list):
                     config_json = [config_json]
                 for config in config_json:
