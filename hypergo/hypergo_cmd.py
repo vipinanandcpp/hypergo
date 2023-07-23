@@ -1,6 +1,7 @@
 import cmd
 from typing import IO, List, Optional, cast
 from hypergo.hypergo_cli import HypergoCli
+import sys
 
 class HypergoCmd(cmd.Cmd):
     intro: str = ''
@@ -19,11 +20,6 @@ class HypergoCmd(cmd.Cmd):
             return super().onecmd(line)
 
         args: List[str] = splitline[1:]
-        if not sys.stdin.isatty():
-            stdin_data = sys.stdin.read().strip()
-            if stdin_data:
-                args = [stdin_data] + args
-
         return cast(callable, getattr(self._cli, command))(args[0], *args[1:])
 
     def do_exit(self, line: str) -> bool:
