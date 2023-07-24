@@ -3,7 +3,9 @@ import binascii
 import hashlib
 import inspect
 import json
-from typing import Any, Callable, Dict, Mapping, Union, cast, get_origin
+import lzma
+from typing import (Any, Callable, Dict, Mapping, Optional, Union, cast,
+                    get_origin)
 
 import dill
 import glom
@@ -110,3 +112,27 @@ class Utility:
             return deserialized
         except (binascii.Error, dill.UnpicklingError, AttributeError):
             return serialized
+
+    @staticmethod
+    def compress(data: Any, key: Optional[str] = None) -> Any:
+        root_data = {"root": data}
+        root_key = f"root.{key}" if key else "root"
+        Utility.deep_set(
+            root_data,
+            root_key,
+            base64.b64encode(lzma.compress(json.dumps(Utility.deep_get(root_data, root_key)).encode("utf-8"))).decode(
+                "utf-8"
+            ),
+        )
+        return data
+
+    @staticmethod
+    def uncompress(compressed_data: Any, key: Optional[str] = None) -> Any:
+        root_data = {"root": compressed_data}
+        root_key = f"root.{key}" if key else "root"
+        Utility.deep_set(
+            root_data,
+            root_key,
+            json.loads(lzma.decompress(base64.b64decode(Utility.deep_get(root_data, root_key))).decode("utf-8")),
+        )
+        return compressed_data
