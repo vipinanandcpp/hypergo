@@ -1,3 +1,32 @@
+## Release Notes
+
+### Features
+
+- Added `serialization` method to the `Transform` class in `hypergo/transform.py`. The `serialization` method takes a callable `func` and returns a generator that serializes and deserializes data using the `Utility.serialize` and `Utility.deserialize` functions. This allows for easy serialization of data for message passing.
+
+### Bug Fixes
+
+- None
+
+### Possible Future Enhancements
+
+1. **Improved Type Annotations**: Consider adding more precise type annotations to the methods and functions in the codebase, especially for the input parameters and return values. This can enhance code readability and enable better static type checking with tools like `mypy`.
+
+2. **Unit Tests**: Introduce comprehensive unit tests to ensure the correctness of the code and improve its maintainability. Test the edge cases and various scenarios to catch potential bugs early and avoid regressions in future changes.
+
+3. **Serialization for More Data Types**: Extend the serialization and deserialization capabilities of `Utility.serialize` and `Utility.deserialize` functions to support a wider range of data types. This can include support for custom classes and objects.
+
+4. **Error Handling**: Enhance error handling in the codebase to provide informative error messages and handle potential exceptions more gracefully. This can improve the overall robustness and user experience.
+
+### Additional Notes
+
+- Updated `hypergo/utility.py` to improve serialization and deserialization functions. The `Utility.serialize` function now handles additional data types, including `None`, `bool`, `int`, `float`, and `str`. It also includes a new `traverse_datastructures` decorator to handle serialization of dictionaries, lists, and tuples recursively.
+- The `Utility.deserialize` function has been improved to handle potential decoding and unpickling errors and gracefully return the input `serialized` data if an error occurs.
+
+These release notes highlight the changes made in the codebase and provide suggestions for possible future enhancements. Incorporating these enhancements can lead to improved code quality, maintainability, and user experience.
+
+---
+
 ## Release Notes - Version X.Y.Z
 
 ### New Features and Enhancements
