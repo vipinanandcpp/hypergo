@@ -1,3 +1,4 @@
+-e .
 autopep8
 black
 isort
@@ -11,3 +12,4 @@ coverage
 glom
 azure-servicebus
 azure-functions
+types-PyYAML

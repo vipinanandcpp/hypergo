@@ -1,6 +1,6 @@
 ----------
 # PHASE 1
-- [ ] local component runner
+- [x] local component runner
 - [ ] decorators
         - [ ] serialization
         - [ ] validation
@@ -8,6 +8,10 @@
         - [ ] encryption
         - [ ] mapping
         - [ ] transactions
+- [ ] graph fixes
+        - [ ] group like types into subgraphs
+        - [ ] support wildcard configurations
+        - [ ] show payloads or bindings
 - [ ] routing key specific configuration
         - [ ] consolidate custom_properties into routing key configurations
         - [ ] custom_properties support (or equivalent)
@@ -43,7 +47,6 @@
 - [ ] kafka (or similar) event stream
 - [ ] additional decorators
         - [ ] streaming
-- [ ] command line interface
 ----------
 
 - [ ] pycoverage
