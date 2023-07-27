@@ -1,3 +1,52 @@
+## Release Notes - Version X.Y.Z (Replace X.Y.Z with the actual version number)
+
+### New Features
+
+- Added **compression** decorator to the `hypergo/transform.py` module.
+  - This decorator allows data compression before serialization to optimize storage and transmission.
+  - Usage: `@Transform.compression("key")` applied to a function that returns a generator.
+  - Data is compressed using LZMA and then encoded in Base64 for efficient storage and decoding.
+  - When decompressing, the data is decoded from Base64 and then decompressed using LZMA.
+  - Example usage:
+    ```python
+    @Transform.compression("body")
+    @Transform.serialization
+    def execute(self, input_envelope: MessageType) -> Generator[MessageType, None, None]:
+        # Function code...
+    ```
+
+### Changes
+
+- Updated the `hypergo/BACKLOG.md` file to mark tasks as completed in **PHASE 1**:
+  - The **decorators** task is now marked as completed.
+  - The sub-task **serialization** under **decorators** is also marked as completed.
+
+### Bug Fixes
+
+- None
+
+### Improvements
+
+- None
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
+### Security
+
+- None
+
+### Internal
+
+- None
+
+---
+
 ## Release Notes
 
 ### Features

@@ -126,6 +126,7 @@ class Executor:
         ]
         return self.organize_tokens(output_tokens)
 
+    @Transform.compression("body")
     @Transform.serialization
     def execute(self, input_envelope: MessageType) -> Generator[MessageType, None, None]:
         input_message: MessageType = self.open_envelope(input_envelope)
