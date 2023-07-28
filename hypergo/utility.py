@@ -1,13 +1,30 @@
+import base64
+import binascii
 import hashlib
 import inspect
 import json
-from typing import Any, Dict, Mapping, Union, cast, get_origin
+import lzma
+from typing import (Any, Callable, Dict, Mapping, Optional, Union, cast,
+                    get_origin)
 
+import dill
 import glom
 import pydash
 import yaml
 
 from hypergo.custom_types import TypedDictType
+
+
+def traverse_datastructures(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
+    def wrapper(value: Any) -> Any:
+        handlers: Dict[type, Callable[[Any], Any]] = {
+            dict: lambda _dict: {wrapper(key): wrapper(val) for key, val in _dict.items()},
+            list: lambda _list: [wrapper(item) for item in _list],
+            tuple: lambda _tuple: tuple(wrapper(item) for item in _tuple),
+        }
+        return handlers.get(type(value), func)(value)
+
+    return wrapper
 
 
 class Utility:
@@ -71,3 +88,51 @@ class Utility:
             ret = value_type(provided_value)
 
         return ret
+
+    @staticmethod
+    @traverse_datastructures
+    def serialize(obj: Any) -> Union[None, bool, int, float, str]:
+        if type(obj) in [None, bool, int, float, str]:
+            return cast(Union[None, bool, int, float, str], obj)
+
+        serialized: bytes = dill.dumps(obj)
+        encoded: bytes = base64.b64encode(serialized)
+        utfdecoded: str = encoded.decode("utf-8")
+        return utfdecoded
+
+    @staticmethod
+    @traverse_datastructures
+    def deserialize(serialized: str) -> Any:
+        if not serialized:
+            return serialized
+        try:
+            utfencoded: bytes = serialized.encode("utf-8")
+            decoded: bytes = base64.b64decode(utfencoded)
+            deserialized: Any = dill.loads(decoded)
+            return deserialized
+        except (binascii.Error, dill.UnpicklingError, AttributeError):
+            return serialized
+
+    @staticmethod
+    def compress(data: Any, key: Optional[str] = None) -> Any:
+        root_data = {"root": data}
+        root_key = f"root.{key}" if key else "root"
+        Utility.deep_set(
+            root_data,
+            root_key,
+            base64.b64encode(lzma.compress(json.dumps(Utility.deep_get(root_data, root_key)).encode("utf-8"))).decode(
+                "utf-8"
+            ),
+        )
+        return data
+
+    @staticmethod
+    def uncompress(compressed_data: Any, key: Optional[str] = None) -> Any:
+        root_data = {"root": compressed_data}
+        root_key = f"root.{key}" if key else "root"
+        Utility.deep_set(
+            root_data,
+            root_key,
+            json.loads(lzma.decompress(base64.b64decode(Utility.deep_get(root_data, root_key))).decode("utf-8")),
+        )
+        return compressed_data

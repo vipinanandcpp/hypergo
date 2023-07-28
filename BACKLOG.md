@@ -1,8 +1,11 @@
 ----------
 # PHASE 1
 - [x] local component runner
-- [ ] decorators
-        - [ ] serialization
+- [x] decorators
+        - [x] serialization
+- [ ] sdk unit tests
+        - [ ] automated in linter
+- [ ] more decorators
         - [ ] validation
         - [ ] compression
         - [ ] encryption
@@ -38,7 +41,6 @@
 ----------
 # PHASE 2
 
-- [ ] sdk unit tests
 - [ ] component unit test template
 - [ ] instrumentation
 - [ ] monitoring
