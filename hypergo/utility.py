@@ -29,10 +29,10 @@ def traverse_datastructures(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
 
 class Utility:
     @staticmethod
-    def deep_get(dic: Union[TypedDictType, Dict[str, Any]], key: str) -> Any:
-        if not pydash.has(dic, key):
-            raise KeyError(f"Spec {key}  not found in the dictionary")
-        return pydash.get(dic, key)
+    def deep_get(dic: Union[TypedDictType, Dict[str, Any]], key: str, default_sentinel: Optional[Any] = object) -> Any:
+        if not pydash.has(dic, key) and default_sentinel == object:
+            raise KeyError(f"Spec \"{key}\" not found in the dictionary {json.dumps(dic)}")
+        return pydash.get(dic, key, default_sentinel)
 
     @staticmethod
     def deep_set(dic: Union[TypedDictType, Dict[str, Any]], key: str, val: Any) -> None:
