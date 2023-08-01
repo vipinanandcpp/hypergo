@@ -1,14 +1,15 @@
 import importlib
 import inspect
 import re
-from typing import Any, Callable, Generator, List, Mapping, Optional, Set, cast
+from typing import (Any, Callable, Dict, Generator, List, Mapping, Match,
+                    Optional, Set, cast)
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
 from hypergo.message import MessageType
 from hypergo.storage import Storage
 from hypergo.transform import Transform
-from hypergo.utility import Utility
+from hypergo.utility import Utility, traverse_datastructures
 
 
 class Executor:
@@ -37,38 +38,48 @@ class Executor:
         return self._config
 
     def get_args(self, context: ContextType) -> List[Any]:
-        def get_formatted_input_binding(input_binding: str, routing_key: str) -> str:
-            formatted_input_binding: str = input_binding
-            if "?" in input_binding:
-                # Hypergo-209 if a component includes custom_properties key in the config, find the key
-                # from custom_properties which is a subset of the routing key coming from the message
-                # and use it to massage input_binding values containing ?
-                input_message_routing_key_set: Set[str] = set(routing_key.split("."))
-                for key in self._config.get("custom_properties", {}).keys():
+        def do_question_mark(input_string: str) -> str:
+            def find_best_key(field_path: List[str], routingkey: str) -> str:
+                rk_set: Set[str] = set(routingkey.split("."))
+                matched_key: str = ""
+                maxlen: int = 0
+                for key in Utility.deep_get(context, ".".join(field_path)):
                     key_set: Set[str] = set(key.split("."))
-                    # key is a proper subset of the
-                    # input_message_routing_key_set
-                    if key_set.intersection(input_message_routing_key_set) == key_set:
-                        formatted_input_binding = input_binding.replace("?", key.replace(".", "\\."))
-                        break
-            return formatted_input_binding
+                    if key_set.intersection(rk_set) == key_set and len(key_set) > maxlen:
+                        maxlen = len(key_set)
+                        matched_key = key
+                return re.sub(r"\.", "\\.", matched_key)
 
-        args: List[Any] = []
-        input_message_routing_key: str = Utility.deep_get(context, "message.routingkey")
-        input_bindings: List[str] = [
-            get_formatted_input_binding(input_binding=input_binding, routing_key=input_message_routing_key)
-            for input_binding in self._config["input_bindings"]
+            node_path: List[str] = []
+            for node in input_string.split("."):
+                node_path.append(
+                    find_best_key(node_path, Utility.deep_get(context, "message.routingkey")) if node == "?" else node
+                )
+            return ".".join(node_path)
+
+        def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
+            @traverse_datastructures
+            def substitute(string: str, data: Dict[str, Any]) -> Any:
+                match: Optional[Match[str]] = re.match(r"^{([^}]+)}$", string)
+                return (
+                    Utility.deep_get(data, do_question_mark(match.group(1)), match.group(0))
+                    if match
+                    else re.sub(
+                        r"{([^}]+)}",
+                        lambda match: str(Utility.deep_get(data, do_question_mark(match.group(1)), match.group(0))),
+                        string,
+                    )
+                )
+
+            return substitute(value, data)
+
+        return [
+            val if argtype == inspect.Parameter.empty else Utility.safecast(argtype, val)
+            for val, argtype in zip(
+                do_substitution(Utility.deep_get(self._config, "input_bindings"), cast(Dict[str, Any], context)),
+                self._arg_spec,
+            )
         ]
-        for arg, argtype in zip(input_bindings, self._arg_spec):
-            # determine if arg binding is a literal denoted by '<literal>'
-            val: Any = ((match := re.match(r"'(.*)'", arg)) and match.group(1)) or Utility.deep_get(context, arg)
-
-            if argtype == inspect.Parameter.empty:  # inspect._empty:
-                args.append(val)
-            else:
-                args.append(Utility.safecast(argtype, val))
-
-        return args
 
     def get_output_routing_key(self, input_message_routing_key: str) -> str:
         routing_key_set: Set[str] = set(input_message_routing_key.split("."))
