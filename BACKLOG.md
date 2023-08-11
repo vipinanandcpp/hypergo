@@ -1,5 +1,6 @@
 ----------
 # PHASE 1
+- [ ] fix git push issues
 - [x] local component runner
 - [x] decorators
         - [x] serialization
