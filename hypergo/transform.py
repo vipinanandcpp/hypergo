@@ -22,8 +22,8 @@ class Transform:
     ) -> Callable[[Callable[..., Generator[T, None, None]]], Callable[..., Generator[T, None, None]]]:
         def decorator(func: Callable[..., Generator[T, None, None]]) -> Callable[..., Generator[T, None, None]]:
             def wrapped_func(self: Any, data: T) -> Generator[T, None, None]:
-                input_operations = Utility.deep_get(self.config, "input_operations", default_sentinel=[])
-                output_operations = Utility.deep_get(self.config, "output_operations", default_sentinel=[])
+                input_operations = Utility.deep_get(self.config, "input_operations", [])
+                output_operations = Utility.deep_get(self.config, "output_operations", [])
 
                 if "compression" in input_operations:
                     data = Utility.uncompress(data, key)
@@ -44,8 +44,8 @@ class Transform:
         def wrapped_func(self: Any, data: T) -> Generator[JsonDict, None, None]:
             storage: Storage = self.storage.use_sub_path("passbyreference")
             the_data: JsonType = cast(JsonType, data)
-            input_operations: List[str] = Utility.deep_get(self.config, "input_operations", default_sentinel=[])
-            output_operations: List[str] = Utility.deep_get(self.config, "output_operations", default_sentinel=[])
+            input_operations: List[str] = Utility.deep_get(self.config, "input_operations", [])
+            output_operations: List[str] = Utility.deep_get(self.config, "output_operations", [])
 
             if "pass_by_reference" in input_operations:
                 storage_key = Utility.deep_get(cast(JsonDict, data), "storagekey")

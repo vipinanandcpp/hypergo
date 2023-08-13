@@ -4,7 +4,7 @@ import hashlib
 import inspect
 import json
 import lzma
-from typing import (Any, Callable, Dict, Mapping, Optional, Union, cast,
+from typing import (Any, Callable, Dict, Mapping, Optional, Tuple, Union, cast,
                     get_origin)
 
 import dill
@@ -15,14 +15,14 @@ import yaml
 from hypergo.custom_types import JsonType, TypedDictType
 
 
-def traverse_datastructures(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
-    def wrapper(value: Any) -> Any:
+def traverse_datastructures(func: Callable[..., Any]) -> Callable[..., Any]:
+    def wrapper(value: Any, *args: Tuple[Any, ...]) -> Any:
         handlers: Dict[type, Callable[[Any], Any]] = {
-            dict: lambda _dict: {wrapper(key): wrapper(val) for key, val in _dict.items()},
-            list: lambda _list: [wrapper(item) for item in _list],
-            tuple: lambda _tuple: tuple(wrapper(item) for item in _tuple),
+            dict: lambda _dict, *args: {wrapper(key, *args): wrapper(val, *args) for key, val in _dict.items()},
+            list: lambda _list, *args: [wrapper(item, *args) for item in _list],
+            tuple: lambda _tuple, *args: tuple(wrapper(item, *args) for item in _tuple),
         }
-        return handlers.get(type(value), func)(value)
+        return handlers.get(type(value), func)(value, *args)
 
     return wrapper
 
