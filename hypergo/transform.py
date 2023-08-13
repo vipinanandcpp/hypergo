@@ -9,7 +9,6 @@ T = TypeVar("T")
 
 ENCRYPTIONKEY = "KRAgZMBXbP1OQQEJPvMTa6nfkVq63sgL2ULJIaMgfLA="
 
-
 def config_v0_v1_passbyreference_backward_compatible(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(data: Any, key: str, *args: Tuple[Any, ...]) -> Any:
@@ -27,7 +26,6 @@ def config_v0_v1_passbyreference_backward_compatible(func: Callable[..., Any]) -
         return func(data, use_key, *args)
 
     return wrapper
-
 
 class Transform:
     @staticmethod
@@ -62,9 +60,7 @@ class Transform:
                                 key = ".".join(tokens[1:])
                             result = args[1][0](result, key, *args[1][1:])
                     yield result
-
             return wrapper
-
         return decorator
 
     @staticmethod
