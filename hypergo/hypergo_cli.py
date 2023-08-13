@@ -1,11 +1,12 @@
 import datetime
+import json
 import os
 import sys
 from typing import List
 
 from colors import color
 
-from hypergo.config import Config, ConfigType
+from hypergo.config import ConfigType
 from hypergo.graph import graph as hypergraph
 from hypergo.local_storage import LocalStorage
 from hypergo.stdio_connection import StdioConnection
@@ -32,7 +33,8 @@ class HypergoCli:
 
     def stdio(self, ref: str, *args: str) -> int:
         try:
-            config: ConfigType = Config.from_json(ref)
+            with open(ref, "r", encoding="utf-8") as file:
+                config: ConfigType = json.load(file)
 
             if not sys.stdin.isatty():
                 stdin_data = sys.stdin.read().strip()
