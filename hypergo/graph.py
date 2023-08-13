@@ -1,33 +1,56 @@
-"""Summary."""
+from typing import List, Dict, Any
 import glob
-import json
 import os
-import sys
-from typing import Dict, Generator, List, Tuple, Union
-
+import json
+from hypergo.utility import Utility
+from collections import OrderedDict
+import re
 import graphviz
 
+nodes = []
 
-def format_component(config: Dict[str, Union[None, str, List[str]]]) -> Tuple[str, str]:
-    component_string = (
-        f'<<table border="0" cellborder="0"><tr><td bgcolor="#0071BD">{config.get("name")}</td></tr></table>>'
-    )
-    return (f'component_{config.get("name")}', component_string)
+class Node:
+    def __init__(self, name):
+        self._name = ".".join(sorted(set(name.split("."))))
+        self._nodes = []
+        nodes.append(self)
+
+    def add_node(self, node):
+        self._nodes.append(node)
+
+    def __str__(self):
+        return self._name
+
+class Component(Node):
+    def __init__(self, config):
+        super().__init__(Utility.deep_get(config, "name"))
+        self._config = config
+
+    def attr(self):
+        config = lambda key: Utility.deep_get(self._config, key, None)
+        defined = config("package") and config("lib_func")
+        return {
+            "fontcolor": "#ffffff" if defined else "#000000",
+            "color": "#ffffff80" if defined else "#00000080",
+            "style": "solid" if defined else "dashed",
+            "penwidth": "4" if defined else "4",
+            "fixedsize": "true",
+            "shape": "circle",
+            "width": "3",
+            "label": f'<<table border="0" cellborder="0"><tr><td bgcolor="#0071BD">{str(self)}</td></tr></table>>'
+        }
 
 
-def format_topic(
-    typestr: str, config: Dict[str, Union[None, str, List[str]]]
-) -> Generator[Tuple[str, str], None, None]:
-    tlist = config.get(typestr) or []
-    if isinstance(tlist, str):
-        tlist = [tlist]
+class Edge(Node):
+    def attr(self):
+        return {
+            "fontcolor": "#88A8D8",
+            "fixedsize": "false",
+            "shape": "none",
+            "label": str(self)
+        }
 
-    for routingkey_element in tlist:
-        routingkey_str = '.'.join(sorted('&#x3a;'.join(routingkey_element.split(':')).split('.')))
-        yield (f'routingkey_{routingkey_str}', routingkey_str)
-
-
-def load_configs(folders: List[str]) -> List[Dict[str, Union[None, str, List[str]]]]:
+def load_configs(folders: List[str]) -> List[Dict[str, Any]]:
     configs = []
 
     for folder in folders:
@@ -43,83 +66,61 @@ def load_configs(folders: List[str]) -> List[Dict[str, Union[None, str, List[str
     return configs
 
 
-def topics(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, str, List[str]]]]) -> None:
+
+
+def do_graph(keys: List[str], folders: List[str]) -> None:
+    configs: List[Dict[str: Any]] = load_configs(folders)
     for config in configs:
-        for routing_key_element in format_topic('output_keys', config):
-            create_edge(dot, format_component(config)[0], routing_key_element[0])
-            dot.node(*routing_key_element, shape='none', fixedsize='false')
-        for routing_key_element in format_topic('error_output_keys', config):
-            create_edge(dot, format_component(config)[0], routing_key_element[0])
-            dot.node(*routing_key_element, shape='none', fixedsize='false')
-        for routing_key_element in format_topic('input_keys', config):
-            dot.node(*routing_key_element, shape='none', fixedsize='false')
-            create_edge(dot, routing_key_element[0], format_component(config)[0])
+        for ok in keys:
+            build_graph(Edge(ok), config, configs)
 
 
-def derived_edges_inner(output_key: Tuple[str, str], in_keys: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
-    edges: List[Tuple[str, str]] = []
-    for input_key in in_keys:
-        if input_key[0] == output_key[0]:
-            continue
-        if all(key in output_key[1].split('.') for key in input_key[1].split('.')):
-            edges.append((output_key[0], input_key[0]))
-    return edges
+def build_graph(out_edge, cfg, configs):
+    out_key = str(out_edge)
+    
+    get_key = lambda key: Utility.deep_get(cfg, key)
+        
+    for input_key in get_key("input_keys"):
+        if set(input_key.split(".")).issubset(set(out_key.split("."))):
+            in_edge = Edge(input_key)
+            out_edge.add_node(in_edge)
+            
+            component = Component(cfg)
+            in_edge.add_node(component)
+            
+            for output_key in get_key("output_keys"):
+                calculated_out_key = re.sub(r"\?", ".".join(set(out_key.split(".")) - set(input_key.split("."))), output_key)
+                outbound = Edge(calculated_out_key)
+
+                for config in configs:
+                    build_graph(outbound, config, configs)             
+
+                if calculated_out_key != output_key:
+                    interim = Edge(output_key)
+                    interim.add_node(outbound)
+                    outbound = interim
+                
+                component.add_node(outbound)
 
 
-def derived_edges(in_keys: List[Tuple[str, str]], out_keys: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
-    edges: List[Tuple[str, str]] = []
-    for output_key in out_keys:
-        edges.extend(derived_edges_inner(output_key, in_keys))
-    return edges
-
-
-total_edges: List[Tuple[str, str]] = []
-
-
-def create_edge(dot: graphviz.Digraph, source: str, target: str) -> None:
-    edge = (source, target)
-    if edge in total_edges:
-        return
-    total_edges.append(edge)
-    dot.edge(*edge)
-
-
-def derived_topics(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, str, List[str]]]]) -> None:
-    in_keys: List[Tuple[str, str]] = []
-    out_keys: List[Tuple[str, str]] = []
-    for config in configs:
-        in_keys.extend(format_topic('input_keys', config))
-        out_keys.extend(format_topic('output_keys', config))
-    for edge in derived_edges(in_keys, out_keys):
-        create_edge(dot, *edge)
-
-
-def components(dot: graphviz.Digraph, configs: List[Dict[str, Union[None, str, List[str]]]]) -> None:
-    dot.attr('node', shape='circle', width='2', color='#ffffff80', penwidth='4', fixedsize='true')
-
-    for config in configs:
-        style: str = 'solid'
-        penwidth: int = 4
-        if not (config.get('package') and config.get('lib_func')):
-            style = 'dashed'
-            penwidth = 2
-        dot.node(*format_component(config), style=f'{style}', penwidth=f'{penwidth}')
-
-
-def graph(folders: List[str]) -> None:
-    configs: List[Dict[str, Union[None, str, List[str]]]] = load_configs(folders)
+def graph(rks: List[str], folders: List[str]) -> None:
+    do_graph(rks, folders)
 
     dot = graphviz.Digraph(comment='Component Diagram')
     dot.attr('graph', bgcolor='#0071BD', nodesep='2', pad='1', rankdir='TB')
     dot.attr('edge', color='#ffffff80')
-    dot.attr('node', fontcolor='#ffffff', fontname='courier')
-
-    components(dot, configs)
-    topics(dot, configs)
-    derived_topics(dot, configs)
+    dot.attr('node', fontcolor='#ffffff', fontname='courier', fontsize="30")
+   
+    for node in nodes:
+        dot.node(str(node), **node.attr())
+    edges = set()
+    for node in nodes:
+        for child in node._nodes:
+            if (str(node) == str(child)):
+                continue
+            edges.add((str(node), str(child)))
+    for edge in edges:
+        dot.edge(*edge, color="#ffffff88", arrowsize="1.0", minlen="3")
 
     dot.render('.graph.gv', view=True)
 
-
-if __name__ == '__main__':
-    graph(sys.argv[1:])

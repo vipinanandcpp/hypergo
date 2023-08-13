@@ -51,6 +51,6 @@ class HypergoCli:
 
         return 0
 
-    def graph(self, *args: str) -> int:
-        hypergraph(list(args))
+    def graph(self, rks, *args: str) -> int:
+        hypergraph(rks, list(args))
         return 0

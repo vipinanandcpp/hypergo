@@ -1,5 +1,5 @@
 import sys
-from typing import Tuple
+from typing import Tuple, List
 
 import click
 from click_default_group import DefaultGroup
@@ -31,9 +31,10 @@ def stdio(ref: str, arg: Tuple[str, ...], stdin: bool) -> int:
         arg = (stdin_data,) + arg
     return HYPERGO_CLI.stdio(ref, *list(arg))
 
-
 @main.command()
 @click.argument('ref', type=click.STRING)
 @click.argument('arg', nargs=-1)
-def graph(ref: str, arg: Tuple[str]) -> int:
-    return HYPERGO_CLI.graph(ref, *list(arg))
+@click.option('--rk', '-r', multiple=True, type=click.STRING, help='Identify the input routingkeys for the pipeline')
+def graph(rk: List[str], ref: str, arg: Tuple[str]) -> int:
+    print(rk)
+    return HYPERGO_CLI.graph(rk, ref, *list(arg))
