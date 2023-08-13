@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import sys
+from typing import List
 
 from colors import color
 
@@ -51,6 +52,6 @@ class HypergoCli:
 
         return 0
 
-    def graph(self, rks, *args: str) -> int:
-        hypergraph(rks, list(args))
+    def graph(self, keys: List[str], *args: str) -> int:
+        hypergraph(keys, list(args))
         return 0
