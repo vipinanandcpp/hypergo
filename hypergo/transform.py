@@ -62,11 +62,23 @@ class Transform:
                     output_operations[oper] = []
                 if op_name in input_operations:
                     for key in input_operations[op_name] or [None]:
+                        try:
+                            tokens = key.split(".")
+                            if tokens[0] == "message":
+                                key = ".".join(tokens[1:])
+                        except AttributeError:
+                            pass
                         data = args[0][0](data, key, *args[0][1:])
 
                 for result in func(self, data):
                     if op_name in output_operations:
                         for key in output_operations[op_name] or [None]:
+                            try:
+                                tokens = key.split(".")
+                                if tokens[0] == "message":
+                                    key = ".".join(tokens[1:])
+                            except AttributeError:
+                                pass
                             result = args[1][0](result, key, *args[1][1:])
                     yield result
 
@@ -90,7 +102,6 @@ class Transform:
     @staticmethod
     def stash_transaction(data: Any, key: str, storage: Storage) -> Any:
         txid = f"{Utility.deep_get(data, '__txid__')}"
-        print(txid)
         storage.save(txid, str(Utility.deep_get(data, "transaction")))
         Utility.deep_set(data, "transaction", txid)
         Utility.deep_del(data, "__txid__")

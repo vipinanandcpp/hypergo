@@ -1,8 +1,9 @@
 ----------
 # PHASE 1
+- [ ] hypergo tool create library out of a function so it can be tested
 - [ ] update config cli instead of blind update at runtime
 - [ ] prefixes for passbyref, serialization, compression, encryption, etc.
-- [ ] context decorator
+- [x] context decorator
 - [x] local component runner
 - [x] decorators
         - [x] serialization
@@ -16,34 +17,34 @@
         - [x] compression
         - [ ] encryption
         - [ ] mapping
-        - [ ] transactions
+        - [x] transactions
 - [ ] clean up utility class
 - [ ] graph fixes
-        - [ ] xenon complexity issues
+        - [x] xenon complexity issues
         - [ ] group like types into subgraphs
-        - [ ] support wildcard configurations
+        - [x] support wildcard configurations
         - [ ] show payloads or bindings
 - [ ] routing key specific configuration
         - [ ] consolidate custom_properties into routing key configurations
-        - [ ] custom_properties support (or equivalent)
-- [ ] automatic passthru routing keys
+        - [x] custom_properties support (or equivalent)
+- [x] automatic passthru routing keys
         - [ ] how do we terminate them if unconsumed
 - [ ] function injection
-        - safe cast arguments
+        - [ ] safe cast arguments
 - [ ] mapper library
 - [ ] configuration version routing
         - [ ] use mapper library to map old configuration into new
 - [ ] mapping instead of bindings
         - [ ] dict/list/str parsing (use mapper library)
                 - [ ] functions with eval?
-                - [ ] "?" wildcards
+                - [x] "?" wildcards
 - [ ] routing key management
         - [ ] "matched input key"
 - [ ] transaction support
         - [ ] higher level transactions
                 - [ ] request response
                 - [ ] map/reduce
-- [ ] linting and mypy
+- [x] linting and mypy
 
 
 ----------
