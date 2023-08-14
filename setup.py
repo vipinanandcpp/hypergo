@@ -21,7 +21,7 @@ setup(
         'graphviz',
         'urllib3<2.0',
         'dill',
-        'cryptography'
+        'cryptography',
     ],
     entry_points={
         'console_scripts': [

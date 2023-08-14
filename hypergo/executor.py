@@ -113,11 +113,10 @@ class Executor:
     @Transform.operation("pass_by_reference")
     @Transform.operation("compression")
     @Transform.operation("encryption")
+    @Transform.operation("transaction")
     @Transform.operation("serialization")
-    def execute(self, input_message: MessageType) -> Generator[MessageType, None, None]:
-        context: ContextType = {"message": input_message, "config": self._config}
-        if self._storage:
-            context["storage"] = self._storage.use_sub_path(f"component/private/{self._config['name']}")
+    @Transform.operation("contextualization")
+    def execute(self, context: Any) -> Generator[MessageType, None, None]:
         # This mutates config with substitutions - not necessary for input binding substitution
         # Unclear which approach is better - do we want the original config with references?  Or
         # Do we want to mutate config and replace values with substitutions?
@@ -126,10 +125,15 @@ class Executor:
         context["config"] = do_substitution(context["config"], cast(Dict[str, Any], context))
         args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
-        output_routing_key: str = self.get_output_routing_key(input_message["routingkey"])
+        output_routing_key: str = self.get_output_routing_key(Utility.deep_get(context, "message.routingkey"))
         return_values: List[Any] = list(execution) if inspect.isgenerator(execution) else [execution]
         for return_value in return_values:
-            output_message: MessageType = {"routingkey": output_routing_key, "body": {}}
+            output_message: MessageType = {
+                "routingkey": output_routing_key,
+                "body": {},
+                "transaction": Utility.deep_get(context, "message.transaction"),
+                "__txid__": Utility.deep_get(context, "message.__txid__"),
+            }
             output_context: ContextType = {"message": output_message, "config": self._config}
 
             def handle_tuple(dst: ContextType, src: Any) -> None:
