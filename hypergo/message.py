@@ -1,12 +1,13 @@
 import json
 import sys
-from typing import cast
+from typing import Union, cast
 from urllib.parse import urlparse
 
 import azure.functions as func
 from azure.servicebus import ServiceBusMessage
 
 from hypergo.custom_types import JsonDict, TypedDictType
+from hypergo.transaction import Transaction
 
 if sys.version_info >= (3, 11):
     from typing import NotRequired
@@ -18,6 +19,8 @@ class MessageType(TypedDictType):
     body: JsonDict
     routingkey: str
     storagekey: NotRequired[str]
+    transaction: NotRequired[Union[str, Transaction]]
+    __txid__: NotRequired[str]
 
 
 class Message:
@@ -27,6 +30,7 @@ class Message:
             "body": json.loads(message.get_body().decode("utf-8")),
             "routingkey": message.user_properties["routingkey"],
             "storagekey": cast(str, message.user_properties.get("storagekey")),
+            "transaction": message.user_properties["transaction"],
         }
 
     @staticmethod

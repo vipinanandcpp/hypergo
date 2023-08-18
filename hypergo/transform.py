@@ -1,13 +1,15 @@
 from functools import wraps
-from typing import Any, Callable, Generator, List, Tuple, TypeVar, cast
+from typing import Any, Callable, Dict, Generator, List, Tuple, TypeVar, cast
 
 from hypergo.custom_types import JsonDict
 from hypergo.storage import Storage
+from hypergo.transaction import Transaction
 from hypergo.utility import Utility, root_node
 
 T = TypeVar("T")
 
 ENCRYPTIONKEY = "KRAgZMBXbP1OQQEJPvMTa6nfkVq63sgL2ULJIaMgfLA="
+
 
 def config_v0_v1_passbyreference_backward_compatible(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
@@ -27,6 +29,7 @@ def config_v0_v1_passbyreference_backward_compatible(func: Callable[..., Any]) -
 
     return wrapper
 
+
 class Transform:
     @staticmethod
     def operation(op_name: str) -> Callable[..., Any]:
@@ -42,26 +45,80 @@ class Transform:
                         [Transform.storebyreference, self.storage],
                     ],
                     "encryption": [[Utility.decrypt, ENCRYPTIONKEY], [Utility.encrypt, ENCRYPTIONKEY]],
+                    "contextualization": [
+                        [Transform.add_context, self.storage, self.config],
+                        [Transform.remove_context],
+                    ],
+                    "transaction": [
+                        [Transform.restore_transaction, self.storage.use_sub_path("transactions")],
+                        [Transform.stash_transaction, self.storage.use_sub_path("transactions")],
+                    ],
                 }[op_name]
                 input_operations = Utility.deep_get(self.config, "input_operations", {})
                 output_operations = Utility.deep_get(self.config, "output_operations", {})
+
+                for oper in ["contextualization", "transaction"]:
+                    input_operations[oper] = []
+                    output_operations[oper] = []
                 if op_name in input_operations:
                     for key in input_operations[op_name] or [None]:
-                        tokens = key.split(".")
-                        if tokens[0] == "message":
-                            key = ".".join(tokens[1:])
+                        try:
+                            tokens = key.split(".")
+                            if tokens[0] == "message":
+                                key = ".".join(tokens[1:])
+                        except AttributeError:
+                            pass
                         data = args[0][0](data, key, *args[0][1:])
 
                 for result in func(self, data):
                     if op_name in output_operations:
                         for key in output_operations[op_name] or [None]:
-                            tokens = key.split(".")
-                            if tokens[0] == "message":
-                                key = ".".join(tokens[1:])
+                            try:
+                                tokens = key.split(".")
+                                if tokens[0] == "message":
+                                    key = ".".join(tokens[1:])
+                            except AttributeError:
+                                pass
                             result = args[1][0](result, key, *args[1][1:])
                     yield result
+
             return wrapper
+
         return decorator
+
+    @staticmethod
+    def restore_transaction(data: Any, key: str, storage: Storage) -> Any:
+        transaction = None
+        txid = Utility.deep_get(data, "transaction", None)
+        if not txid:
+            transaction = Transaction()
+            txid = f"transactionkey_{transaction.txid}"
+        else:
+            transaction = Transaction.from_str(storage.load(txid))
+        Utility.deep_set(data, "__txid__", txid)
+        Utility.deep_set(data, "transaction", transaction)
+        return data
+
+    @staticmethod
+    def stash_transaction(data: Any, key: str, storage: Storage) -> Any:
+        txid = f"{Utility.deep_get(data, '__txid__')}"
+        storage.save(txid, str(Utility.deep_get(data, "transaction")))
+        Utility.deep_set(data, "transaction", txid)
+        Utility.deep_del(data, "__txid__")
+        return data
+
+    @staticmethod
+    def add_context(input_message: Any, key: str, base_storage: Storage, config: Dict[str, Any]) -> Any:
+        context: Dict[str, Any] = {"message": input_message, "config": config}
+        if base_storage:
+            context["storage"] = base_storage.use_sub_path(
+                f"component/private/{Utility.deep_get(context, 'config.name')}"
+            )
+        return context
+
+    @staticmethod
+    def remove_context(data: Any, key: str) -> Any:
+        return data
 
     @staticmethod
     @root_node

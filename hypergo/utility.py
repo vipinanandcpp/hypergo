@@ -4,6 +4,8 @@ import hashlib
 import inspect
 import json
 import lzma
+import uuid
+from datetime import datetime
 from functools import wraps
 from typing import (Any, Callable, Dict, Mapping, Optional, Tuple, Union, cast,
                     get_origin)
@@ -39,6 +41,22 @@ def root_node(func: Callable[..., Any]) -> Callable[..., Any]:
 
 
 class Utility:
+    @staticmethod
+    def unique_identifier() -> str:
+        # return str(uuid.uuid4())
+        return f"{datetime.utcnow().strftime('%Y%m%d%H%M%S%f')}{str(uuid.uuid4())[:8]}"
+
+    @staticmethod
+    def deep_del(dic: Dict[str, Any], key: str) -> None:
+        tokens = key.split(".")
+        deep_key = ".".join(tokens[:-1])
+        del_key = tokens[-1]
+        if not deep_key:
+            del dic[del_key]
+        else:
+            obj = Utility.deep_get(dic, deep_key)
+            del obj[del_key]
+
     @staticmethod
     def deep_has(dic: Union[TypedDictType, Dict[str, Any]], key: str) -> bool:
         return pydash.has(dic, key)
@@ -117,9 +135,14 @@ class Utility:
     @staticmethod
     @root_node
     @traverse_datastructures
-    def serialize(obj: Any, key: Optional[str] = None) -> Union[None, bool, int, float, str]:
+    def serialize(obj: Any, key: Optional[str] = None) -> Any:
         if type(obj) in [None, bool, int, float, str]:
             return cast(Union[None, bool, int, float, str], obj)
+
+        try:
+            return obj.serialize()
+        except AttributeError:
+            pass
 
         serialized: bytes = dill.dumps(obj)
         encoded: bytes = base64.b64encode(serialized)
