@@ -64,7 +64,7 @@ class Utility:
     @staticmethod
     def deep_get(dic: Union[TypedDictType, Dict[str, Any]], key: str, default_sentinel: Optional[Any] = object) -> Any:
         if not pydash.has(dic, key) and default_sentinel == object:
-            raise KeyError(f"Spec \"{key}\" not found in the dictionary {str(dic)}")
+            raise KeyError(f"Spec \"{key}\" not found in the dictionary {json.dumps(Utility.serialize(dic, None))}")
         return pydash.get(dic, key, default_sentinel)
 
     @staticmethod

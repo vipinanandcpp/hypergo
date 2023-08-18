@@ -10,7 +10,7 @@ from hypergo.message import MessageType
 from hypergo.storage import Storage
 from hypergo.transform import Transform
 from hypergo.utility import Utility, traverse_datastructures
-
+from functools import wraps
 
 def do_question_mark(context: Dict[str, Any], input_string: Any) -> str:
     def find_best_key(field_path: List[str], routingkey: str) -> str:
@@ -39,11 +39,11 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
         if isinstance(string, str):
             match: Optional[Match[str]] = re.match(r"^{([^}]+)}$", string)
             result = (
-                Utility.deep_get(data, do_question_mark(data, match.group(1)), None)  # match.group(0))
+                Utility.deep_get(data, do_question_mark(data, match.group(1)), match.group(0))
                 if match
                 else re.sub(
                     r"{([^}]+)}",
-                    lambda match: str(Utility.deep_get(data, do_question_mark(data, match.group(1)), "")),
+                    lambda match: str(Utility.deep_get(data, do_question_mark(data, match.group(1)), match.group(0))),
                     string,
                 )
             )
@@ -54,6 +54,12 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
 
     return substitute(value, data)
 
+def configsubstitution(func):
+    @wraps(func)
+    def wrapper(self, data):
+        self._config = do_substitution(self._config, {"config": self._config, "message": data})
+        return func(self, data)
+    return wrapper
 
 class Executor:
     @staticmethod
@@ -110,6 +116,8 @@ class Executor:
         ]
         return self.organize_tokens(output_tokens)
 
+
+    @configsubstitution
     @Transform.operation("pass_by_reference")
     @Transform.operation("compression")
     @Transform.operation("encryption")
