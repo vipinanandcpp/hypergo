@@ -57,7 +57,7 @@ class Config:
                     "input_keys": lambda source: source("input_keys"),
                     "output_keys": lambda source: source("output_keys"),
                     "input_bindings": lambda source: [
-                        re.sub(r"^'(.+)'$", "\\1", re.sub(r"^([^'].+[^'])$", "{\\1}", field))
+                        field if isinstance(field, int) else re.sub(r"^'(.+)'$", "\\1", re.sub(r"^([^'].+[^'])$", "{\\1}", field))
                         for field in source("input_bindings")
                     ],
                     "output_bindings": lambda source: source("output_bindings"),
@@ -86,25 +86,24 @@ class Config:
                     "custom_properties": lambda source: source("custom_properties"),
                 }
             ),
-            "2.X.X": Mapping(
-                {
-                    "version": "2.0.0",
-                    "name": lambda source: source("name"),
-                    "namespace": lambda source: source("namespace"),
-                    "package": lambda source: source("package"),
-                    "lib_func": lambda source: source("lib_func"),
-                    "input_keys": lambda source: source("input_keys"),
-                    "output_keys": lambda source: source("output_keys"),
-                    "input_bindings": lambda source: source("input_bindings"),
-                    "output_bindings": lambda source: source("output_bindings"),
-                    "input_operations": lambda source: source("input_operations"),
-                    "output_operations": lambda source: source("output_operations"),
-                    "custom_properties": lambda source: source("custom_properties"),
-                }
-            ),
+            # "2.X.X": Mapping(
+            #     {
+            #         "version": "3.0.0",
+            #         "name": lambda source: source("name"),
+            #         "namespace": lambda source: source("namespace"),
+            #         "package": lambda source: source("package"),
+            #         "lib_func": lambda source: source("lib_func"),
+            #         "input_keys": lambda source: source("input_keys"),
+            #         "output_keys": lambda source: source("output_keys"),
+            #         "input_bindings": lambda source: source("input_bindings"),
+            #         "output_bindings": lambda source: source("output_bindings"),
+            #         "input_operations": lambda source: source("input_operations"),
+            #         "output_operations": lambda source: source("output_operations"),
+            #         "custom_properties": lambda source: source("custom_properties"),
+            #     }
+            # ),
         }.get(re.sub(r"(\d)\.\d\.\d", "\\1.X.X", Utility.deep_get(cfg_dict, "version", "0.0.0")))
 
         if not mapping:
             return cast(ConfigType, cfg_dict)
-
         return Config.convert(mapping.map(cfg_dict))
