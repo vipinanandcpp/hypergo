@@ -1,14 +1,17 @@
 import os
+from functools import wraps
+from typing import Any, Callable
 
 from hypergo.storage import Storage
-from typing import Any, Callable
-from functools import wraps
 
-def addsubfolder(func: Callable[[...], Any]):
+
+def addsubfolder(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
-    def wrapper(self, file_name, *args):
+    def wrapper(self: Any, file_name: str, *args: Any) -> Any:
         return func(self, f".hypergo_storage/{file_name}", *args)
+
     return wrapper
+
 
 class LocalStorage(Storage):
     @addsubfolder

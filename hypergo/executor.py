@@ -1,6 +1,7 @@
 import importlib
 import inspect
 import re
+from functools import wraps
 from typing import (Any, Callable, Dict, Generator, List, Mapping, Match,
                     Optional, Set, cast)
 
@@ -10,7 +11,7 @@ from hypergo.message import MessageType
 from hypergo.storage import Storage
 from hypergo.transform import Transform
 from hypergo.utility import Utility, traverse_datastructures
-from functools import wraps
+
 
 def do_question_mark(context: Dict[str, Any], input_string: Any) -> str:
     def find_best_key(field_path: List[str], routingkey: str) -> str:
@@ -54,12 +55,15 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
 
     return substitute(value, data)
 
-def configsubstitution(func):
+
+def configsubstitution(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
-    def wrapper(self, data):
-        self._config = do_substitution(self._config, {"config": self._config, "message": data})
+    def wrapper(self: Any, data: Any) -> Any:
+        self.config = do_substitution(self.config, {"config": self.config, "message": data})
         return func(self, data)
+
     return wrapper
+
 
 class Executor:
     @staticmethod
@@ -85,6 +89,10 @@ class Executor:
     @property
     def config(self) -> ConfigType:
         return self._config
+
+    @config.setter
+    def config(self, config: ConfigType) -> None:
+        self._config = config
 
     def get_args(self, context: ContextType) -> List[Any]:
         return [
@@ -115,7 +123,6 @@ class Executor:
             for output_key in self._config["output_keys"]
         ]
         return self.organize_tokens(output_tokens)
-
 
     @configsubstitution
     @Transform.operation("pass_by_reference")

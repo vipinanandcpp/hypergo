@@ -57,7 +57,9 @@ class Config:
                     "input_keys": lambda source: source("input_keys"),
                     "output_keys": lambda source: source("output_keys"),
                     "input_bindings": lambda source: [
-                        field if isinstance(field, int) else re.sub(r"^'(.+)'$", "\\1", re.sub(r"^([^'].+[^'])$", "{\\1}", field))
+                        field
+                        if isinstance(field, int)
+                        else re.sub(r"^'(.+)'$", "\\1", re.sub(r"^([^'].+[^'])$", "{\\1}", field))
                         for field in source("input_bindings")
                     ],
                     "output_bindings": lambda source: source("output_bindings"),
