@@ -8,7 +8,7 @@ from typing import Any, Dict  # , Tuple, Union
 
 from hypergo.utility import Utility
 
-CALLER_DEPTH: int = 11
+CALLER_DEPTH: int = 10
 
 
 class JSONFormatter(logging.Formatter):
