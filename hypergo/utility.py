@@ -4,6 +4,7 @@ import hashlib
 import inspect
 import json
 import lzma
+import os
 import uuid
 from datetime import datetime
 from functools import wraps
@@ -40,7 +41,17 @@ def root_node(func: Callable[..., Any]) -> Callable[..., Any]:
     return wrapper
 
 
-class Utility:
+class Utility:  # pylint: disable=too-many-public-methods
+    @staticmethod
+    def create_folders_for_file(file_path: str) -> str:
+        directory: str = os.path.dirname(file_path)
+        try:
+            os.makedirs(directory)
+        except OSError as error:
+            if not os.path.isdir(directory):
+                raise error
+        return file_path
+
     @staticmethod
     def unique_identifier() -> str:
         # return str(uuid.uuid4())

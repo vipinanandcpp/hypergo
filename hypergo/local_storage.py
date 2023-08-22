@@ -1,8 +1,8 @@
-import os
 from functools import wraps
 from typing import Any, Callable
 
 from hypergo.storage import Storage
+from hypergo.utility import Utility
 
 
 def addsubfolder(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -22,15 +22,7 @@ class LocalStorage(Storage):
 
     @addsubfolder
     def save(self, file_name: str, content: str) -> None:
-        def create_folders_for_file(file_path: str) -> None:
-            directory: str = os.path.dirname(file_path)
-            try:
-                os.makedirs(directory)
-            except OSError as error:
-                if not os.path.isdir(directory):
-                    raise error
-
-        create_folders_for_file(file_name)
+        Utility.create_folders_for_file(file_name)
 
         with open(file_name, "w", encoding="utf-8") as file:
             file.write(content)

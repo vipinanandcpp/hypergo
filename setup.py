@@ -22,6 +22,7 @@ setup(
         'urllib3<2.0',
         'dill',
         'cryptography',
+        'logging'
     ],
     entry_points={
         'console_scripts': [
