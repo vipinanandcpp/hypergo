@@ -1,6 +1,7 @@
 import importlib
 import inspect
 import re
+from functools import wraps
 from typing import (Any, Callable, Dict, Generator, List, Mapping, Match,
                     Optional, Set, cast)
 
@@ -39,11 +40,11 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
         if isinstance(string, str):
             match: Optional[Match[str]] = re.match(r"^{([^}]+)}$", string)
             result = (
-                Utility.deep_get(data, do_question_mark(data, match.group(1)), None)  # match.group(0))
+                Utility.deep_get(data, do_question_mark(data, match.group(1)), match.group(0))
                 if match
                 else re.sub(
                     r"{([^}]+)}",
-                    lambda match: str(Utility.deep_get(data, do_question_mark(data, match.group(1)), "")),
+                    lambda match: str(Utility.deep_get(data, do_question_mark(data, match.group(1)), match.group(0))),
                     string,
                 )
             )
@@ -53,6 +54,15 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
         return result
 
     return substitute(value, data)
+
+
+def configsubstitution(func: Callable[..., Any]) -> Callable[..., Any]:
+    @wraps(func)
+    def wrapper(self: Any, data: Any) -> Any:
+        self.config = do_substitution(self.config, {"config": self.config, "message": data})
+        return func(self, data)
+
+    return wrapper
 
 
 class Executor:
@@ -79,6 +89,10 @@ class Executor:
     @property
     def config(self) -> ConfigType:
         return self._config
+
+    @config.setter
+    def config(self, config: ConfigType) -> None:
+        self._config = config
 
     def get_args(self, context: ContextType) -> List[Any]:
         return [
@@ -110,6 +124,7 @@ class Executor:
         ]
         return self.organize_tokens(output_tokens)
 
+    @configsubstitution
     @Transform.operation("pass_by_reference")
     @Transform.operation("compression")
     @Transform.operation("encryption")
