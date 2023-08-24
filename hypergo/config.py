@@ -80,12 +80,12 @@ class Config:
                     "input_bindings": lambda source: source("input_bindings"),
                     "output_bindings": lambda source: source("output_bindings"),
                     "input_operations": lambda source: {
-                        op: {"compression": ["body"]}.get(op, []) for op in source("input_operations")
+                        op: ["body"] for op in source("input_operations")
                     },
                     "output_operations": lambda source: {
-                        op: {"compression": ["body"]}.get(op, []) for op in source("output_operations")
+                        op: ["body"] for op in source("output_operations")
                     },
-                    "custom_properties": lambda source: source("custom_properties"),
+                    "custom_properties": lambda source: source("custom_properties", {}),
                 }
             ),
             # "2.X.X": Mapping(
