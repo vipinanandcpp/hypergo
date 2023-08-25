@@ -27,17 +27,17 @@ def get_logger() -> logging.Logger:
     logger = logging.getLogger("hypergo")
     logger.setLevel(logging.DEBUG)
 
-    # console_handler = logging.StreamHandler()
-    # console_handler.setFormatter(JSONFormatter())
-    # logger.addHandler(console_handler)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(JSONFormatter())
+    logger.addHandler(console_handler)
 
-    file_handler = logging.FileHandler(
-        Utility.create_folders_for_file(
-            f"./.hypergo_storage/logs/app_{datetime.datetime.now().strftime('%Y-%m-%d')}.log"
-        )
-    )
-    file_handler.setFormatter(JSONFormatter())
-    logger.addHandler(file_handler)
+    #file_handler = logging.FileHandler(
+    #    Utility.create_folders_for_file(
+    #        f"./.hypergo_storage/logs/app_{datetime.datetime.now().strftime('%Y-%m-%d')}.log"
+    #    )
+    #)
+    #file_handler.setFormatter(JSONFormatter())
+    #logger.addHandler(file_handler)
 
     return logger
 
