@@ -30,7 +30,7 @@ class Message:
             "body": json.loads(message.get_body().decode("utf-8")),
             "routingkey": message.user_properties["routingkey"],
             "storagekey": cast(str, message.user_properties.get("storagekey")),
-            "transaction": message.user_properties["transaction"],
+            "transaction": cast(str, message.user_properties.get("transaction")),
         }
 
     @staticmethod
@@ -51,6 +51,7 @@ class Message:
             application_properties={
                 "routingkey": message["routingkey"],
                 "storagekey": cast(str, message.get("storagekey")),
+                "transaction": cast(str, message.get("transaction")),
             },
         )
 
