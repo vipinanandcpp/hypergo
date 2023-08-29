@@ -59,7 +59,9 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
 def configsubstitution(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(self: Any, data: Any) -> Any:
+        input_bindings = Utility.deep_get(self.config, "input_bindings")
         self.config = do_substitution(self.config, {"config": self.config, "message": data})
+        Utility.deep_set(self.config, "input_bindings", input_bindings)
         return func(self, data)
 
     return wrapper
