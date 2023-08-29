@@ -109,7 +109,7 @@ class Transform:
 
     @staticmethod
     def add_context(input_message: Any, key: str, base_storage: Storage, config: Dict[str, Any]) -> Any:
-        context: Dict[str, Any] = {"message": input_message, "config": config}
+        context: Dict[str, Any] = {"message": input_message, "config": config, "transaction": input_message["transaction"]}
         if base_storage:
             context["storage"] = base_storage.use_sub_path(
                 f"component/private/{Utility.deep_get(context, 'config.name')}"
