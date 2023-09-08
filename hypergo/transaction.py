@@ -14,7 +14,7 @@ class Transaction:
             ret["data"] = data
         return ret
 
-    def __init__(self, txid: Optional[str] = None, data: Optional[Any] = None):
+    def __init__(self, txid: Optional[str] = None, data: Optional[Any] = None, parentid: Optional[str] = None):
         self._stack = {}
         if txid:
             self._stack = {txid: Transaction.create_tx(txid, data)}
