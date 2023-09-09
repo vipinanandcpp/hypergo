@@ -17,7 +17,7 @@ class Transaction:
     def __init__(self, txid: Optional[str] = None, data: Optional[Any] = None, parentid: Optional[str] = None):
         self._stack = {}
         if txid:
-            self._stack = {txid: Transaction.create_tx(txid, data)}
+            self._stack = {txid: data}
         else:
             self.push()
 

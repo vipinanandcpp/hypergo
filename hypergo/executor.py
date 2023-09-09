@@ -149,7 +149,7 @@ class Executor:
                 "routingkey": output_routing_key,
                 "body": {},
                 "transaction": Utility.deep_get(context, "message.transaction"),
-                "__txid__": Utility.deep_get(context, "message.__txid__"),
+                # "__txid__": Utility.deep_get(context, "message.__txid__"),
             }
             output_context: ContextType = {"message": output_message, "config": self._config}
 
