@@ -143,8 +143,9 @@ class Executor:
         args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
         output_routing_key: str = self.get_output_routing_key(Utility.deep_get(context, "message.routingkey"))
-        return_values: List[Any] = list(execution) if inspect.isgenerator(execution) else [execution]
-        for return_value in return_values:
+        if not inspect.isgenerator(execution):
+            execution = [execution]
+        for return_value in execution:
             output_message: MessageType = {
                 "routingkey": output_routing_key,
                 "body": {},
