@@ -146,6 +146,9 @@ class Executor:
         if not inspect.isgenerator(execution):
             execution = [execution]
         for return_value in execution:
+            if not return_value:
+                continue
+
             output_message: MessageType = {
                 "routingkey": output_routing_key,
                 "body": {},
