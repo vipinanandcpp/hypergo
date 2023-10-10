@@ -32,7 +32,7 @@ class Node(ABC):
 
 
 nodes: List[Node] = []
-
+output_keys: List[str] = []
 
 class Component(Node):
     def __init__(self, config: Dict[str, Any]) -> None:
@@ -103,6 +103,10 @@ def build_graph(out_edge: Edge, cfg: Dict[str, Any], cfgs: List[Dict[str, Any]])
             in_edge.add_node(component)
 
             for output_key in get_key("output_keys"):
+                global output_keys
+                if output_key in output_keys:
+                    break
+                output_keys.append(output_key)
                 do_substitution(input_key, output_key, out_key, cfgs, component)
 
 
@@ -127,7 +131,7 @@ def graph(rks: List[str], folders: List[str]) -> None:
     do_graph(rks, folders)
 
     dot = graphviz.Digraph(comment="Component Diagram")
-    dot.attr("graph", bgcolor="#0071BD", nodesep="2", pad="1", rankdir="TB")
+    dot.attr("graph", bgcolor="#0071BD", nodesep="5", pad="1", rankdir="TB")
     dot.attr("edge", color="#ffffff80")
     dot.attr("node", fontcolor="#ffffff", fontname="courier", fontsize="30")
 
