@@ -12,6 +12,8 @@ from hypergo.storage import Storage
 from hypergo.transform import Transform
 from hypergo.utility import Utility, traverse_datastructures
 
+from monitor_custom_metrics import monitor_duration, monitor_function_call_count
+
 
 def do_question_mark(context: Dict[str, Any], input_string: Any) -> str:
     def find_best_key(field_path: List[str], routingkey: str) -> str:
@@ -141,6 +143,11 @@ class Executor:
         # We should keep it
         context["config"] = do_substitution(context["config"], cast(Dict[str, Any], context))
         args: List[Any] = self.get_args(context)
+
+        # @TODO
+        # mone these functions elsewhere: this is not the right place or the right way to implement this
+        # @monitor_duration(self._config["lib_func"])
+        # @monitor_function_call_count(self._config["lib_func"])
         execution: Any = self._func_spec(*args)
         output_routing_key: str = self.get_output_routing_key(Utility.deep_get(context, "message.routingkey"))
         if not inspect.isgenerator(execution):
