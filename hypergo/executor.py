@@ -145,9 +145,9 @@ class Executor:
         args: List[Any] = self.get_args(context)
 
         # @TODO
-        # mone these functions elsewhere: this is not the right place or the right way to implement this
-        # @monitor_duration(self._config["lib_func"])
-        # @monitor_function_call_count(self._config["lib_func"])
+        # move these functions elsewhere: this is not the right place or the right way to implement this
+        @monitor_duration(self)
+        @monitor_function_call_count(self)
         execution: Any = self._func_spec(*args)
         output_routing_key: str = self.get_output_routing_key(Utility.deep_get(context, "message.routingkey"))
         if not inspect.isgenerator(execution):
