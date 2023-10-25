@@ -146,9 +146,12 @@ class Executor:
 
         # @TODO
         # move these functions elsewhere: this is not the right place or the right way to implement this
-        @monitor_duration(self)
-        @monitor_function_call_count(self)
-        execution: Any = self._func_spec(*args)
+
+        func_name = self._config["lib_func"]
+        decorated_func = monitor_duration(func_name)(self._func_spec)
+        decorated_func = monitor_function_call_count(func_name)(decorated_func)
+        execution = decorated_func(*args)
+
         output_routing_key: str = self.get_output_routing_key(Utility.deep_get(context, "message.routingkey"))
         if not inspect.isgenerator(execution):
             execution = [execution]
