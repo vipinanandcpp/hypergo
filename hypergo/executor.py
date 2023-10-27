@@ -12,7 +12,7 @@ from hypergo.storage import Storage
 from hypergo.transform import Transform
 from hypergo.utility import Utility, traverse_datastructures
 
-from monitor_custom_metrics import monitor_duration, monitor_function_call_count
+from hypergo.monitor_custom_metrics import monitor_duration, monitor_function_call_count
 
 
 def do_question_mark(context: Dict[str, Any], input_string: Any) -> str:
