@@ -45,27 +45,24 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
     # Build and send a request to the POST API
     def _post_data(self, body):
         # Define a custom log type for Azure Log Analytics workspace
-        log_type = 'TestCustomLogType'
-
         content_type = 'application/json'
         rfc1123date = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
-        content_length = len(body)
-        signature = self._build_signature(workspace_id=self.workspace_id, shared_key=self.shared_key, date=rfc1123date, content_length=content_length, method='POST', content_type=content_type)
+        signature = self._build_signature(workspace_id=self.workspace_id, shared_key=self.shared_key, date=rfc1123date, content_length=len(body), method='POST', content_type=content_type)
         uri = 'https://' + self.workspace_id + '.ods.opinsights.azure.com/api/logs?api-version=2016-04-01'
         
         headers = {
             'content-type': content_type,
             'Authorization': signature,
-            'Log-Type': log_type,
+            'Log-Type': 'TestCustomLogType',
             'x-ms-date': rfc1123date
         }
         
         response = requests.post(uri, data=body, headers=headers)
-        if response.status_code >= 200 and response.status_code <= 299:
-            print('Accepted')
-        # add further Azure Log Analytics API response codes here
-        else:
-            print("Response code: {}".format(response.status_code))
+        try:
+            response.raise_for_status()
+            print('log accepted')
+        except:
+            print(response.text)
 
 
 
