@@ -1,10 +1,10 @@
 import time
 from functools import wraps
+
 from hypergo.monitors import DatalinkMonitor
 
 
 def monitor_duration(metadata):
-    print(f'BEN I"M PRINTING')
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):

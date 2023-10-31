@@ -28,8 +28,6 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
     def send(self, metric_name, metric_value):
         self._push_metric(metric_name=metric_name, metric_value=metric_value)
 
-    # Build the API signature
-
     @staticmethod
     def _build_signature(workspace_id, shared_key, date, content_length, method, content_type):
         bytes_to_hash = bytes(
@@ -43,9 +41,7 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
 
         return f"SharedKey {workspace_id}:{encoded_hash}"
 
-    # Build and send a request to the POST API
     def _post_data(self, body):
-        # Define a custom log type for Azure Log Analytics workspace
         content_type = 'application/json'
         rfc1123date = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
         signature = self._build_signature(workspace_id=self.workspace_id, shared_key=self.shared_key,
@@ -63,7 +59,6 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
         response = requests.post(uri, data=body, headers=headers)
         try:
             response.raise_for_status()
-            print('log accepted')
         except:
             print(response.text)
 
