@@ -9,7 +9,6 @@ import hmac
 import base64
 
 class Monitor:
-
     def __init__(self, metadata) -> None:
         self.metadata = metadata
 
@@ -79,9 +78,7 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
             ]
         )
 
-        body = body.encode('utf-8')
-
-        self._post_data(body)
+        self._post_data(body.encode('utf-8'))
 
 
 class DatalinkMonitor(Monitor):
