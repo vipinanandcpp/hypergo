@@ -46,7 +46,7 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
         rfc1123date = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
         signature = self._build_signature(workspace_id=self.workspace_id, shared_key=self.shared_key,
                                           date=rfc1123date, content_length=len(body), method='POST', content_type=content_type)
-        uri = 'https://' + self.workspace_id + \
+        url = 'https://' + self.workspace_id + \
             '.ods.opinsights.azure.com/api/logs?api-version=2016-04-01'
 
         headers = {
@@ -56,7 +56,7 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
             'x-ms-date': rfc1123date
         }
 
-        response = requests.post(uri, data=body, headers=headers)
+        response = requests.post(url=url, data=body, headers=headers)
         try:
             response.raise_for_status()
         except:
