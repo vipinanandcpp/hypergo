@@ -3,7 +3,6 @@ import datetime
 import hashlib
 import hmac
 import json
-import os
 from abc import abstractmethod
 from typing import List
 
@@ -25,11 +24,12 @@ class Monitor:
 class AzureLogAnalyticsMonitorStorage(Monitor):
     def __init__(self, secrets: Secrets, metadata) -> None:
         super().__init__(secrets=secrets, metadata=metadata)
-        # @TODO: move to secrets
-        print(f"secrets: {self._secrets}")
 
-        self.workspace_id = self._secrets.get("log-analytics-workspace-id")
-        self.shared_key = self._secrets.get("log-analytics-primary-key")
+        try:
+            self.workspace_id = self._secrets.get("LOG_ANALYTICS_WORKSPACE_ID")
+            self.shared_key = self._secrets.get("LOG_ANALYTICS_PRIMARY_KEY")
+        except KeyError as e:
+            raise KeyError(f"Secret not found: {e}")
 
     def send(self, metric_name, metric_value):
         self._push_metric(metric_name=metric_name, metric_value=metric_value)

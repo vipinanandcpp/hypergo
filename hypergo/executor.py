@@ -144,6 +144,8 @@ class Executor:
         ]
         return self.organize_tokens(output_tokens)
 
+    @monitor_duration
+    @monitor_function_call_count
     @configsubstitution
     @Transform.operation("pass_by_reference")
     @Transform.operation("compression")
@@ -160,14 +162,7 @@ class Executor:
         context["config"] = do_substitution(
             context["config"], cast(Dict[str, Any], context))
         args: List[Any] = self.get_args(context)
-
-        # @TODO
-        # move these functions elsewhere: this is not the right place or the right way to implement this
-
-        func_name = self._config["lib_func"]
-        decorated_func = monitor_duration(self.secrets, func_name)(self._func_spec)
-        decorated_func = monitor_function_call_count(self.secrets, func_name)(decorated_func)
-        execution = decorated_func(*args)
+        execution: Any = self._func_spec(*args)
 
         output_routing_key: str = self.get_output_routing_key(
             Utility.deep_get(context, "message.routingkey"))
