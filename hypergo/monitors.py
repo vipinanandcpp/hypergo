@@ -29,10 +29,12 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
             self.workspace_id = self._secrets.get("LOG_ANALYTICS_WORKSPACE_ID")
             self.shared_key = self._secrets.get("LOG_ANALYTICS_PRIMARY_KEY")
         except KeyError as e:
-            raise KeyError(f"Secret not found: {e}")
+            print(f"Secret not found: {e}")
+            # raise KeyError(f"Secret not found: {e}")
 
     def send(self, metric_name, metric_value):
-        self._push_metric(metric_name=metric_name, metric_value=metric_value)
+        if hasattr(self, "workspace_id"):
+            self._push_metric(metric_name=metric_name, metric_value=metric_value)
 
     @staticmethod
     def _build_signature(workspace_id, shared_key, date, content_length, method, content_type):

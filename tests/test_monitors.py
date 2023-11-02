@@ -1,29 +1,29 @@
+import datetime
 import json
 import os
 import unittest
-import datetime
 
 import mock
 from freezegun import freeze_time
 
 from hypergo.monitors import AzureLogAnalyticsMonitorStorage
-
-
+from hypergo.secrets import LocalSecrets
 
 
 class TestAzureLogAnalyticsMonitorStorage(unittest.TestCase):
     @freeze_time("2023-11-01")
     @mock.patch("hypergo.monitors.requests.post")
-    @mock.patch.dict(os.environ, {"log-analytics-workspace-id": "shmorkspace_id"})
-    @mock.patch.dict(os.environ, {"log-analytics-primary-key": "shmimary_key"})
+    @mock.patch.dict(os.environ, {"LOG_ANALYTICS_WORKSPACE_ID": "shmorkspace_id"})
+    @mock.patch.dict(os.environ, {"LOG_ANALYTICS_PRIMARY_KEY": "shmimary_key"})
     def test_send(
         self, mock_post
     ) -> None:
+        test_secrets = LocalSecrets()
         test_metadata = {"some": "metadata"}
         test_metric = "test_metric"
         test_value = 10
 
-        monitor = AzureLogAnalyticsMonitorStorage({"some": "metadata"})
+        monitor = AzureLogAnalyticsMonitorStorage(test_secrets, test_metadata)
 
         expected_body = json.dumps(
             [
@@ -48,8 +48,26 @@ class TestAzureLogAnalyticsMonitorStorage(unittest.TestCase):
             url="https://shmorkspace_id.ods.opinsights.azure.com/api/logs?api-version=2016-04-01",
             data=expected_body,
             headers=expected_headers
-        )        
-        self.assertEqual(datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT'), "Wed, 01 Nov 2023 00:00:00 GMT")
+        )
+        self.assertEqual(datetime.datetime.utcnow().strftime(
+            '%a, %d %b %Y %H:%M:%S GMT'), "Wed, 01 Nov 2023 00:00:00 GMT")
+
+    @mock.patch("hypergo.monitors.requests.post")
+    def test_doesnt_break_when_secrets_are_empty(
+        self,
+        mock_post
+    ) -> None:
+        test_secrets = LocalSecrets()
+        test_metadata = {"some": "metadata"}
+        test_metric = "test_metric"
+        test_value = 10
+
+        monitor = AzureLogAnalyticsMonitorStorage(test_secrets, test_metadata)
+
+        monitor.send(test_metric, test_value)
+
+        self.assertFalse(mock_post.called)
+
 
 if __name__ == "__main__":
     unittest.main()
