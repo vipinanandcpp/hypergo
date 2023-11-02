@@ -14,8 +14,8 @@ from hypergo.monitors import AzureLogAnalyticsMonitorStorage
 class TestAzureLogAnalyticsMonitorStorage(unittest.TestCase):
     @freeze_time("2023-11-01")
     @mock.patch("hypergo.monitors.requests.post")
-    @mock.patch.dict(os.environ, {"LOG_ANALYTICS_WORKSPACE_ID": "shmorkspace_id"})
-    @mock.patch.dict(os.environ, {"LOG_ANALYTICS_PRIMARY_KEY": "shmimary_key"})
+    @mock.patch.dict(os.environ, {"log-analytics-workspace-id": "shmorkspace_id"})
+    @mock.patch.dict(os.environ, {"log-analytics-primary-key": "shmimary_key"})
     def test_send(
         self, mock_post
     ) -> None:
@@ -49,7 +49,7 @@ class TestAzureLogAnalyticsMonitorStorage(unittest.TestCase):
             data=expected_body,
             headers=expected_headers
         )        
-        self.assertEquals(datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT'), "Wed, 01 Nov 2023 00:00:00 GMT")
+        self.assertEqual(datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT'), "Wed, 01 Nov 2023 00:00:00 GMT")
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,13 +2,14 @@ import time
 from functools import wraps
 
 from hypergo.monitors import DatalinkMonitor
+from hypergo.secrets import Secrets
 
 
-def monitor_duration(metadata):
+def monitor_duration(secrets: Secrets, metadata):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            monitor = DatalinkMonitor(metadata)
+            monitor = DatalinkMonitor(secrets, metadata)
             t0 = time.time()
             try:
                 result = func(*args, **kwargs)
@@ -22,11 +23,11 @@ def monitor_duration(metadata):
     return decorator
 
 
-def monitor_function_call_count(metadata):
+def monitor_function_call_count(secrets: Secrets, metadata):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            monitor = DatalinkMonitor(metadata)
+            monitor = DatalinkMonitor(secrets, metadata)
             try:
                 result = func(*args, **kwargs)
             except Exception:

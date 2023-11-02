@@ -9,9 +9,12 @@ from typing import List
 
 import requests
 
+from hypergo.secrets import Secrets
+
 
 class Monitor:
-    def __init__(self, metadata) -> None:
+    def __init__(self, secrets: Secrets, metadata) -> None:
+        self._secrets = secrets
         self.metadata = metadata
 
     @abstractmethod
@@ -20,11 +23,13 @@ class Monitor:
 
 
 class AzureLogAnalyticsMonitorStorage(Monitor):
-    def __init__(self, metadata) -> None:
-        super().__init__(metadata=metadata)
+    def __init__(self, secrets: Secrets, metadata) -> None:
+        super().__init__(secrets=secrets, metadata=metadata)
         # @TODO: move to secrets
-        self.workspace_id = os.environ.get("LOG_ANALYTICS_WORKSPACE_ID")
-        self.shared_key = os.environ.get("LOG_ANALYTICS_PRIMARY_KEY")
+        print(f"secrets: {self._secrets}")
+
+        self.workspace_id = self._secrets.get("log-analytics-workspace-id")
+        self.shared_key = self._secrets.get("log-analytics-primary-key")
 
     def send(self, metric_name, metric_value):
         self._push_metric(metric_name=metric_name, metric_value=metric_value)
@@ -81,10 +86,10 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
 
 class DatalinkMonitor(Monitor):
 
-    def __init__(self, metadata):
-        super().__init__(metadata=metadata)
+    def __init__(self, secrets: Secrets, metadata):
+        super().__init__(secrets=secrets, metadata=metadata)
         self.monitors: List[Monitor] = [
-            AzureLogAnalyticsMonitorStorage(metadata)]
+            AzureLogAnalyticsMonitorStorage(secrets, metadata)]
 
     def send(self, metric_name, metric_value):
         for monitor in self.monitors:

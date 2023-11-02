@@ -165,8 +165,8 @@ class Executor:
         # move these functions elsewhere: this is not the right place or the right way to implement this
 
         func_name = self._config["lib_func"]
-        decorated_func = monitor_duration(func_name)(self._func_spec)
-        decorated_func = monitor_function_call_count(func_name)(decorated_func)
+        decorated_func = monitor_duration(self.secrets, func_name)(self._func_spec)
+        decorated_func = monitor_function_call_count(self.secrets, func_name)(decorated_func)
         execution = decorated_func(*args)
 
         output_routing_key: str = self.get_output_routing_key(
