@@ -69,7 +69,6 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
             print(response.text)
 
     def _push_metric(self, metric_name, metric_value):
-
         body = json.dumps(
             [
                 {
