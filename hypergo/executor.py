@@ -10,6 +10,7 @@ from hypergo.context import ContextType
 from hypergo.message import MessageType
 from hypergo.monitor_custom_metrics import (monitor_duration,
                                             monitor_function_call_count)
+from hypergo.secrets import Secrets
 from hypergo.storage import Storage
 from hypergo.transform import Transform
 from hypergo.utility import Utility, traverse_datastructures
@@ -85,16 +86,21 @@ class Executor:
             func).parameters
         return [params[k].annotation for k in list(params.keys())]
 
-    def __init__(self, config: ConfigType, storage: Optional[Storage] = None) -> None:
+    def __init__(self, config: ConfigType, storage: Optional[Storage] = None, secrets: Optional[Secrets] = None) -> None:
         self._config: ConfigType = config
         self._func_spec: Callable[..., Any] = Executor.func_spec(
             config["lib_func"])
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
         self._storage: Optional[Storage] = storage
+        self._secrets: Optional[Secrets] = secrets
 
     @property
     def storage(self) -> Optional[Storage]:
         return self._storage
+    
+    @property
+    def secrets(self) -> Optional[Secrets]:
+        return self._secrets
 
     @property
     def config(self) -> ConfigType:
