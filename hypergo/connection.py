@@ -9,7 +9,13 @@ from hypergo.storage import Storage
 
 
 class Connection(ABC):
-    def general_consume(self, message: MessageType, config: ConfigType, storage: Union[Storage, None], secrets: Union[Secrets, None] = None) -> None:
+    def general_consume(
+        self,
+        message: MessageType,
+        config: ConfigType,
+        storage: Union[Storage, None],
+        secrets: Union[Secrets, None] = None,
+    ) -> None:
         executor: Executor = Executor(config, storage, secrets)
         for execution in executor.execute(message):
             self.send(cast(MessageType, execution), config["namespace"])
