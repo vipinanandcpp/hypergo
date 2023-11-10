@@ -1,14 +1,17 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Union
+from typing import Any
 
 
 class Secrets(ABC):
+
+    @classmethod
     @abstractmethod
-    def get(self, key: str) -> Union[str, int, Dict[str, Any]]:
-        pass
+    def get(cls, key: str) -> Any:
+        raise NotImplementedError()
 
 
 class LocalSecrets(Secrets):
-    def get(self, key: str) -> str:
+    @classmethod
+    def get(cls, key: str) -> Any:
         return os.environ[key]

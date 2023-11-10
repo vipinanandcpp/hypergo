@@ -8,7 +8,12 @@ from hypergo.storage import Storage
 
 
 class ServiceBusConnection(ABC):
-    def general_consume(self, message: MessageType, config: ConfigType, storage: Union[Storage, None]) -> None:
+    def general_consume(
+        self,
+        message: MessageType,
+        config: ConfigType,
+        storage: Union[Storage, None],
+    ) -> None:
         executor: Executor = Executor(config, storage)
         for execution in executor.execute(message):
             self.send(cast(MessageType, execution), config["namespace"])

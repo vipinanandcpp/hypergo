@@ -39,19 +39,31 @@ class Transform:
             def wrapper(self, data: Any) -> Generator[T, None, None]:
                 args: List[List[Any]] = {
                     "compression": [[Utility.uncompress], [Utility.compress]],
-                    "serialization": [[Utility.deserialize], [Utility.serialize]],
+                    "serialization": [
+                        [Utility.deserialize],
+                        [Utility.serialize],
+                    ],
                     "pass_by_reference": [
                         [Transform.fetchbyreference, self.storage],
                         [Transform.storebyreference, self.storage],
                     ],
-                    "encryption": [[Utility.decrypt, ENCRYPTIONKEY], [Utility.encrypt, ENCRYPTIONKEY]],
+                    "encryption": [
+                        [Utility.decrypt, ENCRYPTIONKEY],
+                        [Utility.encrypt, ENCRYPTIONKEY],
+                    ],
                     "contextualization": [
                         [Transform.add_context, self.storage, self.config],
                         [Transform.remove_context],
                     ],
                     "transaction": [
-                        [Transform.restore_transaction, self.storage.use_sub_path("transactions")],
-                        [Transform.stash_transaction, self.storage.use_sub_path("transactions")],
+                        [
+                            Transform.restore_transaction,
+                            self.storage.use_sub_path("transactions"),
+                        ],
+                        [
+                            Transform.stash_transaction,
+                            self.storage.use_sub_path("transactions"),
+                        ],
                     ],
                 }[op_name]
                 input_operations = Utility.deep_get(self.config, "input_operations", {})
@@ -109,8 +121,17 @@ class Transform:
         return data
 
     @staticmethod
-    def add_context(input_message: Any, key: str, base_storage: Storage, config: Dict[str, Any]) -> Any:
-        context: Dict[str, Any] = {"message": input_message, "config": config, "transaction": input_message["transaction"]}
+    def add_context(
+        input_message: Any,
+        key: str,
+        base_storage: Storage,
+        config: Dict[str, Any],
+    ) -> Any:
+        context: Dict[str, Any] = {
+            "message": input_message,
+            "config": config,
+            "transaction": input_message["transaction"],
+        }
         if base_storage:
             context["storage"] = base_storage.use_sub_path(
                 f"component/private/{Utility.deep_get(context, 'config.name')}"

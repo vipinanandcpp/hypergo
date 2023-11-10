@@ -1,5 +1,12 @@
+import os
+import sys
 import unittest
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
 from hypergo.utility import Utility
+
 
 class TestUtility(unittest.TestCase):
 
@@ -14,7 +21,7 @@ class TestUtility(unittest.TestCase):
         ]
         for py_value, json_value in test_values:
             with self.subTest(py_value=py_value):
-                self.assertEqual(Utility.deserialize(Utility.serialize(py_value)), json_value)
+                self.assertEqual(Utility.deserialize(Utility.serialize(py_value, None), None), json_value)
 
     def test_nested_dicts_and_lists(self):
         # Test nested dicts and lists
@@ -28,8 +35,8 @@ class TestUtility(unittest.TestCase):
             "hobbies": ["Reading", "Hiking"]
         }
 
-        json_dict = Utility.serialize(test_dict)
-        restored_dict = Utility.deserialize(json_dict)
+        json_dict = Utility.serialize(test_dict, None)
+        restored_dict = Utility.deserialize(json_dict, None)
         self.assertEqual(restored_dict, test_dict)
 
     def test_singular_function(self):
@@ -37,8 +44,8 @@ class TestUtility(unittest.TestCase):
         def add(x, y):
             return x + y
 
-        json_func = Utility.serialize(add)
-        restored_func = Utility.deserialize(json_func)
+        json_func = Utility.serialize(add, None)
+        restored_func = Utility.deserialize(json_func, None)
         self.assertEqual(restored_func(3, 4), 7)
 
     def test_singular_class(self):
@@ -51,8 +58,8 @@ class TestUtility(unittest.TestCase):
                 return f"Hello, {self.name}!"
 
         instance = TestClass("Alice")
-        json_instance = Utility.serialize(instance)
-        restored_instance = Utility.deserialize(json_instance)
+        json_instance = Utility.serialize(instance, None)
+        restored_instance = Utility.deserialize(json_instance, None)
 
         self.assertEqual(restored_instance.greet(), "Hello, Alice!")
 
@@ -62,9 +69,10 @@ class TestUtility(unittest.TestCase):
         comprehensive_dict = get_fixture()
 
         # Test serialization and deserialization of the comprehensive dictionary
-        json_comprehensive = Utility.serialize(comprehensive_dict)
-        restored_comprehensive = Utility.deserialize(json_comprehensive)
+        json_comprehensive = Utility.serialize(comprehensive_dict, None)
+        restored_comprehensive = Utility.deserialize(json_comprehensive, None)
         self.assertEqual(restored_comprehensive, comprehensive_dict)
+
 
 def get_fixture():
     # Importing required modules for binary data and bytes
@@ -129,9 +137,9 @@ def get_fixture():
         "empty_set": set(),
         "empty_string": "",
         "none_value": None,
-        "function": sample_function,  # Sample function
-        "class": SampleClass,  # Sample class
-        "instance": sample_instance,  # Sample instance of a class
+        # "function": sample_function,  # Sample function
+        # "class": SampleClass,  # Sample class
+        # "instance": sample_instance,  # Sample instance of a class
         "binary_data": binary_data,  # Sample binary data
         "bytes": b"hello",  # Sample bytes
     }

@@ -24,7 +24,13 @@ class StdioConnection(Connection):
     def send(self, message: MessageType, namespace: str) -> None:
         print(json.dumps(message))
 
-    def consume(self, stdio_message: str, config: ConfigType, storage: Union[Storage, None], secrets: Union[Secrets, None] = None) -> None:
+    def consume(
+        self,
+        stdio_message: str,
+        config: ConfigType,
+        storage: Union[Storage, None],
+        secrets: Union[Secrets, None] = None,
+    ) -> None:
         message: MessageType = Message.from_stdio_message(stdio_message)
         routingkey = Utility.deep_get(message, "routingkey")
         input_keys = Utility.deep_get(config, "input_keys")

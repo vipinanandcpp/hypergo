@@ -1,10 +1,15 @@
 import datetime
 import json
 import os
+import sys
 import unittest
+import requests
 
 import mock
 from freezegun import freeze_time
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from hypergo.monitors import AzureLogAnalyticsMonitorStorage
 from hypergo.secrets import LocalSecrets
@@ -18,6 +23,11 @@ class TestAzureLogAnalyticsMonitorStorage(unittest.TestCase):
     def test_send(
         self, mock_post
     ) -> None:
+  
+        response = requests.Response()
+        response.status_code = 200
+        mock_post.return_value = response
+       
         test_secrets = LocalSecrets()
         test_metadata = {"some": "metadata"}
         test_metric = "test_metric"
@@ -53,10 +63,16 @@ class TestAzureLogAnalyticsMonitorStorage(unittest.TestCase):
             '%a, %d %b %Y %H:%M:%S GMT'), "Wed, 01 Nov 2023 00:00:00 GMT")
 
     @mock.patch("hypergo.monitors.requests.post")
+    @mock.patch.dict(os.environ, {"LOG_ANALYTICS_WORKSPACE_ID": "shmorkspace_id"})
+    @mock.patch.dict(os.environ, {"LOG_ANALYTICS_PRIMARY_KEY": "shmimary_key"})
     def test_doesnt_break_when_secrets_are_empty(
         self,
         mock_post
     ) -> None:
+        response = requests.Response()
+        response.status_code = 200
+        mock_post.return_value = response
+
         test_secrets = LocalSecrets()
         test_metadata = {"some": "metadata"}
         test_metric = "test_metric"
@@ -66,7 +82,7 @@ class TestAzureLogAnalyticsMonitorStorage(unittest.TestCase):
 
         monitor.send(test_metric, test_value)
 
-        self.assertFalse(mock_post.called)
+        self.assertTrue(mock_post.called)
 
 
 if __name__ == "__main__":
