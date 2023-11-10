@@ -34,7 +34,7 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
 
     @staticmethod
     def _build_signature(**kwargs: Any) -> str:
-        workspace_id = (kwargs["workspace_id"],)
+        workspace_id = kwargs["workspace_id"]
         shared_key = kwargs["shared_key"]
         date = kwargs["date"]
         content_length = kwargs["content_length"]
@@ -55,6 +55,7 @@ class AzureLogAnalyticsMonitorStorage(Monitor):
     def _post_data(self, body: Union[bytes, str]) -> None:
         content_type = "application/json"
         rfc1123date = datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")
+
         kwargs = {
             "workspace_id": self.workspace_id,
             "shared_key": self.shared_key,

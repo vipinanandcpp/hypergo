@@ -23,7 +23,6 @@ class TestAzureLogAnalyticsMonitorStorage(unittest.TestCase):
     def test_send(
         self, mock_post
     ) -> None:
-  
         response = requests.Response()
         response.status_code = 200
         mock_post.return_value = response
@@ -57,7 +56,8 @@ class TestAzureLogAnalyticsMonitorStorage(unittest.TestCase):
         mock_post.assert_called_with(
             url="https://shmorkspace_id.ods.opinsights.azure.com/api/logs?api-version=2016-04-01",
             data=expected_body,
-            headers=expected_headers
+            headers=expected_headers,
+            timeout=300
         )
         self.assertEqual(datetime.datetime.utcnow().strftime(
             '%a, %d %b %Y %H:%M:%S GMT'), "Wed, 01 Nov 2023 00:00:00 GMT")
