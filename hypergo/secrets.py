@@ -4,7 +4,6 @@ from typing import Any
 
 
 class Secrets(ABC):
-
     @classmethod
     @abstractmethod
     def get(cls, key: str) -> Any:
