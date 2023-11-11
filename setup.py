@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 
@@ -8,7 +8,7 @@ setup(
     version='0.1.0',  # Enclose the version number in quotes
     description='Project for service bus',
     long_description_content_type='text/markdown',
-    packages=['hypergo'],
+    packages=find_packages(),
     install_requires=[
         "pyyaml",
 	    "glom",
