@@ -37,10 +37,7 @@ def function_log(func: Callable[..., Any]) -> Callable[..., Any]:
             function_logger.info(f"Function {function_logger.name} completed successfully")
             return result
         except Exception as e:
-            function_logger.error(
-                f"""Function {function_logger.name}
-                         encountered error: {str(e)}"""
-            )
+            function_logger.error(f"""Function {function_logger.name} encountered error: {str(e)}""")
             raise e
 
     return wrapper
