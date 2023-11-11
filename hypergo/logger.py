@@ -14,8 +14,7 @@ class JSONFormatter(logging.Formatter):
         stack_item = inspect.stack()[CALLER_DEPTH]
         log_data: Dict[str, Any] = {
             "timestamp": self.formatTime(record),
-            "name": f"""{stack_item.filename}:{stack_item.lineno} \
-                        {stack_item.function}""",
+            "name": f"""{stack_item.filename}:{stack_item.lineno} {stack_item.function}""",
             "level": record.levelname,
             "message": record.msg,
         }

@@ -1,9 +1,10 @@
 import json
-from typing import List, Union
+from typing import List, Optional
 
 from hypergo.config import ConfigType
 from hypergo.connection import Connection
 from hypergo.message import Message, MessageType
+from hypergo.loggers.base_logger import BaseLogger as Logger
 from hypergo.secrets import Secrets
 from hypergo.storage import Storage
 from hypergo.utility import Utility
@@ -28,8 +29,9 @@ class StdioConnection(Connection):
         self,
         stdio_message: str,
         config: ConfigType,
-        storage: Union[Storage, None],
-        secrets: Union[Secrets, None] = None,
+        storage: Optional[Storage] = None,
+        secrets: Optional[Secrets] = None,
+        logger:  Optional[Logger] = None
     ) -> None:
         message: MessageType = Message.from_stdio_message(stdio_message)
         routingkey = Utility.deep_get(message, "routingkey")
@@ -37,6 +39,6 @@ class StdioConnection(Connection):
 
         for key in input_keys:
             if set(key.split(".")).issubset(set(routingkey.split("."))):
-                return self.general_consume(message, config, storage, secrets)
+                return self.general_consume(message, config, storage, secrets, logger)
 
         raise RoutingKeyMismatchError(routingkey, input_keys)

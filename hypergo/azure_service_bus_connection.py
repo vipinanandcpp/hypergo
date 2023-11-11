@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 import azure.functions as func
 from azure.servicebus import (ServiceBusClient, ServiceBusMessage,
@@ -7,6 +7,7 @@ from azure.servicebus import (ServiceBusClient, ServiceBusMessage,
 from hypergo.config import ConfigType
 from hypergo.connection import Connection
 from hypergo.message import Message, MessageType
+from hypergo.loggers.base_logger import BaseLogger as Logger
 from hypergo.secrets import Secrets
 from hypergo.storage import Storage
 
@@ -25,8 +26,9 @@ class AzureServiceBusConnection(Connection):
         self,
         azure_message: func.ServiceBusMessage,
         config: ConfigType,
-        storage: Union[Storage, None],
-        secrets: Union[Secrets, None] = None,
+        storage: Optional[Storage] = None,
+        secrets: Optional[Secrets] = None,
+        logger:  Optional[Logger] = None
     ) -> None:
         message: MessageType = Message.from_azure_functions_service_bus_message(azure_message)
-        self.general_consume(message, config, storage, secrets)
+        self.general_consume(message, config, storage, secrets, logger)
