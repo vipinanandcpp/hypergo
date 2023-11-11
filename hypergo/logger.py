@@ -29,6 +29,7 @@ def function_log(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(self: Any, data: Any) -> Any:
         function_logger: Logger = self.logger
+        function_logger.name = self.callback.__name__
         function_logger.format = JSONFormatter()
         try:
             function_logger.info(f"Invoking function: {function_logger.name}")

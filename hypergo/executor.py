@@ -107,7 +107,7 @@ class Executor:
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
         self._storage: Optional[Storage] = storage
         self._secrets: Optional[Secrets] = secrets
-        self._logger: Logger = Logger(name=self._func_spec.__name__) if not logger else logger
+        self._logger: Logger = logger
 
     @property
     def storage(self) -> Optional[Storage]:
@@ -120,6 +120,10 @@ class Executor:
     @property
     def logger(self) -> Optional[Logger]:
         return self._logger
+
+    @property
+    def callback(self) -> Callable[..., Any]:
+        return self._func_spec
 
     @property
     def config(self) -> ConfigType:
