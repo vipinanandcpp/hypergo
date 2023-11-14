@@ -12,8 +12,6 @@ from hypergo.message import MessageType
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
 from hypergo.executor import Executor
-from hypergo.local_storage import LocalStorage
-from hypergo.secrets import LocalSecrets
 
 
 class TestDynamicRoutingKey(unittest.TestCase):
@@ -43,7 +41,7 @@ class TestDynamicRoutingKey(unittest.TestCase):
         response = requests.Response()
         response.status_code = 200
         mock_post.return_value = response
-        executor = Executor(cfg, storage=LocalStorage(), secrets=LocalSecrets())
+        executor = Executor(cfg)
         context: ContextType = {"message": self.message, "config": cfg}
         try:
             executor.get_args(context=context)

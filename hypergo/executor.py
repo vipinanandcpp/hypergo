@@ -7,11 +7,12 @@ from typing import (Any, Callable, Dict, Generator, List, Mapping, Match,
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
+from hypergo.local_storage import LocalStorage
 from hypergo.loggers.base_logger import BaseLogger as Logger
 from hypergo.message import MessageType
 from hypergo.monitor_custom_metrics import (monitor_duration,
                                             monitor_function_call_count)
-from hypergo.secrets import Secrets
+from hypergo.secrets import LocalSecrets, Secrets
 from hypergo.storage import Storage
 from hypergo.transform import Transform
 from hypergo.utility import Utility, traverse_datastructures
@@ -95,19 +96,14 @@ class Executor:
         params: Mapping[str, inspect.Parameter] = inspect.signature(func).parameters
         return [params[k].annotation for k in list(params.keys())]
 
-    def __init__(
-        self,
-        config: ConfigType,
-        storage: Optional[Storage] = None,
-        secrets: Optional[Secrets] = None,
-        logger: Optional[Logger] = None,
-    ) -> None:
+    def __init__(self, config: ConfigType, **kwargs: Any) -> None:
         self._config: ConfigType = config
         self._func_spec: Callable[..., Any] = Executor.func_spec(config["lib_func"])
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
-        self._storage: Optional[Storage] = storage
-        self._secrets: Optional[Secrets] = secrets
-        self._logger: Logger = logger
+        self._storage: Optional[Storage] = kwargs.pop("storage", LocalStorage())
+        self._secrets: Optional[Secrets] = kwargs.pop("secrets", LocalSecrets())
+        self._logger: Optional[Logger] = kwargs.pop("logger", Logger())
+        self.__dict__.update(kwargs)
 
     @property
     def storage(self) -> Optional[Storage]:

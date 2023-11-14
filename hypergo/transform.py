@@ -35,8 +35,8 @@ class Transform:
     def operation(op_name: str) -> Callable[..., Any]:
         def decorator(func: Callable[..., Generator[T, None, None]]) -> Callable[..., Generator[T, None, None]]:
             @wraps(func)
-            # type: ignore
-            def wrapper(self, data: Any) -> Generator[T, None, None]:
+            # mypy: allow-untyped-defs
+            def wrapper(self: Any, data: Any) -> Generator[T, None, None]:
                 args: List[List[Any]] = {
                     "compression": [[Utility.uncompress], [Utility.compress]],
                     "serialization": [

@@ -10,8 +10,6 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from hypergo.message import MessageType
 from hypergo.config import ConfigType
 from hypergo.executor import Executor
-from hypergo.local_storage import LocalStorage
-from hypergo.secrets import LocalSecrets
 
 
 class TestDynamicRoutingKey(unittest.TestCase):
@@ -40,7 +38,7 @@ class TestDynamicRoutingKey(unittest.TestCase):
         response = requests.Response()
         response.status_code = 200
         mock_post.return_value = response
-        executor = Executor(cfg, storage=LocalStorage(), secrets=LocalSecrets())
+        executor = Executor(cfg)
         output_key: str = "b.c.h.x.y"
         for sdk_message in executor.execute(self.message):
             self.assertEqual(output_key, sdk_message["routingkey"])

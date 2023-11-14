@@ -1,15 +1,11 @@
-from typing import Optional
+from typing import Any
 
 import azure.functions as func
 from azure.servicebus import (ServiceBusClient, ServiceBusMessage,
                               ServiceBusSender)
 
-from hypergo.config import ConfigType
 from hypergo.connection import Connection
 from hypergo.message import Message, MessageType
-from hypergo.loggers.base_logger import BaseLogger as Logger
-from hypergo.secrets import Secrets
-from hypergo.storage import Storage
 
 
 class AzureServiceBusConnection(Connection):
@@ -22,13 +18,6 @@ class AzureServiceBusConnection(Connection):
             sender: ServiceBusSender = self._service_bus_client.get_topic_sender(namespace)
             sender.send_messages(azure_message)
 
-    def consume(
-        self,
-        azure_message: func.ServiceBusMessage,
-        config: ConfigType,
-        storage: Optional[Storage] = None,
-        secrets: Optional[Secrets] = None,
-        logger:  Optional[Logger] = None
-    ) -> None:
+    def consume(self, azure_message: func.ServiceBusMessage, **kwargs: Any) -> None:
         message: MessageType = Message.from_azure_functions_service_bus_message(azure_message)
-        self.general_consume(message, config, storage, secrets, logger)
+        self.general_consume(message, **kwargs)

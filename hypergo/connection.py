@@ -1,24 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import cast, Optional
+from typing import Any, cast
 
 from hypergo.config import ConfigType
 from hypergo.executor import Executor
 from hypergo.message import MessageType
-from hypergo.loggers.base_logger import BaseLogger as Logger
-from hypergo.secrets import Secrets
-from hypergo.storage import Storage
 
 
 class Connection(ABC):
-    def general_consume(
-        self,
-        message: MessageType,
-        config: ConfigType,
-        storage: Optional[Storage] = None,
-        secrets: Optional[Secrets] = None,
-        logger:  Optional[Logger] = None
-    ) -> None:
-        executor: Executor = Executor(config, storage, secrets, logger)
+    def general_consume(self, message: MessageType, **kwargs: Any) -> None:
+        config: ConfigType = kwargs.pop("config")
+        executor: Executor = Executor(config, **kwargs)
         for execution in executor.execute(message):
             self.send(cast(MessageType, execution), config["namespace"])
 
