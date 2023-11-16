@@ -15,7 +15,7 @@ class AzureLogger(BaseLogger):
         log_format: Optional[Union[str, logging.Formatter]] = None,
     ) -> None:
         super().__init__(name=name, log_level=log_level, log_format=log_format)
-        configure_azure_monitor(connection_string=secrets.get("APPLICATIONINSIGHTS_CONNECTION_STRING"))
+        configure_azure_monitor(connection_string=secrets.get("APPLICATIONINSIGHTS-CONNECTION-STRING"))
 
     def log(self, message: str, level: Optional[int] = None) -> None:
         if level is None:
@@ -25,6 +25,6 @@ class AzureLogger(BaseLogger):
         logger.addHandler(handler)
         logger.setLevel(level)
         # Get a tracer for the current module.
-        with trace.get_tracer(__name__).start_as_current_span("processing"):
+        with trace.get_tracer(__name__).start_as_current_span(self.name):
             # Log the message with the specified level
             logger.log(level, message)
