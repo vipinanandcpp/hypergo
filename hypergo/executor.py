@@ -11,8 +11,6 @@ from hypergo.local_storage import LocalStorage
 from hypergo.loggers.base_logger import BaseLogger as Logger
 from hypergo.logger import function_log
 from hypergo.message import MessageType
-from hypergo.monitor_custom_metrics import (monitor_duration,
-                                            monitor_function_call_count)
 from hypergo.secrets import LocalSecrets, Secrets
 from hypergo.storage import Storage
 from hypergo.transform import Transform
@@ -163,8 +161,6 @@ class Executor:
         ]
         return self.organize_tokens(output_tokens)
 
-    @monitor_duration
-    @monitor_function_call_count
     @configsubstitution
     @Transform.operation("pass_by_reference")
     @Transform.operation("compression")
