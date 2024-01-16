@@ -1,9 +1,6 @@
 from abc import abstractmethod
-from typing import Any, cast
-
-from hypergo.config import ConfigType
+from typing import Any
 from hypergo.connection import Connection
-from hypergo.executor import Executor
 from hypergo.message import MessageType
 
 
@@ -13,11 +10,8 @@ class ServiceBusConnection(Connection):
         message: MessageType,
         **kwargs: Any,
     ) -> None:
-        config: ConfigType = kwargs.pop("config")
-        executor: Executor = Executor(config=config)
-        for execution in executor.execute(message):
-            self.send(cast(MessageType, execution), config["namespace"])
+        super().general_consume(message=message, **kwargs)
 
     @abstractmethod
     def send(self, message: MessageType, namespace: str) -> None:
-        ...
+        super().send(message=message, namespace=namespace)
