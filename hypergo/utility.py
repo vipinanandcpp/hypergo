@@ -36,7 +36,11 @@ def traverse_datastructures(func: Callable[..., Any]) -> Callable[..., Any]:
 def root_node(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
     def wrapper(value: Any, key: str, *args: Tuple[Any, ...]) -> Any:
-        return func({"__root__": value}, f"__root__.{key}" if key else "__root__", *args).get("__root__")
+        return func(
+            {"__root__": value},
+            f"__root__.{key}" if key else "__root__",
+            *args,
+        ).get("__root__")
 
     return wrapper
 
@@ -73,7 +77,11 @@ class Utility:  # pylint: disable=too-many-public-methods
         return pydash.has(dic, key)
 
     @staticmethod
-    def deep_get(dic: Union[TypedDictType, Dict[str, Any]], key: str, default_sentinel: Optional[Any] = object) -> Any:
+    def deep_get(
+        dic: Union[TypedDictType, Dict[str, Any]],
+        key: str,
+        default_sentinel: Optional[Any] = object,
+    ) -> Any:
         if not pydash.has(dic, key) and default_sentinel == object:
             raise KeyError(f"Spec \"{key}\" not found in the dictionary {json.dumps(Utility.serialize(dic, None))}")
         return pydash.get(dic, key, default_sentinel)
@@ -171,7 +179,12 @@ class Utility:  # pylint: disable=too-many-public-methods
             decoded: bytes = base64.b64decode(utfencoded)
             deserialized: Any = dill.loads(decoded)
             return deserialized
-        except (binascii.Error, dill.UnpicklingError, AttributeError, MemoryError):
+        except (
+            binascii.Error,
+            dill.UnpicklingError,
+            AttributeError,
+            MemoryError,
+        ):
             return serialized
 
     @staticmethod

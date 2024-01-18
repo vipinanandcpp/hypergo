@@ -6,29 +6,32 @@ from hypergo.utility import Utility
 
 class Transaction:
     @staticmethod
-    def create_tx(txid: Optional[str] = None, data: Optional[Any] = None):
-        ret = {
-            "txid": txid or Utility.unique_identifier()
-        }
+    def create_tx(txid: Optional[str] = None, data: Optional[Any] = None) -> Dict[str, Any]:
+        ret = {"txid": txid or Utility.unique_identifier()}
         if data:
             ret["data"] = data
         return ret
 
-    def __init__(self, txid: Optional[str] = None, data: Optional[Any] = None, parentid: Optional[str] = None):
-        self._stack = {}
+    def __init__(
+        self,
+        txid: Optional[str] = None,
+        data: Optional[Any] = None,
+        parentid: Optional[str] = None,
+    ) -> None:
+        self._stack: Dict[str, Any] = {}
         if txid:
             self._stack = {txid: data}
         else:
             self.push()
 
     def push(self) -> None:
-        tx = Transaction.create_tx()
-        self._stack[tx["txid"]] = tx
+        new_tx = Transaction.create_tx()
+        self._stack[new_tx["txid"]] = new_tx
 
-    def pop(self):
+    def pop(self) -> Any:
         return self._stack.pop(self.txid)
 
-    def peek(self):
+    def peek(self) -> Any:
         return self._stack.get(self.txid)
 
     @staticmethod
@@ -64,5 +67,7 @@ if __name__ == "__main__":
     tx.set("tx2", "Transaction2")
     print(tx.get("tx2"))
     print(str(tx))
-    tx2 = Transaction.from_str('{"txid": "202309081814459840042fba40d5", "data": {"txid": "202309081814459840042fba40d5", "tx": "Transaction", "tx2": "Transaction2"}}')
+    tx2 = Transaction.from_str(
+        '{"txid": "202309081814459840042fba40d5", "data": {"txid": "202309081814459840042fba40d5", "tx": "Transaction", "tx2": "Transaction2"}}'
+    )
     print("\n\n", str(tx2))

@@ -7,7 +7,11 @@ from typing import (Any, Callable, Dict, Generator, List, Mapping, Match,
 
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
+from hypergo.local_storage import LocalStorage
+from hypergo.loggers.base_logger import BaseLogger as Logger
+from hypergo.logger import function_log
 from hypergo.message import MessageType
+from hypergo.secrets import LocalSecrets, Secrets
 from hypergo.storage import Storage
 from hypergo.transform import Transform
 from hypergo.utility import Utility, traverse_datastructures
@@ -40,11 +44,21 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
         if isinstance(string, str):
             match: Optional[Match[str]] = re.match(r"^{([^}]+)}$", string)
             result = (
-                Utility.deep_get(data, do_question_mark(data, match.group(1)), match.group(0))
+                Utility.deep_get(
+                    data,
+                    do_question_mark(data, match.group(1)),
+                    match.group(0),
+                )
                 if match
                 else re.sub(
                     r"{([^}]+)}",
-                    lambda match: str(Utility.deep_get(data, do_question_mark(data, match.group(1)), match.group(0))),
+                    lambda match: str(
+                        Utility.deep_get(
+                            data,
+                            do_question_mark(data, match.group(1)),
+                            match.group(0),
+                        )
+                    ),
                     string,
                 )
             )
@@ -71,22 +85,40 @@ class Executor:
     @staticmethod
     def func_spec(fn_name: str) -> Callable[..., Any]:
         tokens: List[str] = fn_name.split(".")
-        return cast(Callable[..., Any], (getattr(importlib.import_module(".".join(tokens[:-1])), tokens[-1])))
+        return cast(
+            Callable[..., Any],
+            (getattr(importlib.import_module(".".join(tokens[:-1])), tokens[-1])),
+        )
 
     @staticmethod
     def arg_spec(func: Callable[..., Any]) -> List[type]:
         params: Mapping[str, inspect.Parameter] = inspect.signature(func).parameters
         return [params[k].annotation for k in list(params.keys())]
 
-    def __init__(self, config: ConfigType, storage: Optional[Storage] = None) -> None:
+    def __init__(self, config: ConfigType, **kwargs: Any) -> None:
         self._config: ConfigType = config
         self._func_spec: Callable[..., Any] = Executor.func_spec(config["lib_func"])
         self._arg_spec: List[type] = Executor.arg_spec(self._func_spec)
-        self._storage: Optional[Storage] = storage
+        self._storage: Optional[Storage] = kwargs.pop("storage", LocalStorage())
+        self._secrets: Optional[Secrets] = kwargs.pop("secrets", LocalSecrets())
+        self._logger: Optional[Logger] = kwargs.pop("logger", Logger())
+        self.__dict__.update(kwargs)
 
     @property
     def storage(self) -> Optional[Storage]:
         return self._storage
+
+    @property
+    def secrets(self) -> Optional[Secrets]:
+        return self._secrets
+
+    @property
+    def logger(self) -> Optional[Logger]:
+        return self._logger
+
+    @property
+    def callback(self) -> Callable[..., Any]:
+        return self._func_spec
 
     @property
     def config(self) -> ConfigType:
@@ -100,7 +132,10 @@ class Executor:
         return [
             val if argtype == inspect.Parameter.empty else Utility.safecast(argtype, val)
             for val, argtype in zip(
-                do_substitution(Utility.deep_get(self._config, "input_bindings"), cast(Dict[str, Any], context)),
+                do_substitution(
+                    Utility.deep_get(self._config, "input_bindings"),
+                    cast(Dict[str, Any], context),
+                ),
                 self._arg_spec,
             )
         ]
@@ -133,6 +168,7 @@ class Executor:
     @Transform.operation("transaction")
     @Transform.operation("serialization")
     @Transform.operation("contextualization")
+    @function_log
     def execute(self, context: Any) -> Generator[MessageType, None, None]:
         # This mutates config with substitutions - not necessary for input binding substitution
         # Unclear which approach is better - do we want the original config with references?  Or
@@ -142,6 +178,7 @@ class Executor:
         context["config"] = do_substitution(context["config"], cast(Dict[str, Any], context))
         args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
+
         output_routing_key: str = self.get_output_routing_key(Utility.deep_get(context, "message.routingkey"))
         if not inspect.isgenerator(execution):
             execution = [execution]
@@ -155,7 +192,10 @@ class Executor:
                 "transaction": Utility.deep_get(context, "message.transaction"),
                 # "__txid__": Utility.deep_get(context, "message.__txid__"),
             }
-            output_context: ContextType = {"message": output_message, "config": self._config}
+            output_context: ContextType = {
+                "message": output_message,
+                "config": self._config,
+            }
 
             def handle_tuple(dst: ContextType, src: Any) -> None:
                 for binding, tuple_elem in zip(self._config["output_bindings"], src):

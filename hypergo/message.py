@@ -25,7 +25,9 @@ class MessageType(TypedDictType):
 
 class Message:
     @staticmethod
-    def from_azure_functions_service_bus_message(message: func.ServiceBusMessage) -> MessageType:
+    def from_azure_functions_service_bus_message(
+        message: func.ServiceBusMessage,
+    ) -> MessageType:
         return {
             "body": json.loads(message.get_body().decode("utf-8")),
             "routingkey": message.user_properties["routingkey"],
@@ -45,7 +47,9 @@ class Message:
         return cast(MessageType, json.loads(stdin))
 
     @staticmethod
-    def to_azure_service_bus_service_bus_message(message: MessageType) -> ServiceBusMessage:
+    def to_azure_service_bus_service_bus_message(
+        message: MessageType,
+    ) -> ServiceBusMessage:
         ret: ServiceBusMessage = ServiceBusMessage(
             body=json.dumps(message.get("body")),
             application_properties={

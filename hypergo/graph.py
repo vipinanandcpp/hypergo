@@ -34,6 +34,7 @@ class Node(ABC):
 nodes: List[Node] = []
 inoutkeys: List[str] = []
 
+
 class Component(Node):
     def __init__(self, config: Dict[str, Any]) -> None:
         super().__init__(Utility.deep_get(config, "name"))
@@ -59,7 +60,12 @@ class Component(Node):
 
 class Edge(Node):
     def attr(self) -> Dict[str, Any]:
-        return {"fontcolor": "#88A8D8", "fixedsize": "false", "shape": "none", "label": str(self)}
+        return {
+            "fontcolor": "#88A8D8",
+            "fixedsize": "false",
+            "shape": "none",
+            "label": str(self),
+        }
 
 
 def add_configs(configs: List[Dict[str, Any]], folder: str) -> None:
@@ -103,7 +109,6 @@ def build_graph(out_edge: Edge, cfg: Dict[str, Any], cfgs: List[Dict[str, Any]])
             in_edge.add_node(component)
 
             for output_key in get_key("output_keys"):
-                global inoutkeys
                 inoutkey = f"{input_key}_{output_key}"
                 if inoutkey in inoutkeys:
                     break
@@ -112,9 +117,17 @@ def build_graph(out_edge: Edge, cfg: Dict[str, Any], cfgs: List[Dict[str, Any]])
 
 
 def do_substitution(
-    input_key: str, output_key: str, routingkey: str, cfgs: List[Dict[str, Any]], component: Component
+    input_key: str,
+    output_key: str,
+    routingkey: str,
+    cfgs: List[Dict[str, Any]],
+    component: Component,
 ) -> None:
-    derived_key = re.sub(r"\?", ".".join(set(routingkey.split(".")) - set(input_key.split("."))), output_key)
+    derived_key = re.sub(
+        r"\?",
+        ".".join(set(routingkey.split(".")) - set(input_key.split("."))),
+        output_key,
+    )
     outbound = Edge(derived_key)
 
     for config in cfgs:
