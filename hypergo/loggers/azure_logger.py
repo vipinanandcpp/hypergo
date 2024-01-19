@@ -6,6 +6,10 @@ from hypergo.loggers.base_logger import BaseLogger
 from hypergo.secrets import Secrets
 
 
+# Ensure that configure_azure_monitor is called only once
+configure_azure_monitor_called: bool = False
+
+
 class AzureLogger(BaseLogger):
     def __init__(
         self,
@@ -15,7 +19,10 @@ class AzureLogger(BaseLogger):
         log_format: Optional[Union[str, logging.Formatter]] = None,
     ) -> None:
         super().__init__(name=name, log_level=log_level, log_format=log_format)
-        configure_azure_monitor(connection_string=secrets.get("APPLICATIONINSIGHTS-CONNECTION-STRING"))
+        global configure_azure_monitor_called
+        if not configure_azure_monitor_called:
+            configure_azure_monitor(connection_string=secrets.get("APPLICATIONINSIGHTS-CONNECTION-STRING"))
+            configure_azure_monitor_called = True
 
     def log(self, message: str, level: Optional[int] = None) -> None:
         if level is None:
