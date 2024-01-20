@@ -29,7 +29,9 @@ class TestAzureLogger(unittest.TestCase):
         # Create an instance of AzureLogger
         logger = AzureLogger(secrets=MockSecrets.return_value)
 
-        mock_configure_azure_monitor.assert_called_with(connection_string=os.environ["APPLICATIONINSIGHTS-CONNECTION-STRING"])
+        mock_configure_azure_monitor.assert_called_with(connection_string=mock_secrets_instance.get.return_value,
+                                                        disable_offline_storage=True
+                                                        )
 
         logger.log("Test message", level=logging.INFO)
         mock_get_tracer.assert_called_with('hypergo.loggers.azure_logger')
