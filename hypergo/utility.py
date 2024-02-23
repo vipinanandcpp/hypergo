@@ -16,6 +16,7 @@ import glom
 import pydash
 import yaml
 from cryptography.fernet import Fernet
+from importlib import import_module
 
 from hypergo.custom_types import JsonType, TypedDictType
 
@@ -242,3 +243,19 @@ class Utility:  # pylint: disable=too-many-public-methods
             raise ValueError("Failed to generate a valid Fernet key.")
         url_safe_key = base64.urlsafe_b64encode(key)
         return url_safe_key
+
+
+class DynamicImports(object):
+    def __init__(self, path: str, package_prefix: str):
+        self.path = path
+        self.package_prefix = package_prefix
+
+    @staticmethod
+    def dynamic_imp_module(package: str, module_name: str):
+        name = package + '.' + module_name
+        return import_module(name=name)
+
+    @staticmethod
+    def dynamic_imp_class(package: str, module_name: str, class_name: str):
+        module = DynamicImports.dynamic_imp_module(package=package, module_name=module_name)
+        return getattr(module, class_name)

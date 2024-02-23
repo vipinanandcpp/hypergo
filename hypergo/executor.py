@@ -10,6 +10,7 @@ from hypergo.context import ContextType
 from hypergo.local_storage import LocalStorage
 from hypergo.loggers.base_logger import BaseLogger as Logger
 from hypergo.logger import function_log
+from hypergo.monitor import collect_metrics
 from hypergo.message import MessageType
 from hypergo.secrets import LocalSecrets, Secrets
 from hypergo.storage import Storage
@@ -169,6 +170,7 @@ class Executor:
     @Transform.operation("serialization")
     @Transform.operation("contextualization")
     @function_log
+    @collect_metrics
     def execute(self, context: Any) -> Generator[MessageType, None, None]:
         # This mutates config with substitutions - not necessary for input binding substitution
         # Unclear which approach is better - do we want the original config with references?  Or
