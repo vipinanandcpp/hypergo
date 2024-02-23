@@ -1,8 +1,7 @@
 from azure.monitor.opentelemetry.exporter import (AzureMonitorLogExporter, AzureMonitorTraceExporter,
                                                   AzureMonitorMetricExporter)
-from hypergo.loggers.datalink import LogExporter
-from hypergo.loggers.datalink import TraceExporter
-from hypergo.metrics.datalink import MetricExporter
+from hypergo.loggers.hypergo_logger import LogExporter, TraceExporter
+from hypergo.metrics.hypergo_metrics import MetricExporter
 from hypergo.secrets import Secrets
 
 

@@ -11,14 +11,14 @@ LogExporter = Type[LogExporter]
 TraceExporter = Type[SpanExporter]
 
 
-class DataLinkLogger:
+class HypergoLogger:
     is_logger_provider_set: bool = False
 
     @staticmethod
     def set_log_exporter(log_exporter: LogExporter):
-        if not DataLinkLogger.is_logger_provider_set:
+        if not HypergoLogger.is_logger_provider_set:
             set_logger_provider(LoggerProvider())
-            DataLinkLogger.is_logger_provider_set = True
+            HypergoLogger.is_logger_provider_set = True
         get_logger_provider().add_log_record_processor(BatchLogRecordProcessor(log_exporter))
 
     @staticmethod
@@ -26,14 +26,14 @@ class DataLinkLogger:
         return LoggingHandler(logger_provider=get_logger_provider())
 
 
-class DataLinkTracer:
+class HypergoTracer:
     is_tracer_provider_set: bool = False
 
     @staticmethod
     def set_trace_exporter(trace_exporter: TraceExporter):
-        if not DataLinkTracer.is_tracer_provider_set:
+        if not HypergoTracer.is_tracer_provider_set:
             set_tracer_provider(TracerProvider())
-            DataLinkTracer.is_tracer_provider_set = True
+            HypergoTracer.is_tracer_provider_set = True
         get_tracer_provider().add_span_processor(BatchSpanProcessor(span_exporter=trace_exporter))
 
     @staticmethod

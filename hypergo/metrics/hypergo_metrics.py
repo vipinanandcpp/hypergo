@@ -11,18 +11,18 @@ MetricExporter = Type[MetricExporter]
 Meter = Type[Meter]
 
 
-class DataLinkMetric:
+class HypergoMetric:
 
     _current_metric_readers: Set[PeriodicExportingMetricReader] = set([PeriodicExportingMetricReader(
         ConsoleMetricExporter())])
 
     @staticmethod
     def set_metric_exporter(metric_exporter: MetricExporter):
-        DataLinkMetric._current_metric_readers.add(PeriodicExportingMetricReader(metric_exporter))
+        HypergoMetric._current_metric_readers.add(PeriodicExportingMetricReader(metric_exporter))
 
     @staticmethod
     def get_meter(name: str) -> Meter:
-        metric_readers: Set[PeriodicExportingMetricReader] = DataLinkMetric._current_metric_readers
+        metric_readers: Set[PeriodicExportingMetricReader] = HypergoMetric._current_metric_readers
         meter_provider: MeterProvider = MeterProvider(metric_readers=metric_readers)
         return meter_provider.get_meter(name=name)
 

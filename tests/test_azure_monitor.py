@@ -22,14 +22,14 @@ class TestAzureMonitor(unittest.TestCase):
         return super().setUp()
 
     @patch.dict(os.environ, {"APPLICATIONINSIGHTS-CONNECTION-STRING": f"InstrumentationKey={uuid4()};IngestionEndpoint=https://eastus2-3.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/"})
-    @patch("hypergo.metrics.datalink.DataLinkMetric.send")
-    @patch("hypergo.metrics.datalink.DataLinkMetric.get_meter")
-    @patch("hypergo.loggers.datalink.DataLinkTracer.get_tracer")
+    @patch("hypergo.metrics.hypergo_metrics.HypergoMetric.send")
+    @patch("hypergo.metrics.hypergo_metrics.HypergoMetric.get_meter")
+    @patch("hypergo.loggers.hypergo_logger.HypergoTracer.get_tracer")
     @patch("hypergo.secrets.LocalSecrets")
     def test_azure_monitor(self, mock_secrets, mock_get_tracer, mock_get_meter, mock_send):
         cfg: ConfigType = {
                             "version": "2.0.0",
-                            "namespace": "datalink",
+                            "namespace": "testing",
                             "name": "batchstreamer",
                             "package": "ldp-batch-to-stream-producer",
                             "lib_func": "batch_to_stream_producer.__main__.batch_to_stream",

@@ -14,7 +14,7 @@ from hypergo.loggers.azure_logger import AzureLogger
 class TestAzureLogger(unittest.TestCase):
 
     @patch.dict(os.environ, {"APPLICATIONINSIGHTS-CONNECTION-STRING": f"InstrumentationKey={uuid4()};IngestionEndpoint=https://eastus2-3.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/"})
-    @patch("hypergo.loggers.datalink.DataLinkTracer.get_tracer")
+    @patch("hypergo.loggers.hypergo_logger.HypergoTracer.get_tracer")
     @patch("hypergo.secrets.LocalSecrets")
     def test_azure_logger(self, mock_secrets, mock_get_tracer):
         mock_secrets.get.return_value = os.environ["APPLICATIONINSIGHTS-CONNECTION-STRING"]
