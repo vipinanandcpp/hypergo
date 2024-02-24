@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from typing import Any
+
 from hypergo.connection import Connection
 from hypergo.message import MessageType
 

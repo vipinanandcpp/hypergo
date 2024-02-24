@@ -134,8 +134,9 @@ class Transform:
             "transaction": input_message["transaction"],
         }
         if base_storage:
-            context["storage"] = base_storage.use_sub_path(os.path.join("component", "private",
-                                                                        Utility.deep_get(context, 'config.name')))
+            context["storage"] = base_storage.use_sub_path(
+                os.path.join("component", "private", Utility.deep_get(context, "config.name"))
+            )
         return context
 
     @staticmethod

@@ -32,7 +32,8 @@ def function_log(func: Callable[..., Any]) -> Callable[..., Any]:
         function_logger.format = JSONFormatter()
         try:
             function_logger.info(f"Invoking function: {function_logger.name}")
-            # if func is an instance method of self then func(data) is called. Else it's a decorated function
+            # if func is an instance method of self then func(data) is called.
+            # Else it's a decorated function
             result: Any = func(data) if inspect.ismethod(func) and self == func.__self__ else func(self, data)
             function_logger.info(f"Function {function_logger.name} completed successfully")
             return result
