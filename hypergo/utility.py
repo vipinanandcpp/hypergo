@@ -8,6 +8,8 @@ import os
 import uuid
 from datetime import datetime
 from functools import wraps
+from importlib import import_module
+from types import ModuleType
 from typing import (Any, Callable, Dict, Mapping, Optional, Tuple, Union, cast,
                     get_origin)
 
@@ -242,3 +244,19 @@ class Utility:  # pylint: disable=too-many-public-methods
             raise ValueError("Failed to generate a valid Fernet key.")
         url_safe_key = base64.urlsafe_b64encode(key)
         return url_safe_key
+
+
+class DynamicImports:
+    def __init__(self, path: str, package_prefix: str):
+        self.path = path
+        self.package_prefix = package_prefix
+
+    @staticmethod
+    def dynamic_imp_module(package: str, module_name: str) -> ModuleType:
+        name = package + "." + module_name
+        return import_module(name=name)
+
+    @staticmethod
+    def dynamic_imp_class(package: str, module_name: str, class_name: str) -> Any:
+        module = DynamicImports.dynamic_imp_module(package=package, module_name=module_name)
+        return getattr(module, class_name)

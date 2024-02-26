@@ -15,4 +15,4 @@ class Connection(ABC):
 
     @abstractmethod
     def send(self, message: MessageType, namespace: str) -> None:
-        ...
+        pass

@@ -4,8 +4,8 @@ import azure.functions as func
 from azure.servicebus import (ServiceBusClient, ServiceBusMessage,
                               ServiceBusSender)
 
-from hypergo.service_bus_connection import ServiceBusConnection
 from hypergo.message import Message, MessageType
+from hypergo.service_bus_connection import ServiceBusConnection
 
 
 class AzureServiceBusConnection(ServiceBusConnection):

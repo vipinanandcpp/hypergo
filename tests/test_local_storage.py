@@ -14,7 +14,7 @@ class TestLocalStorage(unittest.TestCase):
     def setUp(self) -> None:
         self.storage: Storage = LocalStorage()
         self.file_name: str = "test.txt"
-        self.file_path = os.path.join(SCRIPT_DIR, os.pardir, '.hypergo_storage', self.file_name)
+        self.file_path = os.path.join(os.path.expanduser('~'), '.hypergo_storage', self.file_name)
 
     def test_load(self) -> None:
         content: str = "Hello, world!"

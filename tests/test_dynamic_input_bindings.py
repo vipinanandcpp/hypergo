@@ -12,7 +12,7 @@ from hypergo.context import ContextType
 from hypergo.executor import Executor
 
 
-class TestDynamicRoutingKey(unittest.TestCase):
+class TestDynamicInputBindings(unittest.TestCase):
     def setUp(self) -> None:
         self.message: MessageType = {
             "body": {},
@@ -20,7 +20,7 @@ class TestDynamicRoutingKey(unittest.TestCase):
         }
         return super().setUp()
 
-    def test_dynamic_routing_key(self):
+    def test_dynamic_input_bindings(self):
         cfg: ConfigType = {
                             "namespace": "datalink",
                             "name": "snowflakedbexecutor",
