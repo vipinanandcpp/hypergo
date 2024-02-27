@@ -62,7 +62,8 @@ class HypergoMetric:
                 metric_unit = unit
             elif metric_unit != unit:
                 raise ValueError(f"All MetricResult(s) for {metric_name} should have the same unit value")
-            _callbacks.add(create_callback(value=value, attributes={"unit": unit, "name": name}))
+            _callbacks.add(create_callback(value=value, attributes={"unit": unit, "name": name,
+                                                                    "function_name": meter.name}))
         meter.create_observable_gauge(
             name=metric_name,
             callbacks=cast(Sequence[Callable[[CallbackOptions], Iterable[Observation]]], _callbacks),
