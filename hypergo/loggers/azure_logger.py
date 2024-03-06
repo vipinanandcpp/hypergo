@@ -24,7 +24,7 @@ class AzureLogger(BaseLogger, AzureApplicationInsights):
         HypergoMetric.set_metric_exporter(self.metric_exporter)
 
     def get_handler(self) -> logging.Handler:
-        return HypergoLogger.get_handler()
+        return HypergoLogger.get_handler(self.log_level)
 
     def log(self, message: str, level: Optional[int] = None) -> None:
         if level is None:

@@ -19,8 +19,8 @@ class HypergoLogger:
         cast(LoggerProvider, get_logger_provider()).add_log_record_processor(BatchLogRecordProcessor(log_exporter))
 
     @staticmethod
-    def get_handler() -> Handler:
-        return LoggingHandler(logger_provider=get_logger_provider())
+    def get_handler(log_level: int) -> Handler:
+        return LoggingHandler(level=log_level, logger_provider=get_logger_provider())
 
 
 class HypergoTracer:
