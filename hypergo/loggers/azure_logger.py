@@ -39,3 +39,4 @@ class AzureLogger(BaseLogger, AzureApplicationInsights):
         ):
             # Log the message with the specified level
             logger.log(level, message)
+        logger.removeHandler(handler)

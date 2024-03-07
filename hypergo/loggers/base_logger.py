@@ -28,6 +28,7 @@ class BaseLogger:
         logger.setLevel(level)
         # Log the message with the specified level
         logger.log(level, message)
+        logger.removeHandler(handler)
 
     @property
     def name(self) -> Optional[str]:
