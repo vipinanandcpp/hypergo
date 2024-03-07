@@ -12,6 +12,8 @@ class BaseLogger:
         self._name: Optional[str] = name
         self.log_level = log_level
         self._format: Union[logging.Formatter, None] = self.__get_formatter(log_format)
+        self.logger = logging.getLogger(self.name)
+        self.logger.addHandler(self.get_handler())
 
     def get_handler(self) -> logging.Handler:
         handler: logging.Handler = logging.StreamHandler()
@@ -22,13 +24,9 @@ class BaseLogger:
     def log(self, message: str, level: Optional[int] = None) -> None:
         if level is None:
             level = self.log_level
-        handler = self.get_handler()
-        logger = logging.getLogger(self.name)
-        logger.addHandler(handler)
-        logger.setLevel(level)
+        self.logger.setLevel(level)
         # Log the message with the specified level
-        logger.log(level, message)
-        logger.removeHandler(handler)
+        self.logger.log(level, message)
 
     @property
     def name(self) -> Optional[str]:
