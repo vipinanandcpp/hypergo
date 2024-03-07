@@ -170,7 +170,7 @@ class Executor:
     @Transform.operation("serialization")
     @Transform.operation("contextualization")
     @function_log
-    @collect_metrics
+    #@collect_metrics
     def execute(self, context: Any) -> Generator[MessageType, None, None]:
         # This mutates config with substitutions - not necessary for input binding substitution
         # Unclear which approach is better - do we want the original config with references?  Or
