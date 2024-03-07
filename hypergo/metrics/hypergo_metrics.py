@@ -10,13 +10,19 @@ from hypergo.metrics.base_metrics import MetricResult
 
 class HypergoMetric:
 
+    _default_metric_exporter: MetricExporter = ConsoleMetricExporter()
+
     _current_metric_readers: Set[PeriodicExportingMetricReader] = set(
-        [PeriodicExportingMetricReader(ConsoleMetricExporter())]
+        [PeriodicExportingMetricReader(_default_metric_exporter)]
     )
+
+    _current_metric_readers_class_names = Set[str] = set(_default_metric_exporter.__class__)
 
     @staticmethod
     def set_metric_exporter(metric_exporter: MetricExporter) -> None:
-        HypergoMetric._current_metric_readers.add(PeriodicExportingMetricReader(metric_exporter))
+        if metric_exporter.__class__ not in HypergoMetric._current_metric_readers_class_names:
+            HypergoMetric._current_metric_readers.add(PeriodicExportingMetricReader(metric_exporter))
+            HypergoMetric._current_metric_readers_class_names.add(metric_exporter.__class__)
 
     @staticmethod
     def get_meter(name: str) -> Meter:
