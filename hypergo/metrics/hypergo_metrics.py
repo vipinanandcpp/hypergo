@@ -16,7 +16,7 @@ class HypergoMetric:
         [PeriodicExportingMetricReader(_default_metric_exporter)]
     )
 
-    _current_metric_readers_class_names = Set[str] = set([_default_metric_exporter.__class__])
+    _current_metric_readers_class_names: Set[str] = set([_default_metric_exporter.__class__])
 
     @staticmethod
     def set_metric_exporter(metric_exporter: MetricExporter) -> None:
