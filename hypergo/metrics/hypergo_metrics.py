@@ -16,19 +16,26 @@ class HypergoMetric:
         [PeriodicExportingMetricReader(_default_metric_exporter)]
     )
 
-    _current_metric_readers_class_names: Set[str] = set([_default_metric_exporter.__class__])
+    # _current_metric_readers should have unique exporters (Azure, Graphana, Datadog etc.).
+    # In a multithreaded environment, I don't want to see the same exporter registered since there is a check for that
+    # using elements inside OpenTelemetry MeterProvider._all_metric_readers
+    _current_metric_exporters_class_names: Set[str] = set([_default_metric_exporter.__class__])
+
+    _current_meter_provider: MeterProvider = None
 
     @staticmethod
     def set_metric_exporter(metric_exporter: MetricExporter) -> None:
-        if metric_exporter.__class__ not in HypergoMetric._current_metric_readers_class_names:
+        if metric_exporter.__class__ not in HypergoMetric._current_metric_exporters_class_names:
             HypergoMetric._current_metric_readers.add(PeriodicExportingMetricReader(metric_exporter))
-            HypergoMetric._current_metric_readers_class_names.add(metric_exporter.__class__)
+            HypergoMetric._current_metric_exporters_class_names.add(metric_exporter.__class__)
 
     @staticmethod
     def get_meter(name: str) -> Meter:
+        # This function is called (on events) way after registration of all exporters done during initialization
         metric_readers: Set[PeriodicExportingMetricReader] = HypergoMetric._current_metric_readers
-        meter_provider: MeterProvider = MeterProvider(metric_readers=cast(Sequence[Any], metric_readers))
-        return meter_provider.get_meter(name=name)
+        if not HypergoMetric._current_meter_provider:
+            HypergoMetric._current_meter_provider = MeterProvider(metric_readers=cast(Sequence[Any], metric_readers))
+        return HypergoMetric._current_meter_provider.get_meter(name=name)
 
     @staticmethod
     def get_metrics_callback(
