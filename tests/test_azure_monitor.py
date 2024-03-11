@@ -12,6 +12,7 @@ from hypergo.config import ConfigType
 from hypergo.executor import Executor
 from hypergo.loggers.azure_logger import AzureLogger
 from hypergo.monitor import collect_metrics
+from hypergo.metrics.hypergo_metrics import HypergoMetric
 
 
 class TestAzureMonitor(unittest.TestCase):
@@ -51,6 +52,7 @@ class TestAzureMonitor(unittest.TestCase):
         self.__mock_send_message(executor=executor, message=self.message, config=cfg)
         mock_get_meter.assert_called_with(name="fetch_data")
         assert mock_send.call_count == 5
+        assert len(HypergoMetric._current_metric_readers) >= 2
 
 
 if __name__ == '__main__':

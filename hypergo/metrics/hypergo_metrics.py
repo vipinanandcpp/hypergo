@@ -1,3 +1,4 @@
+import math
 import inspect
 from typing import Any, cast, Dict, Mapping, Set, List, Optional, Union
 from collections.abc import Callable, Iterable, Sequence
@@ -13,7 +14,7 @@ class HypergoMetric:
     _default_metric_exporter: MetricExporter = ConsoleMetricExporter()
 
     _current_metric_readers: Set[PeriodicExportingMetricReader] = set(
-        [PeriodicExportingMetricReader(_default_metric_exporter)]
+        [PeriodicExportingMetricReader(_default_metric_exporter, export_interval_millis=math.inf)]
     )
 
     # _current_metric_readers should have unique exporters (Azure, Graphana, Datadog etc.).
@@ -26,7 +27,8 @@ class HypergoMetric:
     @staticmethod
     def set_metric_exporter(metric_exporter: MetricExporter) -> None:
         if metric_exporter.__class__ not in HypergoMetric._current_metric_exporters_class_names:
-            HypergoMetric._current_metric_readers.add(PeriodicExportingMetricReader(metric_exporter))
+            HypergoMetric._current_metric_readers.add(PeriodicExportingMetricReader(metric_exporter,
+                                                                                    export_interval_millis=math.inf))
             HypergoMetric._current_metric_exporters_class_names.add(metric_exporter.__class__)
 
     @staticmethod
@@ -83,3 +85,5 @@ class HypergoMetric:
             unit=cast(str, metric_unit),
             description=cast(str, description),
         )
+        for metric_reader in HypergoMetric._current_metric_readers:
+            metric_reader.collect(timeout_millis=60000)
