@@ -1,7 +1,5 @@
-import inspect
 from functools import wraps
 from typing import Any, Callable, Dict, Union, cast
-
 from hypergo.metrics import custom_metrics_metadata
 from hypergo.metrics.base_metrics import MetricResult
 from hypergo.metrics.hypergo_metrics import HypergoMetric, Meter
@@ -11,8 +9,8 @@ __all__ = ["collect_metrics"]
 
 def collect_metrics(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
-    def wrapper(self: Any, data: Any) -> Any:
-        function_name: str = self.callback.__name__
+    def wrapper(*args, **kwargs) -> Any:
+        function_name: str = func.__name__
         metric_callbacks: Dict[Callable[[Union[MetricResult, None]], MetricResult], MetricResult] = {}
         for custom_metrics in custom_metrics_metadata:
             for metric_callback in HypergoMetric.get_metrics_callback(
@@ -24,9 +22,8 @@ def collect_metrics(func: Callable[..., Any]) -> Callable[..., Any]:
                     cast(Callable[[Union[MetricResult, None]], MetricResult], metric_callback),
                     metric_callback(cast(MetricResult, None)),
                 )
-        # if func is an instance method of self then func(data) is called. Else
-        # it's a decorated function
-        result: Any = func(data) if inspect.ismethod(func) and self == func.__self__ else func(self, data)
+
+        result: Any = func(*args, **kwargs)
         meter: Meter = HypergoMetric.get_meter(name=function_name)
         for metric_callback, value in metric_callbacks.items():
             HypergoMetric.send(
