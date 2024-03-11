@@ -170,6 +170,7 @@ class Executor:
     @Transform.operation("serialization")
     @Transform.operation("contextualization")
     @function_log
+    @collect_metrics
     def execute(self, context: Any) -> Generator[MessageType, None, None]:
         # This mutates config with substitutions - not necessary for input binding substitution
         # Unclear which approach is better - do we want the original config with references?  Or
@@ -178,7 +179,7 @@ class Executor:
         # We should keep it
         context["config"] = do_substitution(context["config"], cast(Dict[str, Any], context))
         args: List[Any] = self.get_args(context)
-        execution: Any = collect_metrics(self._func_spec)(*args)
+        execution: Any = self._func_spec(*args)
 
         output_routing_key: str = self.get_output_routing_key(Utility.deep_get(context, "message.routingkey"))
         if not inspect.isgenerator(execution):
