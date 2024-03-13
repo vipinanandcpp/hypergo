@@ -12,7 +12,6 @@ from hypergo.config import ConfigType
 from hypergo.executor import Executor
 from hypergo.loggers.azure_logger import AzureLogger
 from hypergo.monitor import collect_metrics
-from hypergo.metrics.hypergo_metrics import HypergoMetric
 
 
 class TestAzureMonitor(unittest.TestCase):
@@ -28,10 +27,10 @@ class TestAzureMonitor(unittest.TestCase):
             _
 
     @patch.dict(os.environ, {"APPLICATIONINSIGHTS-CONNECTION-STRING": f"InstrumentationKey={uuid4()};IngestionEndpoint=https://eastus2-3.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/"})
+    @patch("opentelemetry.sdk.metrics.export.MetricReader.collect")
     @patch("hypergo.metrics.hypergo_metrics.HypergoMetric.send")
-    @patch("hypergo.metrics.hypergo_metrics.HypergoMetric.get_meter")
     @patch("hypergo.secrets.LocalSecrets")
-    def test_azure_monitor(self, mock_secrets, mock_get_meter, mock_send):
+    def test_azure_monitor(self, mock_secrets, mock_send, mock_collect):
         cfg: ConfigType = {
                                 "version": "2.0.0",
                                 "namespace": "datalink",
@@ -50,9 +49,8 @@ class TestAzureMonitor(unittest.TestCase):
         logger = AzureLogger(secrets=mock_secrets)
         executor = Executor(cfg, logger=logger)
         self.__mock_send_message(executor=executor, message=self.message, config=cfg)
-        mock_get_meter.assert_called_with(name="fetch_data")
         assert mock_send.call_count == 5
-        assert len(HypergoMetric._current_metric_readers) >= 2
+        mock_collect.assert_called_with(timeout_millis=60000)
 
 
 if __name__ == '__main__':

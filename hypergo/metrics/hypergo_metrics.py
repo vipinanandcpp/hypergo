@@ -85,5 +85,8 @@ class HypergoMetric:
             unit=cast(str, metric_unit),
             description=cast(str, description),
         )
+
+    @staticmethod
+    def collect():
         for metric_reader in HypergoMetric._current_metric_readers:
             metric_reader.collect(timeout_millis=60000)

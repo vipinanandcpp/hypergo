@@ -46,6 +46,7 @@ def collect_metrics(func: Callable[..., Any]) -> Callable[..., Any]:
                 metric_result=metric_callback(value),
                 description=metric_callback.__doc__,
             )
+        HypergoMetric.collect()
         return result
 
     return wrapper

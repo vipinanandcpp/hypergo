@@ -10,7 +10,6 @@ from hypergo.message import MessageType
 from hypergo.config import ConfigType
 from hypergo.executor import Executor
 from hypergo.monitor import collect_metrics
-from hypergo.metrics.hypergo_metrics import HypergoMetric
 from hypergo.logger import logger
 
 
@@ -27,8 +26,8 @@ class TestAzureMonitor(unittest.TestCase):
             _
 
     @patch("hypergo.metrics.hypergo_metrics.HypergoMetric.send")
-    @patch("hypergo.metrics.hypergo_metrics.HypergoMetric.get_meter")
-    def test_stdio_monitor(self, mock_get_meter, mock_send):
+    @patch("opentelemetry.sdk.metrics.export.PeriodicExportingMetricReader.collect")
+    def test_stdio_monitor(self, mock_collect, mock_send):
         cfg: ConfigType = {
                                 "version": "2.0.0",
                                 "namespace": "datalink",
@@ -45,9 +44,8 @@ class TestAzureMonitor(unittest.TestCase):
 
         executor = Executor(cfg, logger=logger)
         self.__mock_send_message(executor=executor, message=self.message, config=cfg)
-        mock_get_meter.assert_called_with(name="fetch_data")
         assert mock_send.call_count == 5
-        assert len(HypergoMetric._current_metric_readers) >= 1
+        mock_collect.assert_called_with(timeout_millis=60000)
 
 
 if __name__ == '__main__':
