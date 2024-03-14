@@ -1,3 +1,4 @@
+import math
 import inspect
 from typing import Any, cast, Dict, Mapping, Set, List, Optional, Union
 from collections.abc import Callable, Iterable, Sequence
@@ -10,19 +11,35 @@ from hypergo.metrics.base_metrics import MetricResult
 
 class HypergoMetric:
 
+    _default_metric_exporter: MetricExporter = ConsoleMetricExporter()
+
     _current_metric_readers: Set[PeriodicExportingMetricReader] = set(
-        [PeriodicExportingMetricReader(ConsoleMetricExporter())]
+        [PeriodicExportingMetricReader(_default_metric_exporter, export_interval_millis=math.inf)]
     )
+
+    # _current_metric_readers should have unique exporters (Azure, Graphana, Datadog etc.).
+    # In a multithreaded environment, I don't want to see the same exporter registered since there is a check for that
+    # using elements inside OpenTelemetry MeterProvider._all_metric_readers
+    _current_metric_exporters_class_names: Set[str] = set([_default_metric_exporter.__class__.__name__])
+
+    _current_meter_provider: Union[MeterProvider, None] = None
 
     @staticmethod
     def set_metric_exporter(metric_exporter: MetricExporter) -> None:
-        HypergoMetric._current_metric_readers.add(PeriodicExportingMetricReader(metric_exporter))
+        if metric_exporter.__class__.__name__ not in HypergoMetric._current_metric_exporters_class_names:
+            HypergoMetric._current_metric_readers.add(
+                PeriodicExportingMetricReader(metric_exporter, export_interval_millis=math.inf)
+            )
+            HypergoMetric._current_metric_exporters_class_names.add(metric_exporter.__class__.__name__)
 
     @staticmethod
     def get_meter(name: str) -> Meter:
+        # This function is called (on events) way after registration of all
+        # exporters done during initialization
         metric_readers: Set[PeriodicExportingMetricReader] = HypergoMetric._current_metric_readers
-        meter_provider: MeterProvider = MeterProvider(metric_readers=cast(Sequence[Any], metric_readers))
-        return meter_provider.get_meter(name=name)
+        if not HypergoMetric._current_meter_provider:
+            HypergoMetric._current_meter_provider = MeterProvider(metric_readers=cast(Sequence[Any], metric_readers))
+        return HypergoMetric._current_meter_provider.get_meter(name=name)
 
     @staticmethod
     def get_metrics_callback(
@@ -62,10 +79,17 @@ class HypergoMetric:
                 metric_unit = unit
             elif metric_unit != unit:
                 raise ValueError(f"All MetricResult(s) for {metric_name} should have the same unit value")
-            _callbacks.add(create_callback(value=value, attributes={"unit": unit, "name": name}))
+            _callbacks.add(
+                create_callback(value=value, attributes={"unit": unit, "name": name, "function_name": meter.name})
+            )
         meter.create_observable_gauge(
             name=metric_name,
             callbacks=cast(Sequence[Callable[[CallbackOptions], Iterable[Observation]]], _callbacks),
             unit=cast(str, metric_unit),
             description=cast(str, description),
         )
+
+    @staticmethod
+    def collect() -> None:
+        for metric_reader in HypergoMetric._current_metric_readers:
+            metric_reader.collect(timeout_millis=60000)

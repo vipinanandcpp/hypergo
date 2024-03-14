@@ -16,7 +16,6 @@ class AzureLogger(BaseLogger, AzureApplicationInsights):
         log_level: int = logging.DEBUG,
         log_format: Optional[Union[str, logging.Formatter]] = None,
     ):
-
         BaseLogger.__init__(self, name=name, log_level=log_level, log_format=log_format)
         AzureApplicationInsights.__init__(self, secrets=secrets)
         HypergoLogger.set_log_exporter(log_exporter=self.log_exporter)
@@ -24,18 +23,15 @@ class AzureLogger(BaseLogger, AzureApplicationInsights):
         HypergoMetric.set_metric_exporter(self.metric_exporter)
 
     def get_handler(self) -> logging.Handler:
-        return HypergoLogger.get_handler()
+        return HypergoLogger.get_handler(self.log_level)
 
     def log(self, message: str, level: Optional[int] = None) -> None:
         if level is None:
             level = self.log_level
-        handler: logging.Handler = self.get_handler()
-        logger = logging.getLogger(self.name)
-        logger.addHandler(handler)
-        logger.setLevel(level)
+        self.logger.setLevel(level)
         # Get a tracer for the current module.
         with HypergoTracer.get_tracer(__name__).start_as_current_span(
             cast(str, self.name), attributes={"trace-type": "user"}
         ):
             # Log the message with the specified level
-            logger.log(level, message)
+            self.logger.log(level, message)

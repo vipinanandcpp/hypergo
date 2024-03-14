@@ -35,7 +35,6 @@ def function_log(func: Callable[..., Any]) -> Callable[..., Any]:
             # if func is an instance method of self then func(data) is called.
             # Else it's a decorated function
             result: Any = func(data) if inspect.ismethod(func) and self == func.__self__ else func(self, data)
-            function_logger.info(f"Function {function_logger.name} completed successfully")
             return result
         except Exception as e:
             function_logger.error(f"""Function {function_logger.name} encountered error: {str(e)}""")

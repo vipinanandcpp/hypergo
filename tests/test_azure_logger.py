@@ -3,7 +3,7 @@ import sys
 import logging
 from uuid import uuid4
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, patch
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -18,8 +18,7 @@ class TestAzureLogger(unittest.TestCase):
     @patch("hypergo.secrets.LocalSecrets")
     def test_azure_logger(self, mock_secrets, mock_get_tracer):
         mock_secrets.get.return_value = os.environ["APPLICATIONINSIGHTS-CONNECTION-STRING"]
-        mock_get_tracer.return_value.__enter__ = Mock()
-        mock_get_tracer.return_value.__exit__ = Mock()
+        mock_get_tracer.return_value = MagicMock()
 
         # Create an instance of AzureLogger
         logger = AzureLogger(secrets=mock_secrets)
