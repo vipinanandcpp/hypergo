@@ -1,5 +1,4 @@
 from logging import Handler
-from typing import cast
 from opentelemetry._logs import set_logger_provider
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import LogExporter, BatchLogRecordProcessor
@@ -17,8 +16,7 @@ class HypergoLogger:
         if not HypergoLogger.is_logger_provider_set:
             set_logger_provider(HypergoLogger.logger_provider)
             HypergoLogger.is_logger_provider_set = True
-        cast(LoggerProvider, HypergoLogger.logger_provider).add_log_record_processor(
-            BatchLogRecordProcessor(log_exporter))
+        HypergoLogger.logger_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
 
     @staticmethod
     def get_handler(log_level: int) -> Handler:
@@ -34,8 +32,7 @@ class HypergoTracer:
         if not HypergoTracer.is_tracer_provider_set:
             set_tracer_provider(HypergoTracer.tracer_provider)
             HypergoTracer.is_tracer_provider_set = True
-        cast(TracerProvider, HypergoTracer.tracer_provider).add_span_processor(
-            BatchSpanProcessor(span_exporter=trace_exporter))
+        HypergoTracer.tracer_provider.add_span_processor(BatchSpanProcessor(span_exporter=trace_exporter))
 
     @staticmethod
     def get_tracer(name: str) -> Tracer:

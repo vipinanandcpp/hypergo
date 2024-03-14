@@ -4,6 +4,7 @@ from azure.monitor.opentelemetry.exporter import (
     AzureMonitorTraceExporter,
     AzureMonitorMetricExporter,
 )
+
 from hypergo.loggers.hypergo_logger import LogExporter, TraceExporter
 from hypergo.metrics.hypergo_metrics import MetricExporter
 from hypergo.secrets import Secrets
@@ -15,14 +16,16 @@ class AzureApplicationInsights:
             conn_str=secrets.get("APPLICATIONINSIGHTS-CONNECTION-STRING"), disable_offline_storage=True
         )
         self._trace_exporter: TraceExporter = cast(
-            TraceExporter, AzureMonitorTraceExporter.from_connection_string(
-                conn_str=secrets.get("APPLICATIONINSIGHTS-CONNECTION-STRING"), disable_offline_storage=True),
+            TraceExporter,
+            AzureMonitorTraceExporter.from_connection_string(
+                conn_str=secrets.get("APPLICATIONINSIGHTS-CONNECTION-STRING"), disable_offline_storage=True
+            ),
         )
         self._metric_exporter: MetricExporter = AzureMonitorMetricExporter.from_connection_string(
             conn_str=secrets.get("APPLICATIONINSIGHTS-CONNECTION-STRING"), disable_offline_storage=True
         )
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.log_exporter.shutdown()
         self.trace_exporter.shutdown()
         self.metric_exporter.shutdown()

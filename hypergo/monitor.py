@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable, Dict, Union, cast, Type
+from typing import Any, Callable, Dict, Type, Union, cast
 
 from hypergo.executor import Executor
 from hypergo.metrics import custom_metrics_metadata
@@ -9,7 +9,7 @@ from hypergo.metrics.hypergo_metrics import HypergoMetric, Meter
 __all__ = ["collect_metrics"]
 
 
-def find_class_instance(class_type: Type, *args: Any, **kwargs: Any) -> Union[Type, None]:
+def find_class_instance(class_type: Type[Any], *args: Any, **kwargs: Any) -> Union[Any, None]:
     for arg in args:
         if isinstance(arg, class_type):
             return arg

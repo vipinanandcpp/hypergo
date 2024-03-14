@@ -20,20 +20,22 @@ class HypergoMetric:
     # _current_metric_readers should have unique exporters (Azure, Graphana, Datadog etc.).
     # In a multithreaded environment, I don't want to see the same exporter registered since there is a check for that
     # using elements inside OpenTelemetry MeterProvider._all_metric_readers
-    _current_metric_exporters_class_names: Set[str] = set([_default_metric_exporter.__class__])
+    _current_metric_exporters_class_names: Set[str] = set([_default_metric_exporter.__class__.__name__])
 
-    _current_meter_provider: MeterProvider = None
+    _current_meter_provider: Union[MeterProvider, None] = None
 
     @staticmethod
     def set_metric_exporter(metric_exporter: MetricExporter) -> None:
-        if metric_exporter.__class__ not in HypergoMetric._current_metric_exporters_class_names:
-            HypergoMetric._current_metric_readers.add(PeriodicExportingMetricReader(metric_exporter,
-                                                                                    export_interval_millis=math.inf))
-            HypergoMetric._current_metric_exporters_class_names.add(metric_exporter.__class__)
+        if metric_exporter.__class__.__name__ not in HypergoMetric._current_metric_exporters_class_names:
+            HypergoMetric._current_metric_readers.add(
+                PeriodicExportingMetricReader(metric_exporter, export_interval_millis=math.inf)
+            )
+            HypergoMetric._current_metric_exporters_class_names.add(metric_exporter.__class__.__name__)
 
     @staticmethod
     def get_meter(name: str) -> Meter:
-        # This function is called (on events) way after registration of all exporters done during initialization
+        # This function is called (on events) way after registration of all
+        # exporters done during initialization
         metric_readers: Set[PeriodicExportingMetricReader] = HypergoMetric._current_metric_readers
         if not HypergoMetric._current_meter_provider:
             HypergoMetric._current_meter_provider = MeterProvider(metric_readers=cast(Sequence[Any], metric_readers))
@@ -77,8 +79,9 @@ class HypergoMetric:
                 metric_unit = unit
             elif metric_unit != unit:
                 raise ValueError(f"All MetricResult(s) for {metric_name} should have the same unit value")
-            _callbacks.add(create_callback(value=value, attributes={"unit": unit, "name": name,
-                                                                    "function_name": meter.name}))
+            _callbacks.add(
+                create_callback(value=value, attributes={"unit": unit, "name": name, "function_name": meter.name})
+            )
         meter.create_observable_gauge(
             name=metric_name,
             callbacks=cast(Sequence[Callable[[CallbackOptions], Iterable[Observation]]], _callbacks),
@@ -87,6 +90,6 @@ class HypergoMetric:
         )
 
     @staticmethod
-    def collect():
+    def collect() -> None:
         for metric_reader in HypergoMetric._current_metric_readers:
             metric_reader.collect(timeout_millis=60000)
