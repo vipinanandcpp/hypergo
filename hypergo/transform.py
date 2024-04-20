@@ -146,7 +146,8 @@ class Transform:
     @staticmethod
     @root_node
     @config_v0_v1_passbyreference_backward_compatible
-    def storebyreference(data: Any, key: str, base_storage: Storage) -> Any:
+    def storebyreference(data: Union[TypedDictType, Dict[str, Any]], key: str,
+                         base_storage: Storage) -> Union[TypedDictType, Dict[str, Any]]:
         storage: Storage = base_storage.use_sub_path("passbyreference")
         str_result = Utility.deep_get(data, key)
         out_storage_key = f"storagekey_{Utility.hash(str_result)}"
