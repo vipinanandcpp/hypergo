@@ -63,9 +63,10 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
                 )
             )
 
-        #if result != string:
+        # if result != string:
         #    result = substitute(result, data)
         return result
+
     return substitute(value, data)
 
 
