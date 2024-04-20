@@ -42,14 +42,14 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
     def substitute(string: str, data: Dict[str, Any]) -> Any:
         result = string
         if isinstance(string, str):
-            match: Optional[Match[str]] = re.match(r"^{([^}]+)}$", string)
+            matched_regex: Optional[Match[str]] = re.match(r"^{([^}]+)}$", string)
             result = (
                 Utility.deep_get(
                     data,
-                    do_question_mark(data, match.group(1)),
-                    match.group(0),
+                    do_question_mark(data, matched_regex.group(1)),
+                    matched_regex.group(0),
                 )
-                if match
+                if matched_regex
                 else re.sub(
                     r"{([^}]+)}",
                     lambda match: str(
@@ -63,10 +63,9 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
                 )
             )
 
-        if result != string:
-            result = substitute(result, data)
+        #if result != string:
+        #    result = substitute(result, data)
         return result
-
     return substitute(value, data)
 
 
@@ -130,10 +129,10 @@ class Executor:
 
     def get_args(self, context: ContextType) -> List[Any]:
         return [
-            val if argtype == inspect.Parameter.empty else Utility.safecast(argtype, val)
+            val if argtype == inspect.Parameter.empty else Utility.safecast(argtype, Utility.objectify(val))
             for val, argtype in zip(
                 do_substitution(
-                    Utility.deep_get(self._config, "input_bindings"),
+                    Utility.deep_get(self.config, "input_bindings"),
                     cast(Dict[str, Any], context),
                 ),
                 self._arg_spec,
@@ -143,7 +142,7 @@ class Executor:
     def get_output_routing_key(self, input_message_routing_key: str) -> str:
         routing_key_set: Set[str] = set(input_message_routing_key.split("."))
         tokens: List[str] = []
-        for input_key in self._config["input_keys"]:
+        for input_key in self.config["input_keys"]:
             # hypergo-144 dynamic routing key only for generic components
             # output key will contain context derived from the previous
             # producer routing key
@@ -157,7 +156,7 @@ class Executor:
         token: str = self.organize_tokens(tokens)
         output_tokens: List[str] = [
             re.sub(r"(?<=\.)\?(?=\.)|^\?|(?<=\.)\?$|^\?$", token, output_key)
-            for output_key in self._config["output_keys"]
+            for output_key in self.config["output_keys"]
         ]
         return self.organize_tokens(output_tokens)
 
@@ -194,16 +193,16 @@ class Executor:
             }
             output_context: ContextType = {
                 "message": output_message,
-                "config": self._config,
+                "config": self.config,
             }
 
             def handle_tuple(dst: ContextType, src: Any) -> None:
-                for binding, tuple_elem in zip(self._config["output_bindings"], src):
+                for binding, tuple_elem in zip(self.config["output_bindings"], src):
                     Utility.deep_set(dst, binding, tuple_elem)
 
             def handle_default(dst: ContextType, src: Any) -> None:
-                for binding in self._config["output_bindings"]:
-                    Utility.deep_set(dst, binding, src)
+                for binding in self.config["output_bindings"]:
+                    Utility.deep_set(dst, binding, Utility.stringify(src))
 
             if isinstance(return_value, tuple):
                 handle_tuple(output_context, return_value)
