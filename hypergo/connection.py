@@ -5,11 +5,10 @@ from hypergo.config import ConfigType
 from hypergo.executor import Executor
 from hypergo.message import MessageType
 from hypergo.monitor import collect_metrics
-from hypergo.utility import do_cprofile
 
 
 class Connection(ABC):
-    @do_cprofile
+
     def general_consume(self, message: MessageType, **kwargs: Any) -> None:
         config: ConfigType = kwargs.pop("config")
         executor: Executor = Executor(config, **kwargs)
