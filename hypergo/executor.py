@@ -66,7 +66,7 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
             )
 
             # We were substituting message.* in the string with the actual payload
-            if re.match(r"^.*\{message\..+\}.*$", string):
+            if re.match(r"^.*\{message\.[^\}]+\}.*$", string):
                 return result
 
         if result != string:
