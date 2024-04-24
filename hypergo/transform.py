@@ -151,6 +151,7 @@ class Transform:
         data: Union[TypedDictType, Dict[str, Any]], key: str, base_storage: Storage
     ) -> Union[TypedDictType, Dict[str, Any]]:
         storage: Storage = base_storage.use_sub_path("passbyreference")
+        #str_result = Utility.stringify(Utility.deep_get(data, key))
         str_result = Utility.deep_get(data, key)
         out_storage_key = f"storagekey_{Utility.hash(str_result)}"
         storage.save(out_storage_key, str_result)

@@ -49,7 +49,9 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
                     do_question_mark(data, matched_regex.group(1)),
                     matched_regex.group(0),
                 )
+                # version 2.0.0 and above
                 if matched_regex
+                # backward compatibility
                 else re.sub(
                     r"{([^}]+)}",
                     lambda match: str(
@@ -63,8 +65,12 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
                 )
             )
 
-        # if result != string:
-        #    result = substitute(result, data)
+            # We were substituting message.* in the string with the actual payload
+            if re.match(r"^.*\{message\..+\}.*$", string):
+                return result
+
+        if result != string:
+            result = substitute(result, data)
         return result
 
     return substitute(value, data)
