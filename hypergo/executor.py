@@ -209,7 +209,7 @@ class Executor:
 
             def handle_default(dst: ContextType, src: Any) -> None:
                 for binding in self.config["output_bindings"]:
-                    Utility.deep_set(dst, binding, Utility.stringify(src))
+                    Utility.deep_set(dst, binding, src)
 
             if isinstance(return_value, tuple):
                 handle_tuple(output_context, return_value)
