@@ -229,10 +229,7 @@ class Utility:  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def objectify(string: str) -> JsonType:
-        try:
-            return cast(JsonType, json.loads(string))
-        except (TypeError, ValueError):
-            return string
+        return cast(JsonType, json.loads(string))
 
     @staticmethod
     @root_node
