@@ -8,6 +8,7 @@ from hypergo.monitor import collect_metrics
 
 
 class Connection(ABC):
+
     def general_consume(self, message: MessageType, **kwargs: Any) -> None:
         config: ConfigType = kwargs.pop("config")
         executor: Executor = Executor(config, **kwargs)
