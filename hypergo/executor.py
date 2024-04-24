@@ -136,7 +136,7 @@ class Executor:
 
     def get_args(self, context: ContextType) -> List[Any]:
         return [
-            val if argtype == inspect.Parameter.empty else Utility.safecast(argtype, Utility.objectify(val))
+            val if argtype == inspect.Parameter.empty else Utility.safecast(argtype, val)
             for val, argtype in zip(
                 do_substitution(
                     Utility.deep_get(self.config, "input_bindings"),

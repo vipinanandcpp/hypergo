@@ -151,8 +151,7 @@ class Transform:
         data: Union[TypedDictType, Dict[str, Any]], key: str, base_storage: Storage
     ) -> Union[TypedDictType, Dict[str, Any]]:
         storage: Storage = base_storage.use_sub_path("passbyreference")
-        #str_result = Utility.stringify(Utility.deep_get(data, key))
-        str_result = Utility.deep_get(data, key)
+        str_result = Utility.stringify(Utility.deep_get(data, key))
         out_storage_key = f"storagekey_{Utility.hash(str_result)}"
         storage.save(out_storage_key, str_result)
         Utility.deep_set(data, key, out_storage_key)
@@ -167,5 +166,6 @@ class Transform:
         storage = base_storage.use_sub_path("passbyreference")
         storage_key = Utility.deep_get(cast(JsonDict, data), key)
         loaded = storage.load(storage_key)
-        Utility.deep_set(data, key, loaded)
+        the_data = Utility.objectify(loaded)
+        Utility.deep_set(data, key, the_data)
         return data

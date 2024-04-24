@@ -167,7 +167,8 @@ class Utility:  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def deep_set(dic: Union[TypedDictType, Dict[str, Any]], key: str, val: Any) -> None:
-        glom.assign(dic, key, val, missing=dict)
+        #glom.assign(dic, key, val, missing=dict)
+        pydash.set_(dic, key, val)
 
     @staticmethod
     def yaml_read(file_name: str) -> Mapping[str, Any]:
