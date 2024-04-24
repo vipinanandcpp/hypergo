@@ -51,8 +51,7 @@ class Message:
         message: MessageType,
     ) -> ServiceBusMessage:
         ret: ServiceBusMessage = ServiceBusMessage(
-            #body=json.dumps(message.get("body")),
-            body=message.get("body"),
+            body=json.dumps(message.get("body")),
             application_properties={
                 "routingkey": message["routingkey"],
                 "storagekey": cast(str, message.get("storagekey")),
