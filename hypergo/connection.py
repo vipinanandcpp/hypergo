@@ -17,7 +17,11 @@ class Connection(ABC):
     @collect_metrics
     def __send_message(self, executor: Executor, message: MessageType, config: ConfigType) -> None:
         for execution in executor.execute(message):
-            self.send(cast(MessageType, execution), config["namespace"])
+            message = cast(MessageType, execution)
+            if not message.get("body"):
+                print(f"Skipping message with null body. Routingkey: {message.get('routingkey')}")
+                continue
+            self.send(message, config["namespace"])
 
     @abstractmethod
     def send(self, message: MessageType, namespace: str) -> None:
