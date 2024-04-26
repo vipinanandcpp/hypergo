@@ -47,6 +47,9 @@ class BaseLogger:
     def __get_formatter(self, formatter: Union[str, logging.Formatter, None]) -> Union[logging.Formatter, None]:
         return logging.Formatter(formatter) if isinstance(formatter, str) else formatter
 
+    def debug(self, message: str) -> None:
+        self.log(message, level=logging.DEBUG)
+
     def info(self, message: str) -> None:
         self.log(message, level=logging.INFO)
 

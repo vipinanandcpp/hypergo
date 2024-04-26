@@ -3,6 +3,7 @@ from typing import Any, cast
 
 from hypergo.config import ConfigType
 from hypergo.executor import Executor
+from hypergo.logger import logger
 from hypergo.message import MessageType
 from hypergo.monitor import collect_metrics
 
@@ -19,7 +20,7 @@ class Connection(ABC):
         for execution in executor.execute(message):
             message = cast(MessageType, execution)
             if not message.get("body"):
-                print(f"Skipping message with null body. Routingkey: {message.get('routingkey')}")
+                logger.debug(f"Skipping message with null body. Routingkey: {message.get('routingkey')}")
                 continue
             self.send(message, config["namespace"])
 
