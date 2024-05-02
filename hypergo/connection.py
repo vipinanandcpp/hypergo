@@ -19,7 +19,7 @@ class Connection(ABC):
     def __send_message(self, executor: Executor, message: MessageType, config: ConfigType) -> None:
         for execution in executor.execute(message):
             message = cast(MessageType, execution)
-            if not message.get("body"):
+            if message.get("body") is None:
                 logger.debug(f"Skipping message with null body. Routingkey: {message.get('routingkey')}")
                 continue
             self.send(message, config["namespace"])
