@@ -8,7 +8,7 @@
     "hypergo.test.input_bindings_performed"
   ],
   "output_keys": [
-    "hypergo.test.complete"
+    "hypergo.test.orchestrated"
   ],
   "input_bindings": [
     "{message.body}",
