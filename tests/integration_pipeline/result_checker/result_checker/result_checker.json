@@ -5,7 +5,7 @@
   "package": "hypergo-test-result-checker",
   "lib_func": "result_checker.result_checker.check_results",
   "input_keys": [
-    "hypergo.test.input_bindings_performed"
+    "hypergo.test.orchestrated"
   ],
   "output_keys": [
     "hypergo.test.complete"
