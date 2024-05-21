@@ -1,23 +1,13 @@
 from functools import wraps
-from typing import Any, Callable, Dict, Type, Union, cast
+from typing import Any, Callable, Dict, Union, cast
 
 from hypergo.executor import Executor
 from hypergo.metrics import custom_metrics_metadata
 from hypergo.metrics.base_metrics import MetricResult
 from hypergo.metrics.hypergo_metrics import HypergoMetric, Meter
+from hypergo.utility import find_class_instance
 
 __all__ = ["collect_metrics"]
-
-
-def find_class_instance(class_type: Type[Any], *args: Any, **kwargs: Any) -> Union[Any, None]:
-    for arg in args:
-        if isinstance(arg, class_type):
-            return arg
-
-    for value in kwargs.values():
-        if isinstance(value, class_type):
-            return value
-    return None
 
 
 def collect_metrics(func: Callable[..., Any]) -> Callable[..., Any]:

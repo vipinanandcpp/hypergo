@@ -2,9 +2,11 @@ import inspect
 import json
 import logging
 from functools import wraps
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, cast
 
+from hypergo.executor import Executor
 from hypergo.loggers.base_logger import BaseLogger as Logger
+from hypergo.utility import find_class_instance
 
 CALLER_DEPTH: int = 10
 
@@ -26,35 +28,17 @@ logger: Logger = Logger(name="hypergo", log_level=logging.DEBUG, log_format=JSON
 
 def function_log(func: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(func)
-    def wrapper(self: Any, data: Any) -> Any:
-        function_logger: Logger = self.logger
-        function_logger.name = self.callback.__name__
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        executor: Executor = cast(Executor, find_class_instance(Executor, *args, **kwargs))
+        function_logger: Logger = executor.logger if executor else logger
+        function_logger.name = executor.callback.__name__ if executor else f"hypergo.{func.__name__}"
         function_logger.format = JSONFormatter()
         try:
             function_logger.info(f"Invoking function: {function_logger.name}")
-            # if func is an instance method of self then func(data) is called.
-            # Else it's a decorated function
-            result: Any = func(data) if inspect.ismethod(func) and self == func.__self__ else func(self, data)
+            result: Any = func(*args, **kwargs)
             return result
         except Exception as e:
             function_logger.error(f"""Function {function_logger.name} encountered error: {str(e)}""")
-            raise e
-
-    return wrapper
-
-
-def sdk_log(func: Callable[..., Any]) -> Callable[..., Any]:
-    @wraps(func)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        name: str = f"hypergo.{func.__name__}"
-        sdk_logger: Logger = Logger(name=name, log_level=logging.DEBUG, log_format=JSONFormatter())
-        try:
-            sdk_logger.info(f"Invoking function: {name}")
-            result: Any = func(*args, **kwargs)
-            sdk_logger.info(f"Function {name} completed successfully")
-            return result
-        except Exception as e:
-            sdk_logger.error(f"""Function {name} encountered error: {str(e)}""")
             raise e
 
     return wrapper

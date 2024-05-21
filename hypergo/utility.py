@@ -17,7 +17,7 @@ from itertools import chain
 from sys import getsizeof, stderr
 from types import ModuleType
 from typing import (Any, Callable, Dict, Mapping, Optional, Tuple, Union, cast,
-                    get_origin)
+                    get_origin, Type)
 
 import dill
 #import glom
@@ -122,6 +122,17 @@ def root_node(func: Callable[..., Any]) -> Callable[..., Any]:
         ).get("__root__")
 
     return wrapper
+
+
+def find_class_instance(class_type: Type[Any], *args: Any, **kwargs: Any) -> Union[Any, None]:
+    for arg in args:
+        if isinstance(arg, class_type):
+            return arg
+
+    for value in kwargs.values():
+        if isinstance(value, class_type):
+            return value
+    return None
 
 
 class Utility:  # pylint: disable=too-many-public-methods
