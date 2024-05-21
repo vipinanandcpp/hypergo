@@ -92,4 +92,4 @@ class HypergoMetric:
     @staticmethod
     def collect() -> None:
         for metric_reader in HypergoMetric._current_metric_readers:
-            metric_reader.force_flush(timeout_millis=60000)
+            metric_reader.force_flush(timeout_millis=10000)
