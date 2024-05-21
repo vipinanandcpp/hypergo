@@ -5,7 +5,7 @@ from collections.abc import Callable, Iterable, Sequence
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader, MetricExporter, ConsoleMetricExporter
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.metrics import CallbackOptions, Observation, Meter
-from hypergo.utility import DynamicImports
+from hypergo.utility import DynamicImports, get_random_string
 from hypergo.metrics.base_metrics import MetricResult
 
 
@@ -81,10 +81,10 @@ class HypergoMetric:
                 raise ValueError(f"All MetricResult(s) for {metric_name} should have the same unit value")
             _callbacks.add(
                 create_callback(value=value, attributes={"unit": unit, "name": name, "timestamp": timestamp,
-                                                         "function_name": meter.name})
+                                                         "function_name": meter.name, "metric_name": metric_name})
             )
         meter.create_observable_gauge(
-            name=metric_name,
+            name=get_random_string(63),
             callbacks=cast(Sequence[Callable[[CallbackOptions], Iterable[Observation]]], _callbacks),
             unit=cast(str, metric_unit),
             description=cast(str, description),
