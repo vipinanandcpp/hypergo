@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import string
+import random
 import base64
 import binascii
 import cProfile
@@ -27,6 +29,12 @@ from cryptography.fernet import Fernet
 from line_profiler import LineProfiler
 
 from hypergo.custom_types import JsonType, TypedDictType
+
+
+def get_random_string(length):
+    # choose from all lowercase letter
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for _ in range(length))
 
 
 # ref https://code.activestate.com/recipes/577504/

@@ -74,13 +74,14 @@ class HypergoMetric:
 
         _metric_values = metric_result if isinstance(metric_result, Sequence) else tuple([metric_result])
         for _metric_result in _metric_values:
-            name, unit, value = _metric_result.name, _metric_result.unit, _metric_result.value
+            name, unit, value, timestamp = _metric_result.name, _metric_result.unit, _metric_result.value, _metric_result.timestamp
             if not metric_unit:
                 metric_unit = unit
             elif metric_unit != unit:
                 raise ValueError(f"All MetricResult(s) for {metric_name} should have the same unit value")
             _callbacks.add(
-                create_callback(value=value, attributes={"unit": unit, "name": name, "function_name": meter.name})
+                create_callback(value=value, attributes={"unit": unit, "name": name, "timestamp": timestamp,
+                                                         "function_name": meter.name})
             )
         meter.create_observable_gauge(
             name=metric_name,
