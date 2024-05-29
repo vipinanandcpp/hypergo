@@ -6,6 +6,7 @@ from hypergo.executor import Executor
 from hypergo.logger import logger
 from hypergo.message import MessageType
 from hypergo.monitor import collect_metrics
+from hypergo.logger import function_log
 
 
 class Connection(ABC):
@@ -15,6 +16,7 @@ class Connection(ABC):
         executor: Executor = Executor(config, **kwargs)
         self.__send_message(executor=executor, message=message, config=config)
 
+    @function_log
     @collect_metrics
     def __send_message(self, executor: Executor, message: MessageType, config: ConfigType) -> None:
         for execution in executor.execute(message):

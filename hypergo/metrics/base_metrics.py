@@ -1,14 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Tuple, Union
+from datetime import datetime, timezone
 
 
 class MetricResult:
-    __slots__ = ("unit", "value", "name")
+    __slots__ = ("unit", "value", "name", "timestamp")
 
-    def __init__(self, unit: str, value: Union[float, int], name: Optional[str] = None) -> None:
+    def __init__(self, unit: str, value: Union[float, int], name: Optional[str] = None,
+                 timestamp: Optional[datetime] = datetime.now(timezone.utc)) -> None:
         self.unit: str = unit
         self.value: Union[float, int] = value
         self.name = name
+        self.timestamp = str(timestamp)
 
 
 class ExecutionTimeMetrics(ABC):
