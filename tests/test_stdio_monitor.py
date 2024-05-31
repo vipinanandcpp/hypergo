@@ -29,7 +29,7 @@ class TestAzureMonitor(unittest.TestCase):
             pass
 
     @patch("hypergo.metrics.hypergo_metrics.HypergoMetric.send")
-    @patch("opentelemetry.sdk.metrics.export.PeriodicExportingMetricReader.collect")
+    @patch("opentelemetry.sdk.metrics.MeterProvider.force_flush")
     def test_stdio_monitor(self, mock_collect, mock_send):
         cfg: ConfigType = {
                                 "version": "2.0.0",

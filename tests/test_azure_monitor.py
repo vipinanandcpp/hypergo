@@ -30,7 +30,7 @@ class TestAzureMonitor(unittest.TestCase):
             pass
 
     @patch.dict(os.environ, {"APPLICATIONINSIGHTS-CONNECTION-STRING": f"InstrumentationKey={uuid4()};IngestionEndpoint=https://eastus2-3.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus2.livediagnostics.monitor.azure.com/"})
-    @patch("opentelemetry.sdk.metrics.export.MetricReader.collect")
+    @patch("opentelemetry.sdk.metrics.MeterProvider.force_flush")
     @patch("hypergo.metrics.hypergo_metrics.HypergoMetric.send")
     @patch("hypergo.secrets.LocalSecrets")
     def test_azure_monitor(self, mock_secrets, mock_send, mock_collect):
