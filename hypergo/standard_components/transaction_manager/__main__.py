@@ -1,13 +1,13 @@
 from typing import Dict, Any, List
 from hypergo.transaction import Transaction
 
-__all__ = ["merge_transactions", "converge"]
+__all__ = ["converge"]
 
 
-def converge(routingkeys: List[str], routingkey: str, payload: Any, transaction: Transaction) -> Dict[str, Any]:
+def converge(input_keys: List[str], routingkey: str, payload: Any, transaction: Transaction) -> Dict[str, Any]:
     merged_data = {}
     transaction.set(routingkey, payload)
-    for rk in routingkeys:
+    for rk in input_keys:
         merged_data[rk] = transaction.get(rk, None)
         if not merged_data[rk]:
             return
