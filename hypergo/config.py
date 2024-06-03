@@ -1,12 +1,12 @@
 import json
 import re
+import logging
 from typing import Any, Dict, List, Union, cast
 
 import yaml
 from typing_extensions import NotRequired
 
 from hypergo.custom_types import JsonDict, TypedDictType
-from hypergo.logger import logger
 from hypergo.mapping import Mapping
 from hypergo.utility import Utility
 
@@ -32,7 +32,7 @@ class Config:
             cfg_dict: JsonDict = yaml.safe_load(file_handle)
             cfg: ConfigType = Config.convert(cfg_dict)
             if cfg != cfg_dict:
-                logger.warning(f"Mapping version deprecated; use:\n{cfg}")
+                logging.warning(f"Mapping version deprecated; use:\n{cfg}")
             return cfg
 
     @staticmethod
@@ -41,7 +41,7 @@ class Config:
             cfg_dict: JsonDict = json.load(file_handle)
             cfg: ConfigType = Config.convert(cfg_dict)
             if cfg != cfg_dict:
-                logger.warning(f"Mapping version deprecated; use:\n{cfg}")
+                logging.warning(f"Mapping version deprecated; use:\n{cfg}")
             return cfg
 
     @staticmethod

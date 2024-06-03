@@ -8,7 +8,6 @@ from typing import (Any, Callable, Dict, Generator, List, Mapping, Match,
 from hypergo.config import ConfigType
 from hypergo.context import ContextType
 from hypergo.local_storage import LocalStorage
-from hypergo.logger import function_log
 from hypergo.loggers.base_logger import BaseLogger as Logger
 from hypergo.message import MessageType
 from hypergo.secrets import LocalSecrets, Secrets
@@ -174,7 +173,6 @@ class Executor:
     @Transform.operation("transaction")
     @Transform.operation("serialization")
     @Transform.operation("contextualization")
-    @function_log
     def execute(self, context: Any) -> Generator[MessageType, None, None]:
         # This mutates config with substitutions - not necessary for input binding substitution
         # Unclear which approach is better - do we want the original config with references?  Or
