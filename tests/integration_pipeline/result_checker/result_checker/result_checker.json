@@ -5,7 +5,7 @@
   "package": "hypergo-test-result-checker",
   "lib_func": "result_checker.result_checker.check_results",
   "input_keys": [
-    "hypergo.test.orchestrated"
+    "hypergo.test.transaction_converged"
   ],
   "output_keys": [
     "hypergo.test.complete"
@@ -13,10 +13,19 @@
   "input_bindings": [
     "{message.body}",
     {
-      "first_level_input": "first level data",
-      "custom_property_input": "custom data",
-      "structured_input_data": {
-        "nested": "nested data"
+      "hypergo.test.input_bindings_performed": {
+        "first_level_input": "first level data",
+        "custom_property_input": "custom data",
+        "structured_input_data": {
+          "nested": "nested data"
+        }
+      },
+      "hypergo.orchestrated.test": {
+        "first_level_input": "first level data",
+        "custom_property_input": "custom data",
+        "structured_input_data": {
+          "nested": "nested data"
+        }
       }
     }
   ],
