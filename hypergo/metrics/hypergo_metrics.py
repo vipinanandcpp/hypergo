@@ -52,6 +52,7 @@ class HypergoMetric:
                     HypergoMetric.collect()
                     HypergoMetric._is_collected = False
                     HypergoMetric._current_meter_provider._all_metric_readers.clear()
+                    HypergoMetric._current_meter_provider._meters.clear()
                 HypergoMetric._current_meter_provider = MeterProvider(metric_readers=cast(Sequence[Any], metric_readers)
                                                                       )
             return HypergoMetric._current_meter_provider.get_meter(name=name)
