@@ -76,12 +76,6 @@ class Transform:
                     output_operations[oper] = []
                 if op_name in input_operations:
                     for key in input_operations[op_name] or [None]:
-                        try:
-                            tokens = key.split(".")
-                            if tokens[0] == "message":
-                                key = ".".join(tokens[1:])
-                        except AttributeError:
-                            pass
                         data = args[0][0](data, key, *args[0][1:])
 
                 for result in func(self, data):
@@ -111,6 +105,7 @@ class Transform:
             transaction = Transaction.from_str(storage.load(txid))
         # Utility.deep_set(data, "__txid__", txid)
         Utility.deep_set(data, "transaction", transaction)
+        Utility.deep_set(data, "message.transaction", transaction)
         return data
 
     @staticmethod
@@ -132,7 +127,7 @@ class Transform:
         context: Dict[str, Any] = {
             "message": input_message,
             "config": config,
-            "transaction": input_message["transaction"],
+            "transaction": input_message["transaction"] if "transaction" in input_message else None,
         }
         if base_storage:
             context["storage"] = base_storage.use_sub_path(
