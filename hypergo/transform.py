@@ -103,9 +103,7 @@ class Transform:
             txid = f"transactionkey_{transaction.txid}"
         else:
             transaction = Transaction.from_str(storage.load(txid))
-        # Utility.deep_set(data, "__txid__", txid)
         Utility.deep_set(data, "transaction", transaction)
-        Utility.deep_set(data, "message.transaction", transaction)
         return data
 
     @staticmethod
@@ -127,7 +125,7 @@ class Transform:
         context: Dict[str, Any] = {
             "message": input_message,
             "config": config,
-            "transaction": input_message["transaction"] if "transaction" in input_message else None,
+            "transaction": Utility.deep_get(input_message, "transaction", None)
         }
         if base_storage:
             context["storage"] = base_storage.use_sub_path(
