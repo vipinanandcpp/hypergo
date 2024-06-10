@@ -97,22 +97,22 @@ class Transform:
     @staticmethod
     def restore_transaction(data: Any, key: str, storage: Storage) -> Any:
         transaction = None
-        txid = Utility.deep_get(data, "transaction", None)
+        txid = Utility.deep_get(data, "message.transaction", None)
         if not txid:
             transaction = Transaction()
             txid = f"transactionkey_{transaction.txid}"
         else:
             transaction = Transaction.from_str(storage.load(txid))
-        Utility.deep_set(data, "transaction", transaction)
+        # Utility.deep_set(data, "transaction", transaction)
+        Utility.deep_set(data, "message.transaction", transaction)
         return data
 
     @staticmethod
     def stash_transaction(data: Any, key: str, storage: Storage) -> Any:
-        # txid = f"{Utility.deep_get(data, '__txid__')}"
-        txid = f"transactionkey_{Utility.deep_get(data, 'transaction').txid}"
-        storage.save(txid, str(Utility.deep_get(data, "transaction")))
-        Utility.deep_set(data, "transaction", txid)
-        # Utility.deep_del(data, "__txid__")
+        transaction = Utility.deep_get(data, 'message.transaction')
+        txid = f"transactionkey_{transaction.txid}"
+        storage.save(txid, str(transaction))
+        Utility.deep_set(data, "message.transaction", txid)
         return data
 
     @staticmethod
@@ -122,11 +122,7 @@ class Transform:
         base_storage: Storage,
         config: Dict[str, Any],
     ) -> Any:
-        context: Dict[str, Any] = {
-            "message": input_message,
-            "config": config,
-            "transaction": Utility.deep_get(input_message, "transaction", None)
-        }
+        context: Dict[str, Any] = {"message": input_message, "config": config}
         if base_storage:
             context["storage"] = base_storage.use_sub_path(
                 os.path.join("component", "private", Utility.deep_get(context, "config.name"))
@@ -135,7 +131,7 @@ class Transform:
 
     @staticmethod
     def remove_context(data: Any, key: str) -> Any:
-        return data
+        return Utility.deep_get(data, "message")
 
     @staticmethod
     @root_node

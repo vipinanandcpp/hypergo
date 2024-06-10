@@ -64,7 +64,8 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
                 )
             )
 
-            # We were substituting message.* in the string with the actual payload
+            # We were substituting message.* in the string with the actual
+            # payload
             if re.match(r"^.*\{message\.[^\}]+\}.*$", string):
                 return result
 
@@ -214,7 +215,7 @@ class Executor:
             else:
                 handle_default(output_context, return_value)
 
-            yield output_message
+            yield output_context
 
     def organize_tokens(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))
