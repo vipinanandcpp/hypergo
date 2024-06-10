@@ -103,7 +103,6 @@ class Transform:
             txid = f"transactionkey_{transaction.txid}"
         else:
             transaction = Transaction.from_str(storage.load(txid))
-        # Utility.deep_set(data, "transaction", transaction)
         Utility.deep_set(data, "message.transaction", transaction)
         return data
 
