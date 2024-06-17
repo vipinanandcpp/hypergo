@@ -95,14 +95,15 @@ class Transform:
         if not txid:
             transaction = Transaction()
             txid = f"transactionkey_{transaction.txid}"
+            Utility.deep_set(data, "message.transaction", transaction.txid)
         else:
             transaction = Transaction.from_str(storage.load(txid))
-        Utility.deep_set(data, "message.transaction", transaction)
+        Utility.deep_set(data, "transaction", transaction)
         return data
 
     @staticmethod
     def stash_transaction(data: Any, key: str, storage: Storage) -> Any:
-        transaction = Utility.deep_get(data, 'message.transaction')
+        transaction = Utility.deep_get(data, 'transaction')
         txid = f"transactionkey_{transaction.txid}"
         storage.save(txid, str(transaction))
         Utility.deep_set(data, "message.transaction", txid)

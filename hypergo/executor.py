@@ -184,22 +184,18 @@ class Executor:
         args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
 
-        output_routing_key: str = self.get_output_routing_key(Utility.deep_get(context, "message.routingkey"))
         if not inspect.isgenerator(execution):
             execution = [execution]
         for return_value in execution:
-            # if not return_value:
-            #     continue
-
             output_message: MessageType = {
-                "routingkey": output_routing_key,
+                "routingkey": self.get_output_routing_key(Utility.deep_get(context, "message.routingkey")),
                 "body": {},
-                "transaction": Utility.deep_get(context, "message.transaction"),
-                # "__txid__": Utility.deep_get(context, "message.__txid__"),
+                "transaction": Utility.deep_get(context, "transaction")
             }
             output_context: ContextType = {
                 "message": output_message,
                 "config": self.config,
+                "transaction": Utility.deep_get(context, "transaction")
             }
 
             def handle_tuple(dst: ContextType, src: Any) -> None:
