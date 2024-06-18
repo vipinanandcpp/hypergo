@@ -190,12 +190,12 @@ class Executor:
             output_message: MessageType = {
                 "routingkey": self.get_output_routing_key(Utility.deep_get(context, "message.routingkey")),
                 "body": {},
-                "transaction": Utility.deep_get(context, "transaction")
+                "transaction": Utility.deep_get(context, "transaction"),
             }
             output_context: ContextType = {
                 "message": output_message,
                 "config": self.config,
-                "transaction": Utility.deep_get(context, "transaction")
+                "transaction": Utility.deep_get(context, "transaction"),
             }
 
             def handle_tuple(dst: ContextType, src: Any) -> None:
