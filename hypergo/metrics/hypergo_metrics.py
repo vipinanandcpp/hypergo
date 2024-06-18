@@ -12,7 +12,7 @@ from opentelemetry.sdk.metrics.export import (
 )
 from opentelemetry.sdk.metrics import MeterProvider, Meter, ObservableGauge
 from opentelemetry.metrics import CallbackOptions, Observation
-from hypergo.utility import DynamicImports, get_random_string
+from hypergo.utility import DynamicImports
 from hypergo.metrics.base_metrics import MetricResult
 
 deltaTemporality = {
@@ -24,6 +24,7 @@ class HypergoMetric:
 
     _default_metric_exporter: MetricExporter = ConsoleMetricExporter(preferred_temporality=deltaTemporality)
     _hypergo_metric_lock: Lock = Lock()
+    _is_collected: bool = False
 
     _current_metric_readers: Set[MetricReader] = set(
         [PeriodicExportingMetricReader(_default_metric_exporter, export_interval_millis=math.inf)]
@@ -50,10 +51,14 @@ class HypergoMetric:
         # exporters done during initialization
         metric_readers: Set[PeriodicExportingMetricReader] = HypergoMetric._current_metric_readers
         with HypergoMetric._hypergo_metric_lock:
-            if not HypergoMetric._current_meter_provider:
-                HypergoMetric._current_meter_provider = MeterProvider(
-                    metric_readers=cast(Sequence[Any], metric_readers)
-                )
+            if not HypergoMetric._current_meter_provider or HypergoMetric._is_collected:
+                if HypergoMetric._is_collected:
+                    # Do one last collection before new MeterProvider is instantiated
+                    HypergoMetric.collect()
+                    HypergoMetric._is_collected = False
+                    HypergoMetric._current_meter_provider._all_metric_readers.clear()
+                HypergoMetric._current_meter_provider = MeterProvider(metric_readers=cast(Sequence[Any], metric_readers)
+                                                                      )
             return HypergoMetric._current_meter_provider.get_meter(name=name)
 
     @staticmethod
@@ -114,7 +119,7 @@ class HypergoMetric:
             )
 
         meter.create_observable_gauge(
-            name=get_random_string(63),
+            name=metric_name,
             callbacks=cast(Sequence[Callable[[CallbackOptions], Iterable[Observation]]], _callbacks),
             unit=cast(str, metric_unit),
             description=cast(str, description),
@@ -123,3 +128,4 @@ class HypergoMetric:
     @staticmethod
     def collect() -> None:
         HypergoMetric._current_meter_provider.force_flush(timeout_millis=60000)
+        HypergoMetric._is_collected = True
