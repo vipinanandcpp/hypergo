@@ -3,8 +3,13 @@ import inspect
 from threading import Lock
 from typing import Any, cast, Dict, Mapping, Set, List, Optional, Union
 from collections.abc import Callable, Iterable, Sequence
-from opentelemetry.sdk.metrics.export import (PeriodicExportingMetricReader, MetricExporter, ConsoleMetricExporter,
-                                              MetricReader, AggregationTemporality)
+from opentelemetry.sdk.metrics.export import (
+    PeriodicExportingMetricReader,
+    MetricExporter,
+    ConsoleMetricExporter,
+    MetricReader,
+    AggregationTemporality,
+)
 from opentelemetry.sdk.metrics import MeterProvider, Meter, ObservableGauge
 from opentelemetry.metrics import CallbackOptions, Observation
 from hypergo.utility import DynamicImports
@@ -48,12 +53,14 @@ class HypergoMetric:
         with HypergoMetric._hypergo_metric_lock:
             if not HypergoMetric._current_meter_provider or HypergoMetric._is_collected:
                 if HypergoMetric._is_collected:
-                    # Do one last collection before new MeterProvider is instantiated
+                    # Do one last collection before new MeterProvider is
+                    # instantiated
                     HypergoMetric.collect()
                     HypergoMetric._is_collected = False
                     HypergoMetric._current_meter_provider._all_metric_readers.clear()
-                HypergoMetric._current_meter_provider = MeterProvider(metric_readers=cast(Sequence[Any], metric_readers)
-                                                                      )
+                HypergoMetric._current_meter_provider = MeterProvider(
+                    metric_readers=cast(Sequence[Any], metric_readers)
+                )
             return HypergoMetric._current_meter_provider.get_meter(name=name)
 
     @staticmethod
@@ -90,14 +97,27 @@ class HypergoMetric:
 
         _metric_values = metric_result if isinstance(metric_result, Sequence) else tuple([metric_result])
         for _metric_result in _metric_values:
-            name, unit, value, timestamp = _metric_result.name, _metric_result.unit, _metric_result.value, _metric_result.timestamp
+            name, unit, value, timestamp = (
+                _metric_result.name,
+                _metric_result.unit,
+                _metric_result.value,
+                _metric_result.timestamp,
+            )
             if not metric_unit:
                 metric_unit = unit
             elif metric_unit != unit:
                 raise ValueError(f"All MetricResult(s) for {metric_name} should have the same unit value")
             _callbacks.add(
-                create_callback(value=value, attributes={"unit": unit, "name": name, "timestamp": timestamp,
-                                                         "function_name": function_name, "metric_name": metric_name})
+                create_callback(
+                    value=value,
+                    attributes={
+                        "unit": unit,
+                        "name": name,
+                        "timestamp": timestamp,
+                        "function_name": function_name,
+                        "metric_name": metric_name,
+                    },
+                )
             )
 
         meter.create_observable_gauge(

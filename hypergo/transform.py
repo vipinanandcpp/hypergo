@@ -76,23 +76,11 @@ class Transform:
                     output_operations[oper] = []
                 if op_name in input_operations:
                     for key in input_operations[op_name] or [None]:
-                        try:
-                            tokens = key.split(".")
-                            if tokens[0] == "message":
-                                key = ".".join(tokens[1:])
-                        except AttributeError:
-                            pass
                         data = args[0][0](data, key, *args[0][1:])
 
                 for result in func(self, data):
                     if op_name in output_operations:
                         for key in output_operations[op_name] or [None]:
-                            try:
-                                tokens = key.split(".")
-                                if tokens[0] == "message":
-                                    key = ".".join(tokens[1:])
-                            except AttributeError:
-                                pass
                             result = args[1][0](result, key, *args[1][1:])
                     yield result
 
@@ -103,23 +91,22 @@ class Transform:
     @staticmethod
     def restore_transaction(data: Any, key: str, storage: Storage) -> Any:
         transaction = None
-        txid = Utility.deep_get(data, "transaction", None)
+        txid = Utility.deep_get(data, "message.transaction", None)
         if not txid:
             transaction = Transaction()
             txid = f"transactionkey_{transaction.txid}"
+            Utility.deep_set(data, "message.transaction", transaction.txid)
         else:
             transaction = Transaction.from_str(storage.load(txid))
-        # Utility.deep_set(data, "__txid__", txid)
         Utility.deep_set(data, "transaction", transaction)
         return data
 
     @staticmethod
     def stash_transaction(data: Any, key: str, storage: Storage) -> Any:
-        # txid = f"{Utility.deep_get(data, '__txid__')}"
-        txid = f"transactionkey_{Utility.deep_get(data, 'transaction').txid}"
-        storage.save(txid, str(Utility.deep_get(data, "transaction")))
-        Utility.deep_set(data, "transaction", txid)
-        # Utility.deep_del(data, "__txid__")
+        transaction = Utility.deep_get(data, 'transaction')
+        txid = f"transactionkey_{transaction.txid}"
+        storage.save(txid, str(transaction))
+        Utility.deep_set(data, "message.transaction", txid)
         return data
 
     @staticmethod
@@ -129,11 +116,7 @@ class Transform:
         base_storage: Storage,
         config: Dict[str, Any],
     ) -> Any:
-        context: Dict[str, Any] = {
-            "message": input_message,
-            "config": config,
-            "transaction": input_message["transaction"],
-        }
+        context: Dict[str, Any] = {"message": input_message, "config": config}
         if base_storage:
             context["storage"] = base_storage.use_sub_path(
                 os.path.join("component", "private", Utility.deep_get(context, "config.name"))
@@ -142,7 +125,7 @@ class Transform:
 
     @staticmethod
     def remove_context(data: Any, key: str) -> Any:
-        return data
+        return Utility.deep_get(data, "message")
 
     @staticmethod
     @root_node

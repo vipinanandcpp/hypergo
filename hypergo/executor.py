@@ -64,7 +64,8 @@ def do_substitution(value: Any, data: Dict[str, Any]) -> Any:
                 )
             )
 
-            # We were substituting message.* in the string with the actual payload
+            # We were substituting message.* in the string with the actual
+            # payload
             if re.match(r"^.*\{message\.[^\}]+\}.*$", string):
                 return result
 
@@ -167,12 +168,12 @@ class Executor:
         return self.organize_tokens(output_tokens)
 
     @configsubstitution
+    @Transform.operation("contextualization")
     @Transform.operation("pass_by_reference")
     @Transform.operation("compression")
     @Transform.operation("encryption")
-    @Transform.operation("transaction")
     @Transform.operation("serialization")
-    @Transform.operation("contextualization")
+    @Transform.operation("transaction")
     def execute(self, context: Any) -> Generator[MessageType, None, None]:
         # This mutates config with substitutions - not necessary for input binding substitution
         # Unclear which approach is better - do we want the original config with references?  Or
@@ -183,22 +184,18 @@ class Executor:
         args: List[Any] = self.get_args(context)
         execution: Any = self._func_spec(*args)
 
-        output_routing_key: str = self.get_output_routing_key(Utility.deep_get(context, "message.routingkey"))
         if not inspect.isgenerator(execution):
             execution = [execution]
         for return_value in execution:
-            # if not return_value:
-            #     continue
-
             output_message: MessageType = {
-                "routingkey": output_routing_key,
+                "routingkey": self.get_output_routing_key(Utility.deep_get(context, "message.routingkey")),
                 "body": {},
-                "transaction": Utility.deep_get(context, "message.transaction"),
-                # "__txid__": Utility.deep_get(context, "message.__txid__"),
+                "transaction": Utility.deep_get(context, "transaction"),
             }
             output_context: ContextType = {
                 "message": output_message,
                 "config": self.config,
+                "transaction": Utility.deep_get(context, "transaction"),
             }
 
             def handle_tuple(dst: ContextType, src: Any) -> None:
@@ -214,7 +211,7 @@ class Executor:
             else:
                 handle_default(output_context, return_value)
 
-            yield output_message
+            yield output_context
 
     def organize_tokens(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))
