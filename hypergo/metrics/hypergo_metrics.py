@@ -53,12 +53,14 @@ class HypergoMetric:
         with HypergoMetric._hypergo_metric_lock:
             if not HypergoMetric._current_meter_provider or HypergoMetric._is_collected:
                 if HypergoMetric._is_collected:
-                    # Do one last collection before new MeterProvider is instantiated
+                    # Do one last collection before new MeterProvider is
+                    # instantiated
                     HypergoMetric.collect()
                     HypergoMetric._is_collected = False
                     HypergoMetric._current_meter_provider._all_metric_readers.clear()
-                HypergoMetric._current_meter_provider = MeterProvider(metric_readers=cast(Sequence[Any], metric_readers)
-                                                                      )
+                HypergoMetric._current_meter_provider = MeterProvider(
+                    metric_readers=cast(Sequence[Any], metric_readers)
+                )
             return HypergoMetric._current_meter_provider.get_meter(name=name)
 
     @staticmethod
