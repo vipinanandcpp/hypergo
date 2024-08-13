@@ -198,9 +198,7 @@ class Executor:
                 "transaction": Utility.deep_get(context, "transaction"),
             }
 
-            if return_value == None:
-                yield output_context
-            else:
+            if return_value != None:
                 def handle_tuple(dst: ContextType, src: Any) -> None:
                     for binding, tuple_elem in zip(self.config["output_bindings"], src):
                         Utility.deep_set(dst, binding, tuple_elem)
@@ -214,7 +212,7 @@ class Executor:
                 else:
                     handle_default(output_context, return_value)
 
-                yield output_context
+            yield output_context
 
     def organize_tokens(self, keys: List[str]) -> str:
         return ".".join(sorted(set(".".join(keys).split("."))))
