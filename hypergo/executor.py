@@ -189,7 +189,7 @@ class Executor:
         for return_value in execution:
             output_message: MessageType = {
                 "routingkey": self.get_output_routing_key(Utility.deep_get(context, "message.routingkey")),
-                "body": {},
+                "body": None,
                 "transaction": Utility.deep_get(context, "transaction"),
             }
             output_context: ContextType = {
@@ -198,18 +198,19 @@ class Executor:
                 "transaction": Utility.deep_get(context, "transaction"),
             }
 
-            def handle_tuple(dst: ContextType, src: Any) -> None:
-                for binding, tuple_elem in zip(self.config["output_bindings"], src):
-                    Utility.deep_set(dst, binding, tuple_elem)
+            if return_value != None:
+                def handle_tuple(dst: ContextType, src: Any) -> None:
+                    for binding, tuple_elem in zip(self.config["output_bindings"], src):
+                        Utility.deep_set(dst, binding, tuple_elem)
 
-            def handle_default(dst: ContextType, src: Any) -> None:
-                for binding in self.config["output_bindings"]:
-                    Utility.deep_set(dst, binding, src)
+                def handle_default(dst: ContextType, src: Any) -> None:
+                    for binding in self.config["output_bindings"]:
+                        Utility.deep_set(dst, binding, src)
 
-            if isinstance(return_value, tuple):
-                handle_tuple(output_context, return_value)
-            else:
-                handle_default(output_context, return_value)
+                if isinstance(return_value, tuple):
+                    handle_tuple(output_context, return_value)
+                else:
+                    handle_default(output_context, return_value)
 
             yield output_context
 
