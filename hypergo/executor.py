@@ -190,7 +190,6 @@ class Executor:
         for return_value in execution:
             output_message: MessageType = {
                 "routingkey": self.get_output_routing_key(Utility.deep_get(context, "message.routingkey")),
-                "body": None,
                 "transaction": Utility.deep_get(context, "transaction"),
             }
             output_context: ContextType = {
