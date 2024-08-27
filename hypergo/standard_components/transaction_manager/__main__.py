@@ -8,9 +8,12 @@ __all__ = ["converge"]
 def converge(input_keys: List[str], routingkey: str, payload: Any, transaction: Transaction) -> Dict[str, Any]:
     merged_data = {}
     transaction.set(routingkey, payload)
+
     for input_key in input_keys:
-        input_key = organize_tokens(input_key)
+        input_key = organize_tokens(input_key.split("."))
+
         merged_data[input_key] = transaction.get(input_key, None)
+
         if not merged_data[input_key]:
             return
     return merged_data
