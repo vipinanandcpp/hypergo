@@ -13,7 +13,7 @@ from hypergo.message import MessageType
 from hypergo.secrets import LocalSecrets, Secrets
 from hypergo.storage import Storage
 from hypergo.transform import Transform
-from hypergo.utility import Utility, traverse_datastructures
+from hypergo.utility import Utility, traverse_datastructures, organize_tokens
 
 
 def do_question_mark(context: Dict[str, Any], input_string: Any) -> str:
@@ -160,12 +160,12 @@ class Executor:
                 # set difference operation to remove the subset of the routing key captured by the component
                 # from its input_key and append it to tokens
                 tokens.append(".".join(routing_key_set.difference(intersection_set)))
-        token: str = self.organize_tokens(tokens)
+        token: str = organize_tokens(tokens)
         output_tokens: List[str] = [
             re.sub(r"(?<=\.)\?(?=\.)|^\?|(?<=\.)\?$|^\?$", token, output_key)
             for output_key in self.config["output_keys"]
         ]
-        return self.organize_tokens(output_tokens)
+        return organize_tokens(output_tokens)
 
     @configsubstitution
     @Transform.operation("contextualization")
@@ -214,5 +214,4 @@ class Executor:
 
             yield output_context
 
-    def organize_tokens(self, keys: List[str]) -> str:
-        return ".".join(sorted(set(".".join(keys).split("."))))
+

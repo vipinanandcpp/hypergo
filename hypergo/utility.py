@@ -18,7 +18,7 @@ from importlib import import_module
 from itertools import chain
 from sys import getsizeof, stderr
 from types import ModuleType
-from typing import (Any, Callable, Dict, Mapping, Optional, Tuple, Type, Union,
+from typing import (Any, Callable, Dict, List, Mapping, Optional, Tuple, Type, Union,
                     cast, get_origin)
 
 import dill
@@ -34,6 +34,10 @@ def get_random_string(length):
     # choose from all lowercase letter
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(length))
+
+
+def organize_tokens(keys: List[str]) -> str:
+    return ".".join(sorted(set(".".join(keys).split("."))))
 
 
 # ref https://code.activestate.com/recipes/577504/

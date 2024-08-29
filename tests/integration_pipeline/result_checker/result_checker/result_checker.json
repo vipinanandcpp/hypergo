@@ -13,7 +13,7 @@
   "input_bindings": [
     "{message.body}",
     {
-      "hypergo.test.input_bindings_performed": {
+      "hypergo.input_bindings_performed.test": {
         "first_level_input": "first level data",
         "custom_property_input": "custom data",
         "structured_input_data": {
