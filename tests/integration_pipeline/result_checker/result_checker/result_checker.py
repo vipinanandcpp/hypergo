@@ -7,6 +7,8 @@ def check_results(
 ) -> None:
     if result != expected_result:
         raise Exception(f"Result does not match the expected result.\nResult: {result}\nExpected: {expected_result}")
+    
+    return {"success": True}
 
 
 if __name__ == "__main__":
