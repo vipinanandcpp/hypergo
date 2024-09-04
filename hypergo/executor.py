@@ -13,7 +13,7 @@ from hypergo.message import MessageType
 from hypergo.secrets import LocalSecrets, Secrets
 from hypergo.storage import Storage
 from hypergo.transform import Transform
-from hypergo.utility import Utility, traverse_datastructures, organize_tokens
+from hypergo.utility import Utility, organize_tokens, traverse_datastructures
 
 
 def do_question_mark(context: Dict[str, Any], input_string: Any) -> str:
@@ -198,7 +198,8 @@ class Executor:
                 "transaction": Utility.deep_get(context, "transaction"),
             }
 
-            if return_value != None:
+            if return_value is not None:
+
                 def handle_tuple(dst: ContextType, src: Any) -> None:
                     for binding, tuple_elem in zip(self.config["output_bindings"], src):
                         Utility.deep_set(dst, binding, tuple_elem)
@@ -213,5 +214,3 @@ class Executor:
                     handle_default(output_context, return_value)
 
             yield output_context
-
-
