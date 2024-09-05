@@ -18,8 +18,8 @@ from importlib import import_module
 from itertools import chain
 from sys import getsizeof, stderr
 from types import ModuleType
-from typing import (Any, Callable, Dict, List, Mapping, Optional, Tuple, Type, Union,
-                    cast, get_origin)
+from typing import (Any, Callable, Dict, List, Mapping, Optional, Tuple, Type,
+                    Union, cast, get_origin)
 
 import dill
 import pydash

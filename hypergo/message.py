@@ -33,6 +33,7 @@ class Message:
             "routingkey": message.user_properties["routingkey"],
             "storagekey": cast(str, message.user_properties.get("storagekey")),
             "transaction": cast(str, message.user_properties.get("transaction")),
+            "message_id": cast(str, message.message_id),
         }
 
     @staticmethod
